@@ -1,0 +1,38 @@
+{{- if index .Values "infra-services" "external_dns_enabled" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision: HEAD
+    path: helm/external-dns
+    helm:
+      valueFiles:
+        - ../external-dns/values/{{ index .Values "infra-services" "env" }}/{{ index .Values "infra-services" "aws_region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "env" }}/{{ index .Values "infra-services" "aws_region" }}/infra-facts.yaml
+      values: |
+        external-dns:
+          domainFilters:
+            - {{ index .Values "infra-services" "main_domain" }}
+          serviceAccount:
+            name: "external-dns-sa"
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/{{ index .Values "infra-services" "cluster_name" }}-external-dns    
+          txtOwnerId: {{ index .Values "infra-services" "dns_hosted_zone" }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}

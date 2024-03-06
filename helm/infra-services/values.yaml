@@ -1,0 +1,14 @@
+infra-services:
+  aws_loadbalancer_enabled: true
+  external_dns_enabled: true
+  external_secrets_enabled: true
+
+  aws-load-balancer-controller-version: 1.7.1
+  secrets-operator-version: 0.9.12
+  external-dns-version: HEAD
+
+  aws_account: ~
+  aws_region: ~
+  cluster_name: ~
+  vpc_id: ~
+  dns_hosted_zone: ~
