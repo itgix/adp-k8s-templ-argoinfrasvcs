@@ -1,0 +1,6 @@
+#Required variables
+infra-services:
+  aws_account: ""
+  env: ""
+  aws_region: ""
+  cluster_name: ""
