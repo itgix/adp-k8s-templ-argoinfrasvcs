@@ -7,6 +7,6 @@ metadata:
     argocd.argoproj.io/secret-type: repository
 stringData:
   type: git
-  url: {{ gitops_destination_repo }}
+  url: {{ gitops_destination_repo }}.git
   username: argocd
   password: "glpat-cb6NBZQpXPJB1PwwYznf"
