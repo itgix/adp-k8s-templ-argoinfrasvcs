@@ -14,7 +14,7 @@ spec:
     path: helm/infra-services
     helm:
       valueFiles:
-      - values/{{ env }}/{{ region }}/infra-facts.yaml
+      - values/{{ environment }}/{{ region }}/infra-facts.yaml
   destination:
     namespace: argocd
     server: https://kubernetes.default.svc
