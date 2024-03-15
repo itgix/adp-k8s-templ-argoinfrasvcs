@@ -14,8 +14,8 @@ spec:
     path: helm/external-dns
     helm:
       valueFiles:
-        - ../external-dns/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "aws_region" }}/values.yaml
-        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "aws_region" }}/infra-facts.yaml
+        - ../external-dns/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         external-dns:
           domainFilters:
@@ -23,7 +23,7 @@ spec:
           serviceAccount:
             name: "external-dns-sa"
             annotations:
-              eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/{{ index .Values "infra-services" "cluster_name" }}-external-dns    
+              eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/{{ index .Values "infra-services" "eks_cluster_name" }}-external-dns    
           txtOwnerId: {{ index .Values "infra-services" "dns_hosted_zone" }}
   destination:
     server: 'https://kubernetes.default.svc'

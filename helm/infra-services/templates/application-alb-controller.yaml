@@ -14,13 +14,13 @@ spec:
     chart: aws-load-balancer-controller
     helm:
       values: |
-        region: {{ index .Values "infra-services" "aws_region" }}
+        region: {{ index .Values "infra-services" "region" }}
         vpcID: {{ index .Values "infra-services" "vpc_id" }}
-        clusterName: {{ index .Values "infra-services" "cluster_name" }}
+        clusterName: {{ index .Values "infra-services" "eks_cluster_name" }}
         serviceAccount:
           name: "aws-load-balancer-controller-sa"
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "cluster_name" }}
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "eks_cluster_name" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system

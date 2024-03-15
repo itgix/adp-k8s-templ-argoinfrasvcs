@@ -8,7 +8,7 @@ infra-services:
   external-dns-version: HEAD
 
   aws_account: ~
-  aws_region: ~
-  cluster_name: ~
+  region: ~
+  eks_cluster_name: ~
   vpc_id: ~
   dns_hosted_zone: ~
