@@ -20,7 +20,7 @@ spec:
         serviceAccount:
           name: "aws-load-balancer-controller-sa"
           annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "eks_cluster_name" }}
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account_id" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "eks_cluster_name" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system

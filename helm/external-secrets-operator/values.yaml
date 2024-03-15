@@ -1,6 +1,6 @@
 #Required variables
 infra-services:
-  aws_account: ""
+  aws_account_id: ""
   environment: ""
   region: ""
   eks_cluster_name: ""

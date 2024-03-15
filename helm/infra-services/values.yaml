@@ -7,7 +7,7 @@ infra-services:
   secrets-operator-version: 0.9.12
   external-dns-version: HEAD
 
-  aws_account: ~
+  aws_account_id: ~
   region: ~
   eks_cluster_name: ~
   vpc_id: ~
