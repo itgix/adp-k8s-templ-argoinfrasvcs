@@ -1,0 +1,187 @@
+{{- if .Values.deployment.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appId }}
+  labels:
+    app: {{ .Values.appId }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    {{- range $key, $val := .Values.deployment.labels }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+  annotations:
+    cmHash: {{ toYaml .Values.cm | sha256sum }}
+    globHash: {{ toYaml .Values.global | sha256sum }}
+    {{- range $key, $val := .Values.deployment.annotations }}
+    {{ $key }}: {{ $val | quote }}
+    {{- end }}
+{{- if .Values.releasedate }}
+    releasedate: "{{ .Values.releasedate }}"
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.appId }}
+  replicas: {{ .Values.deployment.replicaCount }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistory }}
+{{- if .Values.deployment.strategy.enabled }}
+  strategy:
+    type: {{ .Values.deployment.strategy.type }}
+    {{- if eq .Values.deployment.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.strategy.RollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.deployment.strategy.RollingUpdate.maxUnavailable }}
+    {{- end }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appId }}
+        {{- range $key, $val := .Values.deployment.labels }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
+      annotations:
+        cmHash: {{ toYaml .Values.cm | sha256sum }}
+        globHash: {{ toYaml .Values.global | sha256sum }}
+        releasedate: "{{ .Values.releasedate }}"
+        {{- range $key, $val := .Values.deployment.annotations }}
+        {{ $key }}: {{ $val | quote }}
+        {{- end }}
+    spec:
+{{- if .Values.deployment.serviceAccountName.enabled }}
+      serviceAccountName: {{ .Values.deployment.serviceAccountName.name }}
+{{- end }}
+{{- if .Values.deployment.securityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.deployment.securityContext.runAsUser }}
+        fsGroup: {{ .Values.deployment.securityContext.fsGroup }}
+{{- end }}
+{{- if .Values.deployment.image.pullSecret.enabled }}
+      imagePullSecrets:
+        - name: {{ .Values.deployment.image.pullSecret.secretName }}
+{{- end }}
+      containers:
+      - name: {{ .Values.appId }}
+        image: "{{ .Values.deployment.image.ecr }}/{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+        imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+        {{- if .Values.deployment.command.enabled }}
+        command:
+{{ toYaml .Values.deployment.command.args | indent 10 }}
+        {{- end }}
+        ports:
+        {{- range .Values.deployment.ports }}
+        - name: {{ .name }}
+          containerPort: {{ .containerPort }}
+          protocol: {{ .protocol }}
+        {{- end }}
+        {{- if or (eq .Values.cm.enabled true) (eq .Values.secretEnv.enabled true) }}
+        envFrom:
+        {{- end }}
+        {{- if .Values.cm.enabled }}
+        - configMapRef:
+            name: {{ .Values.appId }}
+        {{- end }}
+        {{- if eq .Values.secretEnv.enabled true }}
+        - secretRef:
+            name: {{ .Values.appId }}-env
+        {{- end }}
+        {{- if eq .Values.externalsecretEnv.enabled true }}
+        - secretRef:
+            name: {{ .Values.appId }}-external-secret
+        {{- end }}
+        {{- if or (eq .Values.deployment.volumeMounts.enabled true) (eq .Values.secretFile.enabled true) (eq .Values.deployment.persistence.enabled true) }}
+        volumeMounts:
+          {{- if .Values.deployment.persistence.enabled }}
+          - mountPath: {{ .Values.deployment.persistence.mountPath }}
+            name: {{ .Values.appId }}-pvc
+          {{- end }}
+          {{- if .Values.deployment.volumeMounts.enabled }}
+            {{- range .Values.deployment.volumeMounts.mounts }}
+          - name: {{ .name }}
+            mountPath: {{ .mountPath }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.secretFile.enabled }}
+            {{- range $i, $file := .Values.secretFile.files }}
+          - name: {{ $file.secretName }}-secretfile
+            mountPath: {{ $file.mountPath }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      {{- if .Values.deployment.resources.enabled }}
+        resources:
+          requests:
+            memory: {{ .Values.deployment.resources.requests.memory }}
+            cpu: {{ .Values.deployment.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.deployment.resources.limits.memory }}
+            cpu: {{ .Values.deployment.resources.limits.cpu }}
+      {{- end }}
+      {{- if .Values.deployment.probes.enabled }}
+      {{- with .Values.deployment.probes.content }}
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.deployment.initContainers.enabled }}
+      initContainers:
+      {{- range .Values.deployment.initContainers.containers }}
+      - name: {{ .name }}
+        image: {{ .image }}:{{ default .tag $.Values.deployment.initContainers.tag }}
+        imagePullPolicy: {{ .imagePullPolicy }}
+        command:
+{{ toYaml .command | indent 10 }}
+        {{- if eq .env "primary" }}
+        {{- if or (eq $.Values.cm.enabled true) (eq $.Values.secretEnv.enabled true) }}
+        envFrom:
+        {{- end }}
+        {{- if $.Values.cm.enabled }}
+        - configMapRef:
+            name: {{ $.Values.appId }}
+        {{- end }}
+        {{- if eq $.Values.secretEnv.enabled true }}
+        - secretRef:
+            name: {{ $.Values.appId }}-env
+        {{- end }}
+        {{- else }}
+        env: {{ .env | nindent 10}}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.deployment.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or (eq .Values.deployment.volumes.enabled true) (eq .Values.secretFile.enabled true) (eq .Values.deployment.persistence.enabled true) }}
+      volumes:
+      {{- if .Values.deployment.persistence.enabled }}
+      - name: {{ .Values.appId }}-pvc
+        persistentVolumeClaim:
+          claimName: {{ .Values.appId }}
+      {{- end }}
+      {{- if .Values.deployment.volumes.enabled }}
+      {{- range .Values.deployment.volumes.regular }}
+      - name: {{ .name }}
+        emptyDir: {{ .emptyDir }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.secretFile.enabled }}
+      {{- $chartname := .Values.appId -}}
+      {{- range $i, $file := .Values.secretFile.files }}
+      - name: {{ $file.secretName }}-secretfile
+        secret:
+          secretName: {{ $chartname }}-file
+          defaultMode: 420
+      {{- end }}
+      {{- end }}
+      {{- end }}
+{{- end -}}

@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: x-k8s-redis-rs2
+  namespace: argocd
+spec:
+  destination:
+    namespace: pop-rs2
+    server: https://kubernetes.default.svc
+  project: rs2
+  source:
+    helm:
+      releaseName: x-k8s-redis
+      valueFiles:
+      - values-rs2-standalone.yaml
+    path: helm/infra/redis
+    repoURL: git@gitlab.com:QaiWare/pop-internal/pop-ops
+    targetRevision: HEAD
+  syncPolicy: {}
