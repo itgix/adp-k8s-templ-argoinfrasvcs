@@ -1,0 +1,241 @@
+appId: api-service
+
+releasedate: ""
+
+global:
+  env: {}
+
+cm:
+  enabled: false
+  env:
+    test: value
+  vars:
+    DEFAULT: "1234"
+  dynamic:
+  #  Don't uncomment these lines in the base template. Only in the umbrella chart
+  #  vars are helper variables for dynamic building of env variables if needed
+  #  DYNAMIC_VAR: "{{ .Values.cm.vars.DB_URL }}:{{ .Values.cm.vars.DB_PORT }}"
+    DEFAULT: "1234"
+
+externalsecretEnv:
+  enabled: false
+  env:
+  - name: "test"
+    key: "example"
+    property: "nonexisting"
+secretEnv:
+  enabled: false
+  env:
+    RABBITMQ_PASSWORD: "123456"
+    RABBITMQ_USER: "admin"
+
+secretFile:
+  enabled: false
+  files:
+    # secretName is used only inside Deployment definition.
+    # must not contain "." character
+    - secretName: keyfile
+      fileName: "example.config_json-whatever1"
+      mountPath: "/tmp/qwe"
+     # Mind the identation here
+      content: |-
+        # input secret data
+        # here as much as you want
+        # just be carefull with the identation
+    - secretName: exampleconfig
+      fileName: "example.config_json-whatever2"
+      mountPath: "/tmp/asd/"
+     # Mind the identation here
+      content: |-
+        # asd
+        # zxc
+        # qwe
+
+ingress:
+  enabled: false
+  annotations: {}
+  dynamic:
+    enabled: false
+    nsPrefix: true
+    tls: true
+    baseDomain: some.domain.com
+    cfgs:
+    - name: api-service
+      paths:
+        - /
+      port: 80
+  hosts:
+  - host: api.some.domain.com
+    paths:
+      - /
+    port: 80
+  tls:
+  - hosts:
+      - api.some.domain.com
+    secretName: api.some.domain.com
+
+service:
+  enabled: false
+  external: false
+  ports:
+  - name: application
+    port: !!integer 80
+    protocol: TCP
+    targetPort: application
+
+serviceAccount:
+  enabled: false
+  applyToJob: false
+  annotations: {}
+  name: "service-account-name"
+
+deployment:
+  enabled: false
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  topologySpreadConstraints: []
+
+  labels: {}
+  # exampleLabel: test
+  annotations: {}
+  # exampleAnnotation: test
+  serviceAccountName:
+    enabled: false
+    name: ""
+
+  replicaCount: !!integer 1
+  revisionHistory: !!integer 0
+  horizontalScaler:
+    enabled: false
+    kind: Deployment
+    minReplicas: !!integer 2
+    maxReplicas: !!integer 4
+    targetMemUtil: !!integer 80
+    targetCpuUtil: !!integer 80
+  strategy:
+    enabled: false
+    type: RollingUpdate
+    RollingUpdate:
+      maxSurge: !!integer 1
+      maxUnavailable: 50%
+
+  securityContext:
+    enabled: false
+    runAsUser: 1000
+    fsGroup: 999
+
+  image:
+    pullSecret:
+      enabled: false
+      secretName: ""
+    ecr: "082127478945.dkr.ecr.eu-central-1.amazonaws.com"
+    repository: "docker.io"
+    tag: latest
+    pullPolicy: "Always"
+
+  command:
+    enabled: false
+    args:
+    - "/bin/sh"
+    - "-c"
+    - "yarn start:dev"
+
+  ports:
+  - name: application
+    containerPort: !!integer 8080
+    protocol: TCP
+
+  persistence:
+    enabled: false
+    storageClass: "gp2"
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    mountPath: /data
+    annotations: {}
+
+  volumeMounts:
+    enabled: false
+    mounts:
+    - name: vault
+      mountPath: /vault-access/
+    mountInt: true
+    #^specifies wheather or not to mount the volume in intContainer
+  volumes:
+    enabled: false
+    regular:
+    - name: vault
+      emptyDir: "{}"
+
+  resources:
+    enabled: false
+    requests:
+      memory: 256i
+      cpu: 50m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+  probes:
+    enabled: false
+    #content:
+    #  livenessProbe:
+    #    httpGet:
+    #      path: /health
+    #      port: 8080
+    #    initialDelaySeconds: 200
+    #    timeoutSeconds: 5
+    #    periodSeconds: 15
+    #    failureThreshold: 5
+    #
+    #  readinessProbe:
+    #    httpGet:
+    #      path: /health
+    #      port: 8080
+    #    initialDelaySeconds: 200
+    #    timeoutSeconds: 5
+    #    periodSeconds: 10
+    #    failureThreshold: 40
+
+  initContainers:
+    enabled: false
+    tag: "latest"
+    containers:
+    - name: "check-dbseed-success"
+      image: "bitnami/mariadb"
+      tag: "10.3.17-debian-9-r36"
+      imagePullPolicy: "Always"
+      env: "primary"
+      command: [ "/entrypoint" ]
+      args: [ "update" ]
+
+jobsTagOverride: ""
+jobs: []
+#  - name: "liquibase-migrate"
+#    restartPolicy: "Always"
+#    serviceAccount:
+#      enabled: false
+#      name: ""
+#    annotations:
+#      "helm.sh/hook": pre-upgrade
+#      "helm.sh/hook-weight": "-5"
+#      "helm.sh/hook-delete-policy": before-hook-creation
+#    image:
+#      ecr: "082127478945.dkr.ecr.eu-central-1.amazonaws.com"
+#      repository: "pop-mgmt-image"
+#      tag: "jdk11-v1.0.2"
+#    command:
+#      override: true
+#      args:
+#        - "/bin/bash"
+#        - "-c"
+#        - "sleep 3600"
+#    env:
+#      TEST_FOO: "bar"
+#    envFromCM: false
+#    volumes:
+#      cm: []
+#      #  - cmName: some-custom-cm
+#      #    volName: some-custom-cm-vol
+#      #    mountPath: /tmp/cm

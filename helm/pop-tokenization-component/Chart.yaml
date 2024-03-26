@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: "1.0"
+description: A Helm chart for Kubernetes
+name: pop-stack
+version: 1.0.0
+
+dependencies:
+- name: universal
+  version: ">=1.0.0"
+  repository: file://./pop-universal
+  condition: tokenization-component.enabled
+  alias: tokenization-component
