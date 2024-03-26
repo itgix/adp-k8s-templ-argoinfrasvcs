@@ -10,7 +10,7 @@ spec:
   project: infra
   source:
     helm:
-      releaseName: x-k8s-redis
+      releaseName: x-k8s-redis-dev
       valueFiles:
       - values.yaml
       - ../../helm/infra-services/values/dev/eu-west-1/infra-facts.yaml

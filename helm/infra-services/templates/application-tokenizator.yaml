@@ -1,3 +1,4 @@
+{{- if index .Values "infra-services" "demo_app_enabled" }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -27,6 +28,12 @@ spec:
             - name: DATASOURCE_PASSWORD
               key: {{ index .Values "infra-services" "rds_master_credentials_secret_name" }}
               property: password
+          ingress:
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: tokenization-component.{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "dns_main_domain" }}.
+            dynamic:
+              tls: false
+              baseDomain: {{ index .Values "infra-services" "dns_main_domain" }}
           
     path: helm/pop-tokenization-component
     repoURL: https://gitlab.itgix.com/rnd/app-platform/demo-environments/demo-argocd-services-client
