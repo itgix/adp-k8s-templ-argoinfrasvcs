@@ -11,7 +11,7 @@ spec:
   project: infra
   source:
     helm:
-      releaseName: x-k8s-redis-dev
+      releaseName: x-k8s-redis
       valueFiles:
       - values.yaml
       - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
