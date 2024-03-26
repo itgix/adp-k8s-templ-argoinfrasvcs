@@ -34,7 +34,7 @@ tokenization-component:
       LIQUIBASE_CONTEXT: "consistent_token_build"
       SPRING_PROFILES_ACTIVE: "prod"
     dynamic:
-      DATASOURCE_DB_URL: "jdbc:postgresql://{{ .Values.global.vars.BASE_DB_URL }}:5432/tokenization_component_{{ .Values.global.vars.ENV_NAME }}?{{ .Values.global.vars.BASE_DB_OPTS }}"
+      DATASOURCE_DB_URL: "jdbc:postgresql://{{ .Values.global.vars.BASE_DB_URL }}:5432/postgres?{{ .Values.global.vars.BASE_DB_OPTS }}"
 
       REGION_NAME: "{{ .Values.global.env.AWS_REGION }}"
       AWS_REGION: "{{ .Values.global.env.AWS_REGION }}"

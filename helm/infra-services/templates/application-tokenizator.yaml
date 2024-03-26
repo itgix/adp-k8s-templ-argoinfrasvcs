@@ -46,3 +46,4 @@ spec:
     syncOptions:     # Sync options which modifies sync behavior
     - CreateNamespace=true
   revisionHistoryLimit: 3
+{{- end }}
