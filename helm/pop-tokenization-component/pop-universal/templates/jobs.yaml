@@ -46,7 +46,7 @@ spec:
         {{- end }}
         {{- if eq $.Values.externalsecretEnv.enabled true }}
         - secretRef:
-            name: {{ $.Values.appId }}-external-secret
+            name: {{ $.Values.appId }}-external-secret-job
         {{- end }}
         {{- if gt (len .volumes.cm) 0 }}
         volumeMounts:
