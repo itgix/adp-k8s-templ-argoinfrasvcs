@@ -10,10 +10,6 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
   annotations:
-    "helm.sh/hook": pre-upgrade, pre-install
-    "helm.sh/hook-weight": "-6"
-    "helm.sh/hook-delete-policy": before-hook-creation
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
     argocd.argoproj.io/sync-wave: "3"
 data:
 {{- tpl (include "env_vars_global" .) . | indent 2 -}}
