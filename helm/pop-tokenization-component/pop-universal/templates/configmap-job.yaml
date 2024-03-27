@@ -10,7 +10,7 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "-2"
 data:
 {{- tpl (include "env_vars_global" .) . | indent 2 -}}
   {{- range $key, $val := .Values.cm.env }}
