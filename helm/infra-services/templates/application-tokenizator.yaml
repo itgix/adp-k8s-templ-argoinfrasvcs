@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: pop-dev-tc
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   destination:
     namespace: pop-dev

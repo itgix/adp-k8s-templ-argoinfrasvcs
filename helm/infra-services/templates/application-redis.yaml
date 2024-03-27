@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: x-k8s-redis-pop
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   destination:
     namespace: pop-dev

@@ -3,6 +3,8 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: alb-controller
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
   # Add this finalizer ONLY if you want these to cascade delete.
   finalizers:
     - resources-finalizer.argocd.argoproj.io
