@@ -162,9 +162,8 @@ tokenization-component:
         "helm.sh/hook": pre-upgrade, pre-install
         "helm.sh/hook-weight": "-5"
         "helm.sh/hook-delete-policy": before-hook-creation
-        argocd.argoproj.io/hook: PreSync
         argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-        argocd.argoproj.io/sync-wave: "-1"
+        argocd.argoproj.io/sync-wave: "3"
       image:
         ecr: "082127478945.dkr.ecr.eu-central-1.amazonaws.com"
         repository: "tokenization-component-liquibase"
