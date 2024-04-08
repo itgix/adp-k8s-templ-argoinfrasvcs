@@ -9,4 +9,4 @@ stringData:
   type: git
   url: {{ gitops_destination_repo }}.git
   username: argocd
-  password: "glpat-cb6NBZQpXPJB1PwwYznf"
+  password: "glpat-5r26un-ee6LB-ULWp-N9"
