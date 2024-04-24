@@ -5,6 +5,8 @@ kind: Secret
 metadata:
   name: {{ printf "%s" ( .repoUrl | sha1sum ) }}-repo
   namespace: argocd
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     argocd.argoproj.io/secret-type: repository
 stringData:
