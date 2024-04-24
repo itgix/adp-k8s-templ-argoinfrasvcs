@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ printf "%s" ( .repoUrl | sha1sum ) }}-repo
+  name: {{ (splitList "/" .repoUrl) | last | trimSuffix ".git" | quote }}
   namespace: argocd
   annotations:
     helm.sh/resource-policy: keep
