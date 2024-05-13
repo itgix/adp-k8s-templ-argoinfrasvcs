@@ -1,6 +1,0 @@
-dependencies:
-- name: universal
-  repository: file://./pop-universal
-  version: 1.0.0
-digest: sha256:55d8c08c0f2b538ebd71dd03dfaa0fa789658a35906c05e035e3febc375b773b
-generated: "2024-03-20T11:20:44.820778894+02:00"
