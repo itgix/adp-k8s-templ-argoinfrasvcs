@@ -1,0 +1,41 @@
+{{- if index .Values "infra-services" "karpenter_enabled" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision: HEAD
+    path: helm/karpenter
+    helm:
+      valueFiles:
+        - ../karpenter/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        karpenter:
+          serviceAccount:
+            name: "karpenter"
+            annotations:
+              eks.amazonaws.com/role-arn: {{ index .Values "infra-services" "karpenter_sa_role" }} 
+          settings:
+            clusterName: {{ index .Values "infra-services" "eks_cluster_name" }}
+            clusterEndpoint: {{ index .Values "infra-services" "eks_cluster_endpoint" }}
+            interruptionQueue: {{ index .Values "infra-services" "karpenter_queue_name" }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}
