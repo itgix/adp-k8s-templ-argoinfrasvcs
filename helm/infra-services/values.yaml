@@ -5,10 +5,6 @@ infra-services:
   karpenter_enabled: true
   demo_app_enabled: true
 
-  aws-load-balancer-controller-version: 1.7.1
-  secrets-operator-version: 0.9.12
-  external-dns-version: HEAD
-
   aws_account_id: ~
   region: ~
   eks_cluster_name: ~
