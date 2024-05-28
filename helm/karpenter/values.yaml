@@ -1,0 +1,11 @@
+karpenter:
+  fullnameOverride: "karpenter"
+  serviceAccount:
+    create: true
+    name: "karpenter"
+    annotations: ""
+  replicas: 2
+  settings:
+    clusterName: ""
+    clusterEndpoint: ""
+    interruptionQueue: ""
