@@ -3,7 +3,12 @@ infra-services:
   external_dns_enabled: true
   external_secrets_enabled: true
   enable_karpenter: false
-  demo_app_enabled: true
+  demo_app_enabled: false
+
+  aws-load-balancer-controller-version: 1.7.1
+  secrets-operator-version: 0.9.12
+  external-dns-version: HEAD
+
 
   aws_account_id: ~
   region: ~
