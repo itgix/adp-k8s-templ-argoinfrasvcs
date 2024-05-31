@@ -2,7 +2,7 @@ infra-services:
   aws_loadbalancer_enabled: true
   external_dns_enabled: true
   external_secrets_enabled: true
-  karpenter_enabled: false
+  enable_karpenter: false
   demo_app_enabled: true
 
   aws_account_id: ~
