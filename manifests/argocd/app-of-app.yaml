@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-auto-deploy
+  name: infra-apps-auto-deploy
   namespace: argocd
 spec:
   destination:
@@ -11,7 +11,7 @@ spec:
     path: manifests/applications
     repoURL:  {{ gitops_destination_repo }}
     targetRevision: HEAD
-  project: default
+  project: infra
   syncPolicy:
     automated:
       prune: true
