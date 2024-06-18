@@ -1,0 +1,25 @@
+{{- if .Values.configuration.enabled }}
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: {{ .Values.configuration.amiFamily }}
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: required
+  role: {{ .Values.configuration.nodeRole }}
+  securityGroupSelectorTerms:
+  {{- range .Values.configuration.securityGroupIDs }}
+  - id: {{ . }}
+  {{- end }}
+  {{- range .Values.configuration.securityGroupNames }}
+  - name: {{ . }}
+  {{- end }}
+  subnetSelectorTerms:
+  {{- range .Values.configuration.subnetIDs }}
+  - id: {{ . }}
+  {{- end }}
+{{- end }}
