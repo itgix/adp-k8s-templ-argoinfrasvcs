@@ -28,6 +28,19 @@ spec:
             clusterName: {{ index .Values "infra-services" "eks_cluster_name" }}
             clusterEndpoint: {{ index .Values "infra-services" "eks_cluster_endpoint" }}
             interruptionQueue: {{ index .Values "infra-services" "karpenter_queue_name" }}
+        configuration:
+          enabled: true
+          availabilityZones:
+            - {{ index .Values "infra-services" "az1" }}
+            - {{ index .Values "infra-services" "az2" }}
+            - {{ index .Values "infra-services" "az3" }}
+          nodeRole: {{ index .Values "infra-services" "node_iam_role" }}
+          subnetIDs:
+            - {{ index .Values "infra-services" "subnet1" }}
+            - {{ index .Values "infra-services" "subnet2" }}
+            - {{ index .Values "infra-services" "subnet3" }}
+          securityGroupNames:
+            - {{ index .Values "infra-services" "eks_cluster_name" }}-ng-sg
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: karpenter

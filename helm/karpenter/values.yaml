@@ -9,3 +9,24 @@ karpenter:
     clusterName: ""
     clusterEndpoint: ""
     interruptionQueue: ""
+configuration:
+  # Set to true if you want default nodepool, and nodeclass resources deployed
+  enabled: false
+  # Default nodepool settings
+  availabilityZones: []
+  arch:
+    - amd64
+  capacityType:
+    - spot
+    - on-demand
+  instanceSize:
+    - 2xl
+  instanceCategory:
+    - c
+    - m
+  # Default ec2nodeclass settings
+  amiFamily: AL2
+  nodeRole: ""
+  subnetIDs: []
+  securityGroupIDs: []
+  securityGroupNames: []
