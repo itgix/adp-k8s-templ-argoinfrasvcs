@@ -39,8 +39,8 @@ spec:
             - {{ index .Values "infra-services" "subnet1" }}
             - {{ index .Values "infra-services" "subnet2" }}
             - {{ index .Values "infra-services" "subnet3" }}
-          securityGroupNames:
-            - {{ index .Values "infra-services" "eks_cluster_name" }}-ng-sg
+          securityGroupIDs:
+            - {{ index .Values "infra-services" "node_security_group" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: karpenter
