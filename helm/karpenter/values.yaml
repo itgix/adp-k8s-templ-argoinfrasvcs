@@ -19,11 +19,6 @@ configuration:
   capacityType:
     - spot
     - on-demand
-  instanceSize:
-    - 2xl
-  instanceCategory:
-    - c
-    - m
   # Default ec2nodeclass settings
   amiFamily: AL2
   nodeRole: ""
