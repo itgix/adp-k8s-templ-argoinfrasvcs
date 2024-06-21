@@ -25,5 +25,4 @@ configuration:
   subnetIDs: []
   securityGroupIDs: []
   securityGroupNames: []
-  tags:
-    test: test-123:456
+  tags: {}
