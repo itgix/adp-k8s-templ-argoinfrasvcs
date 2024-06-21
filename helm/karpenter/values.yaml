@@ -11,7 +11,7 @@ karpenter:
     interruptionQueue: ""
 configuration:
   # Set to true if you want default nodepool, and nodeclass resources deployed
-  enabled: false
+  enabled: true
   # Default nodepool settings
   availabilityZones: []
   arch:
@@ -25,3 +25,5 @@ configuration:
   subnetIDs: []
   securityGroupIDs: []
   securityGroupNames: []
+  tags:
+    test: test-123:456

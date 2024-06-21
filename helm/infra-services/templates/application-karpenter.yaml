@@ -41,6 +41,8 @@ spec:
             - {{ index .Values "infra-services" "subnet3" }}
           securityGroupIDs:
             - {{ index .Values "infra-services" "node_security_group" }}
+          tags:
+            karpenter.sh/discovery: {{ index .Values "infra-services" "eks_cluster_name" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: karpenter
