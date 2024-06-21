@@ -34,7 +34,7 @@ spec:
             - {{ index .Values "infra-services" "az1" }}
             - {{ index .Values "infra-services" "az2" }}
             - {{ index .Values "infra-services" "az3" }}
-          nodeRole: {{ index .Values "infra-services" "node_iam_role" }}
+          nodeRole: {{ index .Values "infra-services" "node_iam_role_name" }}
           subnetIDs:
             - {{ index .Values "infra-services" "subnet1" }}
             - {{ index .Values "infra-services" "subnet2" }}
