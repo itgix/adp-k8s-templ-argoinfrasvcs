@@ -22,4 +22,8 @@ spec:
   {{- range .Values.configuration.subnetIDs }}
   - id: {{ . }}
   {{- end }}
+  tags:
+  {{- range .Values.configuration.tags }}
+    {{ . }}
+  {{- end }}
 {{- end }}

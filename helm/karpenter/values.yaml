@@ -25,3 +25,4 @@ configuration:
   subnetIDs: []
   securityGroupIDs: []
   securityGroupNames: []
+  tags: {}
