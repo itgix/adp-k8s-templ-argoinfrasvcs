@@ -40,20 +40,4 @@ spec:
       {{- range .Values.configuration.capacityType}}
         - {{ . }}
       {{- end }}
-      - key: karpenter.k8s.aws/instance-size
-        operator: In
-        values:
-      {{- range .Values.configuration.instanceSize}}
-        - {{ . }}
-      {{- end }}
-      - key: karpenter.k8s.aws/instance-category
-        operator: In
-        values:
-      {{- range .Values.configuration.instanceCategory}}
-        - {{ . }}
-      {{- end }}
-      - key: karpenter.k8s.aws/instance-generation
-        operator: Gt
-        values:
-        - "4"
 {{- end }}
