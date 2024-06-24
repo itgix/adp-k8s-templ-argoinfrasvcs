@@ -22,8 +22,8 @@ spec:
   {{- range .Values.configuration.subnetIDs }}
   - id: {{ . }}
   {{- end }}
+  {{- if .Values.configuration.tags }}
   tags:
-  {{- range .Values.configuration.tags }}
-    {{ . }}
+    {{- toYaml .Values.configuration.tags | nindent 4 }}
   {{- end }}
 {{- end }}
