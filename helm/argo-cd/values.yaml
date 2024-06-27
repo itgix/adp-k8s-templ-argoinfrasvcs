@@ -1880,12 +1880,11 @@ server:
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/success-codes: 200-404
       alb.ingress.kubernetes.io/target-type: ip
-      kubernetes.io/ingress.class: alb
 
     # -- Additional ingress labels
     labels: {}
     # -- Defines which ingress controller will implement the resource
-    ingressClassName: ""
+    ingressClassName: "alb"
 
     # -- List of ingress hosts
     ## Argo Ingress.
