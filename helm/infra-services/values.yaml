@@ -3,6 +3,8 @@ infra-services:
   external_dns_enabled: true
   external_secrets_enabled: true
   enable_karpenter: false
+  enable_metrics_server: true
+  enable_vpa: false
   demo_app_enabled: false
 
   aws-load-balancer-controller-version: 1.7.1

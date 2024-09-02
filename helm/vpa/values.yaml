@@ -1,0 +1,14 @@
+vpa:
+  recommender:
+    enabled: true
+    resources:
+      requests:
+        memory: "124Mi"
+        cpu: "100m"
+      limits:
+        memory: "164Mi"
+        cpu: "200m"
+  updater:
+    enabled: false
+  admissionController:
+    enabled: false
