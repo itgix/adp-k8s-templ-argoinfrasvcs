@@ -5,6 +5,7 @@ infra-services:
   enable_karpenter: false
   enable_metrics_server: true
   enable_vpa: false
+  enable_kyverno: false
   demo_app_enabled: false
 
   aws-load-balancer-controller-version: 1.7.1
