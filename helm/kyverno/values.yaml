@@ -27,3 +27,14 @@ kyverno:
   replicaCount: 3
   cleanupController:
     enabled: false
+  namespaceOverride: kube-system
+  crds:
+    install: true
+  features:
+    logging:
+      format: json
+      verbosity: -1
+  metricsService:
+    create: false
+  config:
+    excludeKyvernoNamespace: true
