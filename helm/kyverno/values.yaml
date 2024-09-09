@@ -27,7 +27,7 @@ kyverno:
   replicaCount: 3
   cleanupController:
     enabled: false
-  namespaceOverride: kube-system
+  namespaceOverride: kyverno
   crds:
     install: true
   features:

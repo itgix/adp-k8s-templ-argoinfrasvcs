@@ -20,12 +20,13 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: kube-system
+    namespace: kyverno
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - Replace=true
   revisionHistoryLimit: 3
 {{- end }}
