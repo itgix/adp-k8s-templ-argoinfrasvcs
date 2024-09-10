@@ -1,0 +1,32 @@
+policy-reporter:
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 300m
+    requests:
+      memory: 124Mi
+      cpu: 100m
+  global:
+    plugins:
+      kyverno: true
+  ui:
+    enabled: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 50m
+      requests:
+        memory: 75Mi
+        cpu: 20m
+  kyvernoPlugin:
+    enabled: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 50m
+      requests:
+        memory: 20Mi
+        cpu: 20m
+  logging:
+    encoding: json
+    logLevel: 1

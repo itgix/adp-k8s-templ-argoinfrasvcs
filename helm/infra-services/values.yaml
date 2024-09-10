@@ -6,6 +6,8 @@ infra-services:
   enable_metrics_server: true
   enable_vpa: false
   enable_kyverno: true
+  enable_policy_reporter: true
+  enable_default_policies: true
   demo_app_enabled: false
 
   aws-load-balancer-controller-version: 1.7.1
