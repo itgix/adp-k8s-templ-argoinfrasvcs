@@ -30,3 +30,13 @@ policy-reporter:
   logging:
     encoding: json
     logLevel: 1
+  ingress:
+    enabled: false
+    annotations:
+      alb.ingress.kubernetes.io/group.name: public
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-404
+      alb.ingress.kubernetes.io/target-type: ip
+      external-dns.alpha.kubernetes.io/hostname: igxadp-policy-reporter.itgix.eu
