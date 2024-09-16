@@ -2,9 +2,9 @@ infra-services:
   aws_loadbalancer_enabled: true
   external_dns_enabled: true
   external_secrets_enabled: true
-  enable_karpenter: false
+  enable_karpenter: true
   enable_metrics_server: true
-  enable_vpa: false
+  enable_vpa: true
   enable_kyverno: true
   enable_policy_reporter: true
   enable_default_policies: true
