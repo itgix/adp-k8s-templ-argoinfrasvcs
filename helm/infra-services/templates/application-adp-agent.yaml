@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
     targetRevision: HEAD
-    path: helm/external-dns
+    path: helm/adp-agent
     helm:
       valueFiles:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
