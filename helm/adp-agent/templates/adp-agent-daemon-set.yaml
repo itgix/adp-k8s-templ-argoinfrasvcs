@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: itgix-adp-agent
+  labels:
+    k8s-app: itgix-adp-agent
+spec:
+  selector:
+    matchLabels:
+      name: itgix-adp-agent
+  template:
+    metadata:
+      labels:
+        name: itgix-adp-agent
+    spec:
+      containers:
+      - name: itgix-adp-agent
+        image: {{ .Values.adpagent.image }}
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
+      env:
+      - name: PRODUCT_CODE
+        value: {{ .Values.adpagent.product_code }}
+      - name: USAGEDIM
+        value: {{ .Values.adpagent.usage_dimension }}
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: sa-itgix-adp-agent
