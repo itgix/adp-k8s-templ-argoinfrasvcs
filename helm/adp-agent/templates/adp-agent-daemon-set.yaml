@@ -23,10 +23,30 @@ spec:
           requests:
             cpu: 10m
             memory: 50Mi
-      env:
-      - name: PRODUCT_CODE
-        value: {{ .Values.adpagent.product_code }}
-      - name: USAGEDIM
-        value: {{ .Values.adpagent.usage_dimension }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PRODUCT_CODE
+          value: {{ .Values.adpagent.product_code }}
+        - name: USAGEDIM
+          value: {{ .Values.adpagent.usage_dimension }}
       terminationGracePeriodSeconds: 30
       serviceAccountName: sa-itgix-adp-agent
