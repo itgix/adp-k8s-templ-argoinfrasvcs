@@ -40,4 +40,12 @@ spec:
       {{- range .Values.configuration.capacityType}}
         - {{ . }}
       {{- end }}
+      {{ if .Values.configuration.instanceFamily.enabled}}
+      - key: "karpenter.k8s.aws/instance-family"
+        operator: In
+        values:
+      {{- range .Values.configuration.instanceFamily.allowedTypes}}
+        - {{ . }}
+      {{- end }}
+
 {{- end }}

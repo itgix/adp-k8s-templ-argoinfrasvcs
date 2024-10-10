@@ -26,3 +26,8 @@ configuration:
   securityGroupIDs: []
   securityGroupNames: []
   tags: {}
+  instanceFamily:
+    enabled: false
+    allowedTypes:
+      - t3
+      - m7a
