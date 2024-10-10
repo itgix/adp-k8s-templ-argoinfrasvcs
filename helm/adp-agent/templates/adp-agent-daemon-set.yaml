@@ -49,6 +49,6 @@ spec:
         - name: USAGEDIM
           value: {{ .Values.adpagent.usage_dimension }}
         - name: AWS_REGION
-          value: {{ .Values.infra-services.usage_dimension }}
+          value: {{ .Values.infra-services.region }}
       terminationGracePeriodSeconds: 30
       serviceAccountName: sa-itgix-adp-agent
