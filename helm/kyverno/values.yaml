@@ -1,0 +1,40 @@
+kyverno:
+  reportsController:
+    resources:
+      limits:
+        memory: "256Mi"
+        cpu: 600m
+      requests:
+        cpu: 200m
+        memory: "256Mi"
+  backgroundController:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "124Mi"
+      limits:
+        cpu: "100m"
+        memory: "124Mi"
+  admissionController:
+    resources:
+      limits:
+        memory: "256Mi"
+        cpu: 600m
+      requests:
+        cpu: 200m
+        memory: "256Mi"
+  priorityClassName: "system-cluster-critical"
+  replicaCount: 3
+  cleanupController:
+    enabled: false
+  namespaceOverride: kyverno
+  crds:
+    install: true
+  features:
+    logging:
+      format: json
+      verbosity: -1
+  metricsService:
+    create: false
+  config:
+    excludeKyvernoNamespace: true

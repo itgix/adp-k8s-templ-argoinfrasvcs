@@ -1,0 +1,53 @@
+policy-reporter:
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 300m
+    requests:
+      memory: 124Mi
+      cpu: 100m
+  global:
+    plugins:
+      kyverno: true
+  ui:
+    enabled: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 50m
+      requests:
+        memory: 75Mi
+        cpu: 20m
+  kyvernoPlugin:
+    enabled: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 50m
+      requests:
+        memory: 20Mi
+        cpu: 20m
+  logging:
+    encoding: json
+    logLevel: 1
+  ingress:
+    enabled: false
+    className: "alb"
+    annotations:
+      alb.ingress.kubernetes.io/group.name: public
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-404
+      alb.ingress.kubernetes.io/target-type: ip
+      external-dns.alpha.kubernetes.io/hostname: igxadp-policy-reporter.itgix.eu
+    hosts:
+      - host: []
+        paths:
+          - backend:
+             service: 
+               name: policy-report-ui
+               port:
+                 number: 8080
+           pathType: Prefix
+           path: /
