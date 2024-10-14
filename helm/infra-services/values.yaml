@@ -7,6 +7,7 @@ infra-services:
   enable_vpa: false
   demo_app_enabled: false
   adp_agent_enabled: true
+  enable_fluent_bit: false
 
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12
