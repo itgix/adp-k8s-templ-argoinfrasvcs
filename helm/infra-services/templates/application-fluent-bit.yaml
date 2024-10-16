@@ -18,6 +18,21 @@ spec:
       valueFiles:
         - ../fluent-bit/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        fluent-bit:
+          config:
+            outputs: |
+              [OUTPUT]
+                  Name cloudwatch_logs
+                  Match *
+                  region {{ index .Values "infra-services" "region" }}
+                  log_group_name fluent-bit-cloudwatch
+                  log_stream_prefix from-fluent-bit-
+                  auto_create_group On
+          serviceAccount:
+            create: true
+            annotations:
+            eks.amazonaws.com/role-arn: {{ index .Values "infra-services" "fluentbit_sa_role_arn" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: fluent-bit
