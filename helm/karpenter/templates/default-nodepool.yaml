@@ -47,5 +47,5 @@ spec:
       {{- range .Values.configuration.instanceFamily.allowedTypes}}
         - {{ . }}
       {{- end }}
-
+      {{- end }}
 {{- end }}
