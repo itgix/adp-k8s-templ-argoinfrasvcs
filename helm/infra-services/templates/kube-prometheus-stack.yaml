@@ -118,7 +118,8 @@ spec:
                 alb.ingress.kubernetes.io/target-type: ip
               hosts:
                 - alertmanager.{{ index .Values "infra-services" "dns_main_domain" }}
-              path: /*
+              paths:
+                - /*
               port: 80
             # config:
             #   global:
@@ -185,7 +186,8 @@ spec:
                 alb.ingress.kubernetes.io/target-type: ip
               hosts:
                 - prometheus.{{ index .Values "infra-services" "dns_main_domain" }}
-              path: /*
+              paths:
+                - /*
               port: 80
             prometheusSpec:        
               scrapeInterval: 1m 
