@@ -212,7 +212,7 @@ spec:
           prometheusOperator:
             admissionWebhooks:
               patch:
-                enabled: false 
+                enabled: true 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-prometheus-stack
