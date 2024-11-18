@@ -10,6 +10,7 @@ infra-services:
   enable_fluent_bit: false
   enable_prometheus_stack: false
   enable_tempo: false
+  enable_loki: false
 
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12
