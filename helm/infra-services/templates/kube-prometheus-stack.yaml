@@ -22,6 +22,7 @@ spec:
         kube-prometheus-stack:
           grafana:
             plugins:
+              - grafana-lokiexplore-app
               - flant-statusmap-panel
               - grafana-clock-panel
             imageRenderer:

@@ -29,6 +29,13 @@ spec:
                   log_group_name fluent-bit-cloudwatch
                   log_stream_prefix from-fluent-bit-
                   auto_create_group On
+              [OUTPUT]
+                  Name loki
+                  match *
+                  host loki.monitoring.svc.cluster.local
+                  port 3100
+                  Labels job="fluent-bit"
+                  line_format json
           serviceAccount:
             create: true
             annotations:

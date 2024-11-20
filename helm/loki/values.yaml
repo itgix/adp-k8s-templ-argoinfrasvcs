@@ -291,7 +291,7 @@ loki:
         {{- tpl (. | toYaml) $ | nindent 4 }}
       {{- end }}
     # Should authentication be enabled
-    auth_enabled: true
+    auth_enabled: false
     # -- memberlist configuration (overrides embedded default)
     memberlistConfig: {}
     # -- Extra memberlist configuration
@@ -329,18 +329,17 @@ loki:
       #   admin: FIXME
       type: s3
       s3:
-        s3: null
-        endpoint: null
-        region: null
-        secretAccessKey: null
-        accessKeyId: null
-        signatureVersion: null
-        s3ForcePathStyle: false
-        insecure: false
-        http_config: {}
-        # -- Check https://grafana.com/docs/loki/latest/configure/#s3_storage_config for more info on how to provide a backoff_config
-        backoff_config: {}
-        disable_dualstack: false
+        region: ap-south-1
+        # endpoint: null
+        # secretAccessKey: null
+        # accessKeyId: null
+        # signatureVersion: null
+        # s3ForcePathStyle: false
+        # insecure: false
+        # http_config: {}
+        # # -- Check https://grafana.com/docs/loki/latest/configure/#s3_storage_config for more info on how to provide a backoff_config
+        # backoff_config: {}
+        # disable_dualstack: false
       gcs:
         chunkBufferSize: 0
         requestTimeout: "0s"
@@ -395,7 +394,15 @@ loki:
         timeout: "500ms"
         default_validity: "12h"
     # -- Check https://grafana.com/docs/loki/latest/configuration/#schema_config for more info on how to configure schemas
-    schemaConfig: {}
+    schemaConfig:
+      configs:
+        - from: 2024-11-11
+          object_store: s3
+          store: tsdb
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
     # -- a real Loki install requires a proper schemaConfig defined above this, however for testing or playing around
     # you can enable useTestSchema
     useTestSchema: false
@@ -657,7 +664,7 @@ loki:
   # The Loki canary pushes logs to and queries from this loki installation to test
   # that it's working correctly
   lokiCanary:
-    enabled: true
+    enabled: false
     # -- If true, the canary will send directly to Loki via the address configured for verification --
     # -- If false, it will write to stdout and an Agent will be needed to scrape and send the logs --
     push: true
@@ -716,7 +723,7 @@ loki:
   ######################################################################################################################
   serviceAccount:
     # -- Specifies whether a ServiceAccount should be created
-    create: true
+    create: false
     # -- The name of the ServiceAccount to use.
     # If not set and create is true, a name is generated using the fullname template
     name: null
@@ -805,7 +812,7 @@ loki:
   # Configuration for the memberlist service
   memberlist:
     service:
-      publishNotReadyAddresses: false
+      publishNotReadyAddresses: true
       annotations: {}
   ######################################################################################################################
   #
@@ -3396,7 +3403,7 @@ loki:
       # Defaults to 66sec.
       watchClientTimeout: 60
       # -- Log level of the sidecar container.
-      logLevel: INFO
+      logLevel: DEBUG
   ############################################## WARNING ###############################################################
   #
   # DEPRECATED VALUES

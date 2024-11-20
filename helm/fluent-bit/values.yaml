@@ -442,7 +442,7 @@ fluent-bit:
   #       [UPSTREAM]
   #           upstream1
   #
-  #       [NODE]
+  #       [NODE]  
   #           name       node-1
   #           host       127.0.0.1
   #           port       43000
