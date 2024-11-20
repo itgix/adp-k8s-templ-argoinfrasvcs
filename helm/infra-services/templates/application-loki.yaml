@@ -18,6 +18,7 @@ spec:
       valueFiles:
         - ../loki/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+        # - ../loki/valuesglobal.yaml
       # values: |
       #   loki:
   destination:
