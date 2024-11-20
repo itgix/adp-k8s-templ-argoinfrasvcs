@@ -324,8 +324,8 @@ loki:
       # Loki requires a bucket for chunks and the ruler. GEL requires a third bucket for the admin API.
       # Please provide these values if you are using object storage.
       # bucketNames:
-      #   chunks: seva-loki-chunks
-      #   ruler: seva-loki-ruler
+      #   chunks: FIXME
+      #   ruler: FIXME
       #   admin: FIXME
       type: s3
       s3:
