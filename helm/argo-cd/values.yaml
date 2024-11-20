@@ -2883,11 +2883,12 @@ notifications:
   # -- Resource limits and requests for the notifications controller
   resources:
     limits:
-      cpu: 500m
-      memory: 2Gi
+        cpu: 50m
+        memory: 128Mi
     requests:
-      cpu: 250m
-      memory: 1Gi
+        cpu: 50m
+        memory: 64Mi
+
 
   # Notification controller container ports
   containerPorts:
