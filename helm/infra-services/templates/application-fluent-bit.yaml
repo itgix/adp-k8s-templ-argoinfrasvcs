@@ -20,22 +20,6 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         fluent-bit:
-          config:
-            outputs: |
-              [OUTPUT]
-                  Name cloudwatch_logs
-                  Match *
-                  region {{ index .Values "infra-services" "region" }}
-                  log_group_name fluent-bit-cloudwatch
-                  log_stream_prefix from-fluent-bit-
-                  auto_create_group On
-              [OUTPUT]
-                  Name loki
-                  match *
-                  host loki.monitoring.svc.cluster.local
-                  port 3100
-                  Labels job="fluent-bit"
-                  line_format json
           serviceAccount:
             create: true
             annotations:
