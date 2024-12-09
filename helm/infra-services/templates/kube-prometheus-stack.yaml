@@ -219,6 +219,15 @@ spec:
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
+  ignoreDifferences:
+  - group: apps
+    jsonPointers:
+    - /spec/template
+    kind: DaemonSet
+  - group: apps
+    jsonPointers:
+    - /spec/template
+    kind: Deployment
   syncPolicy:
     automated:
       prune: true
