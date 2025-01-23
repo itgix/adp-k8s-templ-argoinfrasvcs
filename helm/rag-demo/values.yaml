@@ -1,0 +1,9 @@
+infra-services:
+  # default value, this should be overwritten from infra-facts with the real value for this env
+  aws_account_id: '722377226063'
+  eks_cluster_name: dummy-cluster
+
+adpagent:
+  product_code: "5uhf95x0bz6d518p795cfi07s"
+  usage_dimension: "ManagedAvailableMemory"
+  image: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-agent:v1.0.1

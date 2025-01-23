@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-demo
+  labels:
+    app: rag-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-demo
+  template:
+    metadata:
+      labels:
+        app: rag-demo
+    spec:
+      imagePullSecrets:
+      - name: gitlab-itgix-secret
+      containers:
+      - name: gpu-container
+        image: gitlab.itgix.com:5050/rnd/app-platform/rag-demo:9ec73f2c
+        command: [ "python3", "main.py" ]  # Added command to run the script
+        resources:
+          requests:
+            memory: "1024Mi"
+            cpu: "100m"
+            nvidia.com/gpu: 1  # Request 1 GPU
+          limits:
+            memory: "2048Mi"
+            cpu: "1"
+            nvidia.com/gpu: 1  # Limit to 1 GPU
+        ports:
+        - containerPort: 8080  # Application's listening port
+          protocol: TCP
+        env:
+        - name: QDRANT_URL
+          value: "http://qdrant.qdrant:8080/"
+        - name: QDRANT_API_KEY
+          value: "superSecretApiKeyHere"
+        ## To remove once we configure IRSA
+        - name: AWS_PROFILE
+          value: temp
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-itgix-secret
+  namespace: default
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJnaXRsYWIuaXRnaXguY29tOjUwNTAiOnsidXNlcm5hbWUiOiJyYWctZGVtby11c2VyLWRvY2tlciIsInBhc3N3b3JkIjoiZ2xkdC1QQXdmU3plLTZQTVF3X0x1eHRzeSIsImF1dGgiOiJjbUZuTFdSbGJXOHRkWE5sY2kxa2IyTnJaWEk2WjJ4a2RDMVFRWGRtVTNwbExUWlFUVkYzWDB4MWVIUnplUT09In19fQ==
+type: kubernetes.io/dockerconfigjson
