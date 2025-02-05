@@ -43,6 +43,10 @@ spec:
             - {{ index .Values "infra-services" "node_security_group" }}
           tags:
             karpenter.sh/discovery: {{ index .Values "infra-services" "eks_cluster_name" }}
+            Project: {{ index .Values "infra-services" "project_name" }}
+            Environment: {{ index .Values "infra-services" "environment" }}
+            CostCenter: na
+            Application: adp
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: karpenter
