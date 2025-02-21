@@ -4,10 +4,10 @@ infra-services:
   external_secrets_enabled: true
   enable_karpenter: true
   enable_metrics_server: true
-  enable_vpa: true
-  enable_kyverno: true
-  enable_policy_reporter: true
-  enable_default_policies: true
+  enable_vpa: false
+  enable_kyverno: false
+  enable_policy_reporter: false
+  enable_default_policies: false
   demo_app_enabled: false
   adp_agent_enabled: true
   enable_fluent_bit: false
