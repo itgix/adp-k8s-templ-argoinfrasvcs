@@ -18,6 +18,22 @@ spec:
       valueFiles:
         - ../policy-reporter/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        policy-reporter:
+          ingress:
+            className: "alb"
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+            hosts:
+            - host: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+              paths:
+                - backend:
+                    service:
+                     name: policy-report-ui
+                     port:
+                       number: 8080
+                  pathType: Prefix
+                  path: /
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kyverno
