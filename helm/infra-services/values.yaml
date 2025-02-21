@@ -18,6 +18,7 @@ infra-services:
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12
   external-dns-version: HEAD
+  storage_class_custom_params_enabled: false
 
 
   aws_account_id: ~
@@ -25,3 +26,14 @@ infra-services:
   eks_cluster_name: ~
   vpc_id: ~
   dns_hosted_zone: ~
+
+
+storageClass:
+  name: gp3
+  isDefault: "true"
+  allowVolumeExpansion: true
+  provisioner: ebs.csi.aws.com
+  volumeBindingMode: WaitForFirstConsumer
+  type: gp3
+  customParameters:
+    encrypted: "true"
