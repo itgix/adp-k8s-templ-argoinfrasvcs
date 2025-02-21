@@ -9,6 +9,6 @@ provisioner: {{ .Values.storageClass.provisioner | default "ebs.csi.aws.com" }}
 volumeBindingMode: {{ .Values.storageClass.volumeBindingMode | default "WaitForFirstConsumer" }}
 parameters:
   type: {{ .Values.storageClass.type | default "gp3" }}
-  {{- if .Values "infra-services" "storage_class_custom_params_enabled"  }}
+  {{- if index .Values "infra-services" "storage_class_custom_params_enabled" }}
   {{- toYaml .Values.storageClass.customParameters | nindent 2 }}
   {{- end }}
