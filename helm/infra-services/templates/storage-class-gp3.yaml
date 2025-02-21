@@ -1,4 +1,3 @@
-{{- if .Values "infra-services" "storage_class_custom_params_enabled"  }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -10,19 +9,6 @@ provisioner: {{ .Values.storageClass.provisioner | default "ebs.csi.aws.com" }}
 volumeBindingMode: {{ .Values.storageClass.volumeBindingMode | default "WaitForFirstConsumer" }}
 parameters:
   type: {{ .Values.storageClass.type | default "gp3" }}
-  {{- if .Values.storageClass.customParameters }}
+  {{- if .Values "infra-services" "storage_class_custom_params_enabled"  }}
   {{- toYaml .Values.storageClass.customParameters | nindent 2 }}
   {{- end }}
-{{- else}}
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: gp3
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
-allowVolumeExpansion: true
-provisioner: ebs.csi.aws.com
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  type: gp3
-{{- end }}
