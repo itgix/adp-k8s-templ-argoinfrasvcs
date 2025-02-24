@@ -57,7 +57,7 @@ spec:
               ingressClassName: alb
               annotations:
                 kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: grafana.{{ index .Values "infra-services" "dns_main_domain" }}
+                external-dns.alpha.kubernetes.io/hostname: grafana.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
@@ -69,7 +69,7 @@ spec:
                 alb.ingress.kubernetes.io/success-codes: 200-404
                 alb.ingress.kubernetes.io/target-type: ip
               hosts:
-                - grafana.{{ index .Values "infra-services" "dns_main_domain" }}
+                - grafana.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
               path: /
               port: 80
               # tls:
@@ -106,7 +106,7 @@ spec:
               ingressClassName: alb
               annotations:
                 kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: alertmanager.{{ index .Values "infra-services" "dns_main_domain" }}
+                external-dns.alpha.kubernetes.io/hostname: alertmanager.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
@@ -118,7 +118,7 @@ spec:
                 alb.ingress.kubernetes.io/success-codes: 200-404
                 alb.ingress.kubernetes.io/target-type: ip
               hosts:
-                - alertmanager.{{ index .Values "infra-services" "dns_main_domain" }}
+                - alertmanager.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
               paths:
                 - /*
               port: 80
@@ -174,7 +174,7 @@ spec:
               ingressClassName: alb
               annotations:
                 kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: prometheus.{{ index .Values "infra-services" "dns_main_domain" }}
+                external-dns.alpha.kubernetes.io/hostname: prometheus.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
@@ -186,7 +186,7 @@ spec:
                 alb.ingress.kubernetes.io/success-codes: 200-404
                 alb.ingress.kubernetes.io/target-type: ip
               hosts:
-                - prometheus.{{ index .Values "infra-services" "dns_main_domain" }}
+                - prometheus.{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
               paths:
                 - /*
               port: 80
