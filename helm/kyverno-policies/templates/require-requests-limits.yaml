@@ -30,20 +30,9 @@ spec:
       - resources:
           namespaces:
             - "kube-system"
-      - resources:
-          namespaces:
-            - "adp-agent"
-      - resources:
-          namespaces:
             - "argocd"
-      - resources:
-          namespaces:
             - "karpenter"
-      - resources:
-          namespaces:
             - "external-dns"
-      - resources:
-          namespaces:
             - "external-secrets-operator"
     validate:
       message: "CPU resource requests and memory resource requests and limits are required."
