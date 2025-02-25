@@ -3,3 +3,11 @@ kyverno-policies:
   policyCategories:
     bestPractices:
       enabled: true
+  #Audit or Enforce
+  customRulesAction: Audit
+  requestsLimitsRule:
+    customRulesAction: Audit
+    ExtraExcludes:
+      - resources:
+          namespaces:
+            - "kube-public"
