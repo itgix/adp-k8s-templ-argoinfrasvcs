@@ -29,11 +29,11 @@ spec:
       any:
       - resources:
           namespaces:
-            - "kube-system"
-            - "argocd"
-            - "karpenter"
-            - "external-dns"
-            - "external-secrets-operator"
+          - kube-system
+          - argocd
+          - karpenter
+          - external-dns
+          - external-secrets-operator
     validate:
       message: "CPU resource requests and memory resource requests and limits are required."
       pattern:
