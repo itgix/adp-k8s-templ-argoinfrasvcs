@@ -17,12 +17,7 @@ spec:
       - name: itgix-adp-agent
         image: {{ .Values.adpagent.image }}
         resources:
-          limits:
-            cpu: 100m
-            memory: 100Mi
-          requests:
-            cpu: 10m
-            memory: 50Mi
+{{ toYaml .Values.adpagent.resources | indent 12 }}
         livenessProbe:
           httpGet:
             path: /health
