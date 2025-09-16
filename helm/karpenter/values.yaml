@@ -20,7 +20,7 @@ configuration:
     - spot
     - on-demand
   # Default ec2nodeclass settings
-  amiFamily: AL2
+  amiFamily: Bottlerocket
   nodeRole: ""
   subnetIDs: []
   securityGroupIDs: []
