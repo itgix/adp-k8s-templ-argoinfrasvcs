@@ -2,7 +2,7 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "external-dns.fullname" . }}
+  name: external-dns
   labels:
     app.kubernetes.io/component: external-dns
     app.kubernetes.io/instance: {{ .Release.Name }}
