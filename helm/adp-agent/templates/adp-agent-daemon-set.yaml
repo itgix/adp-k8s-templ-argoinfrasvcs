@@ -18,10 +18,10 @@ spec:
         image: {{ .Values.adpagent.image }}
         resources:
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 100Mi
           requests:
-            cpu: 10m
+            cpu: 100m
             memory: 50Mi
         livenessProbe:
           httpGet:
