@@ -204,10 +204,10 @@ spec:
               resources:
                 requests:
                   memory: "5Gi"
-                  cpu: "200m"
+                  cpu: "400m"
                 limits:
                   memory: "7Gi"
-                  cpu: "400m"
+                  cpu: "800m"
               walCompression: true
               serviceMonitorNamespaceSelector: {}
               serviceMonitorSelector: {}
