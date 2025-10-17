@@ -5,7 +5,3 @@ external-dns:
   provider: aws
   registry: txt
   triggerLoopOnEvent: true
-
-pdb:
-  enabled: true
-  minAvailable: 50%
