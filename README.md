@@ -1,3 +1,14 @@
+# Description
+
+This is a template repository for the ITGix ADP (Application development platform) for ArgoCD gitops repo that is tailored towards AI workloads. 
+
+- Sample RAG apps
+
+- Vector databases
+
+- Batch and scheduling systems that run on Kubernetes that allow complex bat
+
+
 # ArgoCD Installation
 1. Install ArgoCD via HELM:
 

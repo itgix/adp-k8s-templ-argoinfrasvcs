@@ -4,6 +4,8 @@ fluent-bit:
   # kind -- DaemonSet or Deployment
   kind: DaemonSet
 
+  # AWS "region" variable set in argo application
+
   # replicaCount -- Only applicable if kind=Deployment
   replicaCount: 1
 
@@ -408,19 +410,12 @@ fluent-bit:
     ## https://docs.fluentbit.io/manual/pipeline/outputs
     outputs: |
       [OUTPUT]
-          Name es
-          Match kube.*
-          Host elasticsearch-master
-          Logstash_Format On
-          Retry_Limit False
-
-      [OUTPUT]
-          Name es
-          Match host.*
-          Host elasticsearch-master
-          Logstash_Format On
-          Logstash_Prefix node
-          Retry_Limit False
+          Name cloudwatch_logs
+          Match *
+          region {{ .Values.region }}
+          log_group_name container-platform-fbit-cloudwatch
+          log_stream_prefix k8s-fluent-bit-
+          auto_create_group On
 
     ## https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/upstream-servers
     ## This configuration is deprecated, please use `extraFiles` instead.
