@@ -2388,30 +2388,38 @@ server:
     automountServiceAccountToken: true
 
   # Argo CD server ingress configuration
-  ingress:
+ingress:
     # -- Enable an ingress resource for the Argo CD server
-    enabled: false
-    # -- Specific implementation for ingress controller. One of `generic`, `aws` or `gke`
-    ## Additional configuration might be required in related configuration sections
-    controller: generic
+    enabled: true
+    # -- Additional ingress annotations
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: demo-argocd.itgix.eu.
+      alb.ingress.kubernetes.io/actions.response-503: |
+        {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
+      alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
+        { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+      alb.ingress.kubernetes.io/group.name: public
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/success-codes: 200-404
+      alb.ingress.kubernetes.io/target-type: ip
+
     # -- Additional ingress labels
     labels: {}
-    # -- Additional ingress annotations
-    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
-    annotations: {}
-      # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-
     # -- Defines which ingress controller will implement the resource
-    ingressClassName: ""
+    ingressClassName: "alb"
 
-    # -- Argo CD server hostname
-    # @default -- `""` (defaults to global.domain)
-    hostname: ""
+    # -- List of ingress hosts
+    ## Argo Ingress.
+    ## Hostnames must be provided if Ingress is enabled.
+    ## Secrets must be manually created in the namespace
+    hosts: 
+      - demo-argocd.itgix.eu
 
-    # -- The path to Argo CD server
-    path: /
-
+    # -- List of ingress paths
+    paths:
+      - /
     # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
     pathType: Prefix
 
