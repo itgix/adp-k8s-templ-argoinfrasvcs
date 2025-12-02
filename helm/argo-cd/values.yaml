@@ -2420,7 +2420,8 @@ server:
     hostname: "demo-argocd.itgix.eu"
 
     # -- The path to Argo CD server
-    path: /
+    path: 
+      - /
 
     # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
     pathType: Prefix
