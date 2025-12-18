@@ -1,7 +1,3 @@
-image:
-  repository: backstage/backstage
-  tag: latest
-
 backstage:
   extraEnvVars:
     - name: APP_CONFIG_app_baseUrl
@@ -62,12 +58,12 @@ backstage:
           rules:
             - allow: [Template]
 
-ingress:
-  enabled: true
-  className: alb
-  host: {{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
-  path: /
+  ingress:
+    enabled: true
+    className: alb
+    host: {{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
+    path: /
 
-postgresql:
-  enabled: true
+  postgresql:
+    enabled: true
 
