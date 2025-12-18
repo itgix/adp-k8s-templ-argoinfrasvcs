@@ -1,11 +1,11 @@
 backstage:
   extraEnvVars:
     - name: APP_CONFIG_app_baseUrl
-      value: https://{{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
+      value: https://backstage.adplab.itgix.eu
     - name: APP_CONFIG_backend_baseUrl
-      value: https://{{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
+      value: https://backstage.adplab.itgix.eu
     - name: APP_CONFIG_backend_cors_origin
-      value: https://{{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
+      value: https://backstage.adplab.itgix.eu
     - name: GITLAB_TOKEN
       valueFrom:
         secretKeyRef:
@@ -61,7 +61,7 @@ backstage:
   ingress:
     enabled: true
     className: alb
-    host: {{ .Values.backstage_ingress_host | default "backstage.adplab.itgix.eu" }}
+    host: backstage.adplab.itgix.eu
     path: /
 
   postgresql:
