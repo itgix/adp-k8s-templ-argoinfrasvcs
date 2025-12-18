@@ -17,31 +17,6 @@ spec:
       valueFiles:
         - ../backstage/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
-      values: |
-        {{- if index .Values "infra-services" "backstage_gitlab_token" }}
-        backstageGitlabToken: {{ index .Values "infra-services" "backstage_gitlab_token" | quote }}
-        {{- end }}
-        {{- if index .Values "infra-services" "backstage_auth_secret" }}
-        backstageAuthSecret: {{ index .Values "infra-services" "backstage_auth_secret" | quote }}
-        {{- end }}
-        backstage:
-          extraEnvVars:
-            - name: APP_CONFIG_app_baseUrl
-              value: https://{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "region" }}-backstage-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "main_domain" }}
-            - name: APP_CONFIG_backend_baseUrl
-              value: https://{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "region" }}-backstage-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "main_domain" }}
-            - name: APP_CONFIG_backend_cors_origin
-              value: https://{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "region" }}-backstage-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "main_domain" }}
-        ingress:
-          enabled: true
-          className: alb
-          annotations:
-            alb.ingress.kubernetes.io/scheme: internet-facing
-            alb.ingress.kubernetes.io/target-type: ip
-            alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-            alb.ingress.kubernetes.io/ssl-redirect: '443'
-            external-dns.alpha.kubernetes.io/hostname: {{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "region" }}-backstage-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "main_domain" }}
-          host: {{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "region" }}-backstage-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "main_domain" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: backstage
