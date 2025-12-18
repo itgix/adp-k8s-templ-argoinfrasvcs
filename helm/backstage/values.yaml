@@ -63,6 +63,10 @@ backstage:
     className: alb
     host: backstage.adplab.itgix.eu
     path: /
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
 
   postgresql:
     enabled: true

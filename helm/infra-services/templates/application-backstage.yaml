@@ -30,6 +30,10 @@ spec:
             enabled: true
             className: alb
             host: {{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+            annotations:
+              alb.ingress.kubernetes.io/scheme: internet-facing
+              alb.ingress.kubernetes.io/target-type: ip
+              alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: backstage
