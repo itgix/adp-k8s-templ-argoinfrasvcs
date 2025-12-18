@@ -11,9 +11,15 @@ backstage:
     - name: APP_CONFIG_backend_cors_origin
       value: https://backstage.adplab.itgix.eu
     - name: GITLAB_TOKEN
-      value: glpat-changeme
+      valueFrom:
+        secretKeyRef:
+          name: gitlab-token
+          key: token
     - name: AUTH_SECRET
-      value: my-super-secret-pass-changeme
+      valueFrom:
+        secretKeyRef:
+          name: backstage-secrets
+          key: auth-secret
     - name: GITHUB_TOKEN
       value: github_changeme
 
