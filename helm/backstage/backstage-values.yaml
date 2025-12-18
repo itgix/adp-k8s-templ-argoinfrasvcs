@@ -1,0 +1,67 @@
+image:
+  repository: backstage/backstage
+  tag: latest
+
+backstage:
+  extraEnvVars:
+    - name: APP_CONFIG_app_baseUrl
+      value: https://backstage.adplab.itgix.eu
+    - name: APP_CONFIG_backend_baseUrl
+      value: https://backstage.adplab.itgix.eu
+    - name: APP_CONFIG_backend_cors_origin
+      value: https://backstage.adplab.itgix.eu
+    - name: GITLAB_TOKEN
+      value: glpat-changeme
+    - name: AUTH_SECRET
+      value: my-super-secret-pass-changeme
+    - name: GITHUB_TOKEN
+      value: github_changeme
+
+  appConfig:
+    techdocs:
+      generator:
+        type: 'local'
+      publisher:
+        type: 'local'
+
+    auth:
+      # This config is often required to get the frontend to talk to the backend.
+      # We'll configure a 'guest' provider for initial testing.
+      providers:
+        guest:  # Enables unauthenticated access for testing
+          dangerouslyAllowOutsideDevelopment: true
+      session:
+        secret: ${AUTH_SECRET}
+
+    scaffolder:
+      # This array tells the scaffolder backend to include these external modules
+      modules:
+        - '@backstage/plugin-scaffolder-backend-module-gitlab'
+        # Add any other modules (e.g., github) here if needed later
+
+    integrations:
+      gitlab:
+        - host: gitlab.itgix.com
+          apiBaseUrl: https://gitlab.itgix.com/api/v4
+          token: ${GITLAB_TOKEN}
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+
+    catalog:
+      locations:
+        - type: url
+          target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+          rules:
+            - allow: [Template]
+
+ingress:
+  enabled: true
+  className: alb
+  host: backstage.adplab.itgix.eu
+  path: /
+
+postgresql:
+  enabled: true
+
