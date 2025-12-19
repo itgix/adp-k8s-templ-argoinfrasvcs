@@ -1,6 +1,12 @@
 backstage:
 
   appConfig:
+    app:
+      baseUrl: https://backstage.example.com
+    backend:
+      baseUrl: https://backstage.example.com
+      cors:
+        origin: https://backstage.example.com
     techdocs:
       generator:
         type: 'local'
