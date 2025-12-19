@@ -13,14 +13,23 @@ backstage:
       publisher:
         type: 'local'
 
+    # auth:
+    #   # This config is often required to get the frontend to talk to the backend.
+    #   # We'll configure a 'guest' provider for initial testing.
+    #   providers:
+    #     guest:  # Enables unauthenticated access for testing
+    #       dangerouslyAllowOutsideDevelopment: true
+    #   session:
+    #     secret: ${AUTH_SECRET}
+
+
     auth:
-      # This config is often required to get the frontend to talk to the backend.
-      # We'll configure a 'guest' provider for initial testing.
       providers:
-        guest:  # Enables unauthenticated access for testing
+        guest:
           dangerouslyAllowOutsideDevelopment: true
+          userEntityRef: user:default/admin
       session:
-        secret: ${AUTH_SECRET}
+        secret: ${AUTH_SECRET
 
     scaffolder:
       # This array tells the scaffolder backend to include these external modules

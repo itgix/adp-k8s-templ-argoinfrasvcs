@@ -39,6 +39,8 @@ spec:
                     key: auth-secret
               - name: GITHUB_TOKEN
                 value: github_changeme
+              - name: APP_CONFIG_auth_providers_guest_userEntityRef
+                value: "user:default/admin"
           ingress:
             enabled: true
             className: alb
