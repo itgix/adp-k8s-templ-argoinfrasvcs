@@ -24,12 +24,14 @@ backstage:
 
 
     auth:
+      environment: production
       providers:
-        guest:
-          dangerouslyAllowOutsideDevelopment: true
-          userEntityRef: user:default/admin
+        github:
+          production:
+            clientId: ${GITHUB_CLIENT_ID}
+            clientSecret: ${GITHUB_CLIENT_SECRET}
       session:
-        secret: ${AUTH_SECRET
+        secret: ${AUTH_SECRET}
 
     scaffolder:
       # This array tells the scaffolder backend to include these external modules
