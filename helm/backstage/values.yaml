@@ -1,9 +1,8 @@
 backstage:
-  # Values for the backstage dependency chart (https://github.com/backstage/charts)
   backstage:
     appConfig:
       app:
-        baseUrl: https://{{ backstage_ingress_host }}
+        baseUrl: https://backstage.example.com
         support:
           url: https://github.com/backstage/backstage/issues
           items:
@@ -14,9 +13,9 @@ backstage:
                   title: GitHub Issues
       
       backend:
-        baseUrl: https://{{ backstage_ingress_host }}
+        baseUrl: https://backstage.example.com
         cors:
-          origin: https://{{ backstage_ingress_host }}
+          origin: https://backstage.example.com
       techdocs:
         generator:
           type: 'local'
@@ -65,7 +64,7 @@ backstage:
   ingress:
     enabled: true
     className: alb
-    host: {{ backstage_ingress_host }}
+    host: backstage.example.com
     path: /
     annotations:
       alb.ingress.kubernetes.io/scheme: internet-facing
