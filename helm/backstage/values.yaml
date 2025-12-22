@@ -6,6 +6,39 @@ backstage:
         baseUrl: ${APP_CONFIG_app_baseUrl}
         support:
           url: ${APP_CONFIG_app_baseUrl}
+          items:
+            - title: Documentation
+              icon: docs
+              links:
+                - url: https://backstage.io/docs
+                  title: Backstage Documentation
+            - title: Support
+              icon: help
+              links:
+                - url: https://github.com/backstage/backstage/issues
+                  title: GitHub Issues
+  
+      organization:
+        name: Backstage
+
+      backend:
+        baseUrl: ${APP_CONFIG_backend_baseUrl}
+        listen:
+          port: 7007
+
+        cors:
+          origin: ${APP_CONFIG_app_baseUrl}
+          methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+          credentials: true
+        csp:
+          connect-src: ["'self'", 'http:', 'https:']
+        database:
+          client: pg  # or whatever your production DB is
+          connection:
+            host: ${POSTGRES_HOST}
+            port: ${POSTGRES_PORT}
+            user: ${POSTGRES_USER}
+            password: ${POSTGRES_PASSWORD}
 
       auth:
         environment: production
