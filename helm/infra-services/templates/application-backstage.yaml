@@ -20,6 +20,40 @@ spec:
       values: |
         backstage:
           backstage:
+            appConfig:
+              app:
+                baseUrl: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+              backend:
+                baseUrl: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+                cors:
+                  origin: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+              auth:
+                environment: production
+                providers:
+                  github:
+                    production:
+                      clientId: ${GITHUB_CLIENT_ID}
+                      clientSecret: ${GITHUB_CLIENT_SECRET}
+                      signIn:
+                        resolvers:
+                          - resolver: usernameMatchingUserEntityName
+                session:
+                  secret: ${AUTH_SECRET}
+              signInPage: github
+              integrations:
+                gitlab:
+                  - host: gitlab.itgix.com
+                    apiBaseUrl: https://gitlab.itgix.com/api/v4
+                    token: ${GITLAB_TOKEN}
+                github:
+                  - host: github.com
+                    token: ${GITHUB_TOKEN}
+              catalog:
+                locations:
+                  - type: url
+                    target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+                    rules:
+                      - allow: [Template]
             extraEnvVars:
               - name: APP_CONFIG_app_baseUrl
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
