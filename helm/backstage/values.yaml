@@ -3,6 +3,15 @@ backstage:
   appConfig:
     app:
       baseUrl: https://backstage.example.com
+      support:
+        url: https://github.com/backstage/backstage/issues
+        items:
+          - title: Issues
+            icon: github
+            links:
+              - url: https://github.com/backstage/backstage/issues
+                title: GitHub Issues
+    
     backend:
       baseUrl: https://backstage.example.com
       cors:
@@ -12,17 +21,7 @@ backstage:
         type: 'local'
       publisher:
         type: 'local'
-
-    # auth:
-    #   # This config is often required to get the frontend to talk to the backend.
-    #   # We'll configure a 'guest' provider for initial testing.
-    #   providers:
-    #     guest:  # Enables unauthenticated access for testing
-    #       dangerouslyAllowOutsideDevelopment: true
-    #   session:
-    #     secret: ${AUTH_SECRET}
-
-
+        
     auth:
       environment: production
       providers:
@@ -30,8 +29,13 @@ backstage:
           production:
             clientId: ${GITHUB_CLIENT_ID}
             clientSecret: ${GITHUB_CLIENT_SECRET}
+            signIn:
+              resolvers:
+                - resolver: usernameMatchingUserEntityName
       session:
         secret: ${AUTH_SECRET}
+    
+    signInPage: github
 
     scaffolder:
       # This array tells the scaffolder backend to include these external modules
