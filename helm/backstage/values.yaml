@@ -1,27 +1,6 @@
 backstage:
   backstage:
     appConfig:
-      app:
-        baseUrl: https://backstage.example.com
-        support:
-          url: https://github.com/backstage/backstage/issues
-          items:
-            - title: Issues
-              icon: github
-              links:
-                - url: https://github.com/backstage/backstage/issues
-                  title: GitHub Issues
-      
-      backend:
-        baseUrl: https://backstage.example.com
-        cors:
-          origin: https://backstage.example.com
-      techdocs:
-        generator:
-          type: 'local'
-        publisher:
-          type: 'local'
-          
       auth:
         environment: production
         providers:
