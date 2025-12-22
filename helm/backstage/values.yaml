@@ -1,69 +1,71 @@
 backstage:
+  # Values for the backstage dependency chart (https://github.com/backstage/charts)
+  backstage:
+    appConfig:
+      app:
+        baseUrl: https://{{ backstage_ingress_host }}
+        support:
+          url: https://github.com/backstage/backstage/issues
+          items:
+            - title: Issues
+              icon: github
+              links:
+                - url: https://github.com/backstage/backstage/issues
+                  title: GitHub Issues
+      
+      backend:
+        baseUrl: https://{{ backstage_ingress_host }}
+        cors:
+          origin: https://{{ backstage_ingress_host }}
+      techdocs:
+        generator:
+          type: 'local'
+        publisher:
+          type: 'local'
+          
+      auth:
+        environment: production
+        providers:
+          github:
+            production:
+              clientId: ${GITHUB_CLIENT_ID}
+              clientSecret: ${GITHUB_CLIENT_SECRET}
+              signIn:
+                resolvers:
+                  - resolver: usernameMatchingUserEntityName
+        session:
+          secret: ${AUTH_SECRET}
+      
+      signInPage: github
 
-  appConfig:
-    app:
-      baseUrl: https://backstage.example.com
-      support:
-        url: https://github.com/backstage/backstage/issues
-        items:
-          - title: Issues
-            icon: github
-            links:
-              - url: https://github.com/backstage/backstage/issues
-                title: GitHub Issues
-    
-    backend:
-      baseUrl: https://backstage.example.com
-      cors:
-        origin: https://backstage.example.com
-    techdocs:
-      generator:
-        type: 'local'
-      publisher:
-        type: 'local'
-        
-    auth:
-      environment: production
-      providers:
+      scaffolder:
+        # This array tells the scaffolder backend to include these external modules
+        modules:
+          - '@backstage/plugin-scaffolder-backend-module-gitlab'
+          # Add any other modules (e.g., github) here if needed later
+
+      integrations:
+        gitlab:
+          - host: gitlab.itgix.com
+            apiBaseUrl: https://gitlab.itgix.com/api/v4
+            token: ${GITLAB_TOKEN}
         github:
-          production:
-            clientId: ${GITHUB_CLIENT_ID}
-            clientSecret: ${GITHUB_CLIENT_SECRET}
-            signIn:
-              resolvers:
-                - resolver: usernameMatchingUserEntityName
-      session:
-        secret: ${AUTH_SECRET}
-    
-    signInPage: github
-
-    scaffolder:
-      # This array tells the scaffolder backend to include these external modules
-      modules:
-        - '@backstage/plugin-scaffolder-backend-module-gitlab'
-        # Add any other modules (e.g., github) here if needed later
-
-    integrations:
-      gitlab:
-        - host: gitlab.itgix.com
-          apiBaseUrl: https://gitlab.itgix.com/api/v4
-          token: ${GITLAB_TOKEN}
-      github:
-        - host: github.com
-          token: ${GITHUB_TOKEN}
+          - host: github.com
+            token: ${GITHUB_TOKEN}
 
 
-    catalog:
-      locations:
-        - type: url
-          target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
-          rules:
-            - allow: [Template]
+      catalog:
+        locations:
+          - type: url
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+            rules:
+              - allow: [Template]
 
+  # Ingress for the wrapper chart (applied to the backstage subchart)
   ingress:
     enabled: true
     className: alb
-    host: backstage.adplab.itgix.eu
+    host: {{ backstage_ingress_host }}
     path: /
     annotations:
       alb.ingress.kubernetes.io/scheme: internet-facing
@@ -71,6 +73,7 @@ backstage:
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
       alb.ingress.kubernetes.io/ssl-redirect: '443'
 
+  # PostgreSQL subchart
   postgresql:
     enabled: true
 
