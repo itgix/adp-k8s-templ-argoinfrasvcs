@@ -28,19 +28,13 @@ spec:
               - name: APP_CONFIG_backend_cors_origin
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
               - name: GITLAB_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: gitlab-token
-                    key: token
-              - name: AUTH_SECRET
-                valueFrom:
-                  secretKeyRef:
-                    name: backstage-secrets
-                    key: auth-secret
               - name: GITHUB_TOKEN
                 value: github_changeme
               - name: APP_CONFIG_auth_providers_guest_userEntityRef
                 value: "user:default/admin"
+            extraEnvVarsSecret:
+              - backstage-secrets
+              - gitlab-token
           ingress:
             enabled: true
             className: alb
