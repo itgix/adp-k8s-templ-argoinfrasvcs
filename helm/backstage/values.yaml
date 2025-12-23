@@ -20,9 +20,14 @@ backstage:
       organization:
         name: Backstage
       backend:
+        auth:
+          providers:
+            github:
+              enabled: true
         baseUrl: ${BACKEND_BASE_URL}
         listen:
           port: 7007
+
         cors:
           origin: ${BASE_URL}
           methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
@@ -37,18 +42,15 @@ backstage:
             user: ${POSTGRES_USER}
             password: ${POSTGRES_PASSWORD}
       auth:
-        environment: production
+        environment: development
         providers:
           github:
-            production:
+            development:
               clientId: ${GITHUB_CLIENT_ID}
               clientSecret: ${GITHUB_CLIENT_SECRET}
               signIn:
                 resolvers:
                   - resolver: usernameMatchingUserEntityName
-          guest: null
-        session:
-          secret: ${AUTH_SECRET}
       signInPage: github
       scaffolder:
         modules:
