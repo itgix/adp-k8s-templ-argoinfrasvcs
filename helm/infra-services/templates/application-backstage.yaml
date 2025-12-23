@@ -19,19 +19,6 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         backstage:
-          backstage:
-            extraEnvVars:
-              - name: APP_CONFIG_app_baseUrl
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: APP_CONFIG_backend_baseUrl
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: APP_CONFIG_backend_cors_origin
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: APP_CONFIG_auth_environment
-                value: "production"
-            extraEnvVarsSecrets:
-              - backstage-secrets
-              - gitlab-token
           ingress:
             enabled: true
             className: alb
