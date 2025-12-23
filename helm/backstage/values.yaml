@@ -3,9 +3,9 @@ backstage:
     appConfig:
       app:
         title: Backstage
-        baseUrl: ${APP_CONFIG_app_baseUrl}
+        baseUrl: ${BASE_URL}
         support:
-          url: ${APP_CONFIG_app_baseUrl}
+          url: ${BASE_URL}
           items:
             - title: Documentation
               icon: docs
@@ -22,12 +22,12 @@ backstage:
         name: Backstage
 
       backend:
-        baseUrl: ${APP_CONFIG_backend_baseUrl}
+        baseUrl: ${BACKEND_BASE_URL}
         listen:
           port: 7007
 
         cors:
-          origin: ${APP_CONFIG_app_baseUrl}
+          origin: ${BASE_URL}
           methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
           credentials: true
         csp:
