@@ -19,6 +19,10 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         backstage:
+          backstage:
+            extraEnvVarsSecrets:
+              - backstage-secrets
+              - gitlab-token
           ingress:
             enabled: true
             className: alb
