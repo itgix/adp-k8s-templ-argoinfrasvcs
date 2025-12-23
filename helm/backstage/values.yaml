@@ -17,15 +17,12 @@ backstage:
               links:
                 - url: https://github.com/backstage/backstage/issues
                   title: GitHub Issues
-  
       organization:
         name: Backstage
-
       backend:
         baseUrl: ${BACKEND_BASE_URL}
         listen:
           port: 7007
-
         cors:
           origin: ${BASE_URL}
           methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
@@ -33,13 +30,12 @@ backstage:
         csp:
           connect-src: ["'self'", 'http:', 'https:']
         database:
-          client: pg  # or whatever your production DB is
+          client: pg
           connection:
             host: ${POSTGRES_HOST}
             port: ${POSTGRES_PORT}
             user: ${POSTGRES_USER}
             password: ${POSTGRES_PASSWORD}
-
       auth:
         environment: production
         providers:
@@ -50,17 +46,13 @@ backstage:
               signIn:
                 resolvers:
                   - resolver: usernameMatchingUserEntityName
+          guest: null
         session:
           secret: ${AUTH_SECRET}
-      
       signInPage: github
-
       scaffolder:
-        # This array tells the scaffolder backend to include these external modules
         modules:
           - '@backstage/plugin-scaffolder-backend-module-gitlab'
-          # Add any other modules (e.g., github) here if needed later
-
       integrations:
         gitlab:
           - host: gitlab.itgix.com
@@ -69,28 +61,12 @@ backstage:
         github:
           - host: github.com
             token: ${GITHUB_TOKEN}
-
-
       catalog:
         locations:
           - type: url
             target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
             rules:
               - allow: [Template]
-
-  # Ingress for the wrapper chart (applied to the backstage subchart)
-  ingress:
-    enabled: true
-    className: alb
-    host: backstage.example.com
-    path: /
-    annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
-
-  # PostgreSQL subchart
-  postgresql:
-    enabled: true
-
+    extraEnvVarsSecrets:
+      - backstage-secrets
+      - backstage-postgresql
