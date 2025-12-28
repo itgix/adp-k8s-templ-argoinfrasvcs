@@ -29,7 +29,7 @@ backstage:
           dangerouslyAllowOutsideDevelopment: true
           userEntityRef: user:default/admin
       session:
-        secret: ${AUTH_SECRET
+        secret: ${AUTH_SECRET}
 
     scaffolder:
       # This array tells the scaffolder backend to include these external modules
