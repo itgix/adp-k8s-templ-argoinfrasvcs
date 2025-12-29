@@ -66,6 +66,7 @@ spec:
               alb.ingress.kubernetes.io/target-type: ip
               alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
               alb.ingress.kubernetes.io/ssl-redirect: '443'
+              alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: backstage
