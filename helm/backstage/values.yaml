@@ -1,86 +1,24 @@
+# Backstage Helm Chart Values
+# Configuration is baked into the custom Docker image (app-config.production.yaml)
+# Only image settings and secrets are configured here
+
 backstage:
   backstage:
-    appConfig:
-      app:
-        title: Backstage
-        baseUrl: ${BASE_URL}
-        support:
-          url: ${BASE_URL}
-          items:
-            - title: Documentation
-              icon: docs
-              links:
-                - url: https://backstage.io/docs
-                  title: Backstage Documentation
-            - title: Support
-              icon: help
-              links:
-                - url: https://github.com/backstage/backstage/issues
-                  title: GitHub Issues
-      organization:
-        name: Backstage
-      backend:
-        auth:
-          externalAccess:
-            - type: legacy
-              options:
-                subject: legacy-default-config
-                secret: ${AUTH_SECRET}
-          providers:
-            guest:
-              dangerouslyAllowOutsideDevelopment: true
-            github:
-              enabled: true
-        baseUrl: ${BACKEND_BASE_URL}
-        listen:
-          port: 7007
+    # Custom Backstage image built from backstage-adp repo
+    image:
+      registry: ""  # Set via IDP installer, e.g., 791296381042.dkr.ecr.eu-west-1.amazonaws.com
+      repository: ""  # Set via IDP installer, e.g., backstage-adp
+      tag: ""  # Set via IDP installer, e.g., latest or specific version
+      pullSecrets: []  # Set via IDP installer if using private registry
 
-        cors:
-          origin: ${BASE_URL}
-          methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
-          credentials: true
-        csp:
-          connect-src: ["'self'", 'http:', 'https:']
-        database:
-          client: pg
-          connection:
-            host: ${POSTGRES_HOST}
-            port: ${POSTGRES_PORT}
-            user: ${POSTGRES_USER}
-            password: ${POSTGRES_PASSWORD}
-      auth:
-        environment: development
-        providers:
-          guest:
-            dangerouslyAllowOutsideDevelopment: true
-          github:
-            development:
-              clientId: ${GITHUB_CLIENT_ID}
-              clientSecret: ${GITHUB_CLIENT_SECRET}
-              signIn:
-                resolvers:
-                  - resolver: usernameMatchingUserEntityName
-      signInPage: github
-      scaffolder:
-        modules:
-          - '@backstage/plugin-scaffolder-backend-module-gitlab'
-      # Integrations use environment variables that are dynamically set
-      # GITLAB_HOST and GITLAB_API_BASE_URL are set in application-backstage.yaml
-      # based on applications_destination_repo URL
-      integrations:
-        gitlab:
-          - host: ${GITLAB_HOST}
-            apiBaseUrl: ${GITLAB_API_BASE_URL}
-            token: ${GITLAB_TOKEN}
-        github:
-          - host: github.com
-            token: ${GITHUB_TOKEN}
-      catalog:
-        locations:
-          - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
-            rules:
-              - allow: [Template]
+    # Container port must match app-config.production.yaml listen port
+    containerPorts:
+      backend: 7007
+
+    # Secrets containing environment variables for app-config.production.yaml
+    # These secrets provide values for: AUTH_SECRET, GITHUB_TOKEN, GITLAB_TOKEN,
+    # AUTH_GITHUB_CLIENT_ID, AUTH_GITHUB_CLIENT_SECRET, APP_BASE_URL, BACKEND_BASE_URL,
+    # GITLAB_HOST, GITLAB_API_BASE_URL, ORGANIZATION_NAME
     extraEnvVarsSecrets:
       - backstage-secrets
       - backstage-postgresql

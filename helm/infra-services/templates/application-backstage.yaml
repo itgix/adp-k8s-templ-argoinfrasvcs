@@ -30,8 +30,20 @@ spec:
       values: |
         backstage:
           backstage:
+            {{- if index .Values "infra-services" "backstage_image_registry" }}
+            image:
+              registry: {{ index .Values "infra-services" "backstage_image_registry" }}
+              repository: {{ index .Values "infra-services" "backstage_image_repository" }}
+              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "latest" }}
+              {{- if index .Values "infra-services" "backstage_image_pull_secrets" }}
+              pullSecrets:
+                {{- range index .Values "infra-services" "backstage_image_pull_secrets" }}
+                - {{ . }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
             extraEnvVars:
-              - name: BASE_URL
+              - name: APP_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
               - name: BACKEND_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
