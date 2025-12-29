@@ -1,4 +1,14 @@
 {{- if index .Values "infra-services" "backstage_enabled" }}
+{{- $appsRepo := index .Values "infra-services" "applications_destination_repo" | default "" }}
+{{- /* Extract host from applications_destination_repo URL */ -}}
+{{- $appsRepoHost := "" }}
+{{- $appsRepoIsGitlab := false }}
+{{- $appsRepoIsGithub := false }}
+{{- if $appsRepo }}
+  {{- $appsRepoHost = regexReplaceAll "^(https?://|git@)([^/:]+).*" $appsRepo "${2}" }}
+  {{- $appsRepoIsGitlab = contains "gitlab" $appsRepoHost }}
+  {{- $appsRepoIsGithub = contains "github" $appsRepoHost }}
+{{- end }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -21,26 +31,24 @@ spec:
         backstage:
           backstage:
             extraEnvVars:
-              - name: APP_CONFIG_app_baseUrl
+              - name: BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: APP_CONFIG_backend_baseUrl
+              - name: BACKEND_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: APP_CONFIG_backend_cors_origin
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              - name: GITLAB_TOKEN
-                valueFrom:
-                  secretKeyRef:
-                    name: gitlab-token
-                    key: token
-              - name: AUTH_SECRET
-                valueFrom:
-                  secretKeyRef:
-                    name: backstage-secrets
-                    key: auth-secret
-              - name: GITHUB_TOKEN
-                value: github_changeme
-              - name: APP_CONFIG_auth_providers_guest_userEntityRef
-                value: "user:default/admin"
+              {{- if $appsRepoIsGitlab }}
+              - name: GITLAB_HOST
+                value: {{ $appsRepoHost }}
+              - name: GITLAB_API_BASE_URL
+                value: https://{{ $appsRepoHost }}/api/v4
+              {{- end }}
+            extraEnvVarsSecrets:
+              - backstage-secrets
+              {{- if $appsRepoIsGitlab }}
+              - gitlab-token
+              {{- end }}
+              {{- if or $appsRepoIsGithub (index .Values "infra-services" "backstage_github_token") }}
+              - github-token
+              {{- end }}
           ingress:
             enabled: true
             className: alb

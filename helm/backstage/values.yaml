@@ -1,70 +1,86 @@
 backstage:
+  backstage:
+    appConfig:
+      app:
+        title: Backstage
+        baseUrl: ${BASE_URL}
+        support:
+          url: ${BASE_URL}
+          items:
+            - title: Documentation
+              icon: docs
+              links:
+                - url: https://backstage.io/docs
+                  title: Backstage Documentation
+            - title: Support
+              icon: help
+              links:
+                - url: https://github.com/backstage/backstage/issues
+                  title: GitHub Issues
+      organization:
+        name: Backstage
+      backend:
+        auth:
+          externalAccess:
+            - type: legacy
+              options:
+                subject: legacy-default-config
+                secret: ${AUTH_SECRET}
+          providers:
+            guest:
+              dangerouslyAllowOutsideDevelopment: true
+            github:
+              enabled: true
+        baseUrl: ${BACKEND_BASE_URL}
+        listen:
+          port: 7007
 
-  appConfig:
-    app:
-      baseUrl: https://backstage.example.com
-    backend:
-      baseUrl: https://backstage.example.com
-      cors:
-        origin: https://backstage.example.com
-    techdocs:
-      generator:
-        type: 'local'
-      publisher:
-        type: 'local'
-
-    # auth:
-    #   # This config is often required to get the frontend to talk to the backend.
-    #   # We'll configure a 'guest' provider for initial testing.
-    #   providers:
-    #     guest:  # Enables unauthenticated access for testing
-    #       dangerouslyAllowOutsideDevelopment: true
-    #   session:
-    #     secret: ${AUTH_SECRET}
-
-
-    auth:
-      providers:
-        guest:
-          dangerouslyAllowOutsideDevelopment: true
-          userEntityRef: user:default/admin
-      session:
-        secret: ${AUTH_SECRET}
-
-    scaffolder:
-      # This array tells the scaffolder backend to include these external modules
-      modules:
-        - '@backstage/plugin-scaffolder-backend-module-gitlab'
-        # Add any other modules (e.g., github) here if needed later
-
-    integrations:
-      gitlab:
-        - host: gitlab.itgix.com
-          apiBaseUrl: https://gitlab.itgix.com/api/v4
-          token: ${GITLAB_TOKEN}
-      github:
-        - host: github.com
-          token: ${GITHUB_TOKEN}
-
-
-    catalog:
-      locations:
-        - type: url
-          target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
-          rules:
-            - allow: [Template]
-
-  ingress:
-    enabled: true
-    className: alb
-    host: backstage.adplab.itgix.eu
-    path: /
-    annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/ssl-redirect: '443'
-
-  postgresql:
-    enabled: true
-
+        cors:
+          origin: ${BASE_URL}
+          methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+          credentials: true
+        csp:
+          connect-src: ["'self'", 'http:', 'https:']
+        database:
+          client: pg
+          connection:
+            host: ${POSTGRES_HOST}
+            port: ${POSTGRES_PORT}
+            user: ${POSTGRES_USER}
+            password: ${POSTGRES_PASSWORD}
+      auth:
+        environment: development
+        providers:
+          guest:
+            dangerouslyAllowOutsideDevelopment: true
+          github:
+            development:
+              clientId: ${GITHUB_CLIENT_ID}
+              clientSecret: ${GITHUB_CLIENT_SECRET}
+              signIn:
+                resolvers:
+                  - resolver: usernameMatchingUserEntityName
+      signInPage: github
+      scaffolder:
+        modules:
+          - '@backstage/plugin-scaffolder-backend-module-gitlab'
+      # Integrations use environment variables that are dynamically set
+      # GITLAB_HOST and GITLAB_API_BASE_URL are set in application-backstage.yaml
+      # based on applications_destination_repo URL
+      integrations:
+        gitlab:
+          - host: ${GITLAB_HOST}
+            apiBaseUrl: ${GITLAB_API_BASE_URL}
+            token: ${GITLAB_TOKEN}
+        github:
+          - host: github.com
+            token: ${GITHUB_TOKEN}
+      catalog:
+        locations:
+          - type: url
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+            rules:
+              - allow: [Template]
+    extraEnvVarsSecrets:
+      - backstage-secrets
+      - backstage-postgresql
