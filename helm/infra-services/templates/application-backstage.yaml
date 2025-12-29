@@ -35,12 +35,8 @@ spec:
               registry: {{ index .Values "infra-services" "backstage_image_registry" }}
               repository: {{ index .Values "infra-services" "backstage_image_repository" }}
               tag: {{ index .Values "infra-services" "backstage_image_tag" | default "latest" }}
-              {{- if index .Values "infra-services" "backstage_image_pull_secrets" }}
               pullSecrets:
-                {{- range index .Values "infra-services" "backstage_image_pull_secrets" }}
-                - {{ . }}
-                {{- end }}
-              {{- end }}
+                - gitlab-registry-secret
             {{- end }}
             extraEnvVars:
               - name: APP_BASE_URL
