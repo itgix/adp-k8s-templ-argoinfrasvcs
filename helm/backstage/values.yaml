@@ -45,7 +45,8 @@ backstage:
 
       backend:
         baseUrl: ${BACKEND_BASE_URL}
-        listen: ':7007'
+        listen:
+          port: 7007
         auth:
           externalAccess:
             - type: legacy
