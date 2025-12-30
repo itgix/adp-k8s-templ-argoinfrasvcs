@@ -1,27 +1,12 @@
-# Backstage Helm Chart Values
-# Base image contains minimal config (app-config.yaml)
-# Production config is injected via appConfig below
-
 backstage:
   backstage:
-    # Custom Backstage image built from backstage-adp repo
-    image:
-      registry: ""  # Set via IDP installer, e.g., gitlab.itgix.com:5050
-      repository: ""  # Set via IDP installer, e.g., iroussev/backstage-adp
-      tag: ""  # Set via IDP installer, e.g., v0.0.3
-      pullSecrets: []  # Set via IDP installer if using private registry
-
-    # Container port
     containerPorts:
       backend: 7007
 
-    # Secrets containing environment variables
     extraEnvVarsSecrets:
       - backstage-secrets
       - backstage-postgresql
 
-    # Production app configuration - customize per project
-    # This creates a ConfigMap that gets mounted automatically by the upstream chart
     appConfig:
       app:
         title: Backstage
