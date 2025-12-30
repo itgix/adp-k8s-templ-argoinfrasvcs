@@ -1,0 +1,89 @@
+backstage:
+  backstage:
+    containerPorts:
+      backend: 7007
+
+    extraEnvVarsSecrets:
+      - backstage-secrets
+      - backstage-postgresql
+
+    appConfig:
+      app:
+        title: Backstage
+        baseUrl: ${APP_BASE_URL}
+        support:
+          url: ${APP_BASE_URL}
+          items:
+            - title: Documentation
+              icon: docs
+              links:
+                - url: https://backstage.io/docs
+                  title: Backstage Documentation
+            - title: Support
+              icon: help
+              links:
+                - url: https://github.com/backstage/backstage/issues
+                  title: GitHub Issues
+
+      organization:
+        name: ${ORGANIZATION_NAME}
+
+      backend:
+        baseUrl: ${BACKEND_BASE_URL}
+        listen:
+          port: 7007
+        auth:
+          externalAccess:
+            - type: legacy
+              options:
+                subject: legacy-default-config
+                secret: ${AUTH_SECRET}
+        cors:
+          origin: ${APP_BASE_URL}
+          methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+          credentials: true
+        csp:
+          connect-src: ["'self'", 'http:', 'https:']
+        database:
+          client: pg
+          connection:
+            host: ${POSTGRES_HOST}
+            port: ${POSTGRES_PORT}
+            user: ${POSTGRES_USER}
+            password: ${POSTGRES_PASSWORD}
+
+      auth:
+        environment: production
+        providers:
+          github:
+            production:
+              clientId: ${AUTH_GITHUB_CLIENT_ID}
+              clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+              callbackUrl: ${BACKEND_BASE_URL}/api/auth/github/handler/frame
+              signIn:
+                resolvers:
+                  - resolver: usernameMatchingUserEntityName
+          guest:
+            dangerouslyAllowOutsideDevelopment: true
+
+      signInPage: github
+
+      integrations:
+        github:
+          - host: github.com
+            token: ${GITHUB_TOKEN}
+        gitlab:
+          - host: ${GITLAB_HOST}
+            apiBaseUrl: ${GITLAB_API_BASE_URL}
+            token: ${GITLAB_TOKEN}
+
+      catalog:
+        locations:
+          - type: url
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+            rules:
+              - allow: [Template]
+          - type: file
+            target: ./examples/org.yaml
+            rules:
+              - allow: [User, Group]
