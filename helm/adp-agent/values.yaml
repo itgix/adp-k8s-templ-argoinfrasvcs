@@ -6,7 +6,7 @@ infra-services:
 adpagent:
   product_code: "5uhf95x0bz6d518p795cfi07s"
   usage_dimension: "ManagedAvailableMemory"
-  image: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-agent:v1.0.1
+  image: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-agent:v1.2.2
   adpagent:
     limits:
       cpu: 800m

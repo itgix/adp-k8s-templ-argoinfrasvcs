@@ -1,0 +1,70 @@
+backstage:
+
+  appConfig:
+    app:
+      baseUrl: https://backstage.example.com
+    backend:
+      baseUrl: https://backstage.example.com
+      cors:
+        origin: https://backstage.example.com
+    techdocs:
+      generator:
+        type: 'local'
+      publisher:
+        type: 'local'
+
+    # auth:
+    #   # This config is often required to get the frontend to talk to the backend.
+    #   # We'll configure a 'guest' provider for initial testing.
+    #   providers:
+    #     guest:  # Enables unauthenticated access for testing
+    #       dangerouslyAllowOutsideDevelopment: true
+    #   session:
+    #     secret: ${AUTH_SECRET}
+
+
+    auth:
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+          userEntityRef: user:default/admin
+      session:
+        secret: ${AUTH_SECRET}
+
+    scaffolder:
+      # This array tells the scaffolder backend to include these external modules
+      modules:
+        - '@backstage/plugin-scaffolder-backend-module-gitlab'
+        # Add any other modules (e.g., github) here if needed later
+
+    integrations:
+      gitlab:
+        - host: gitlab.itgix.com
+          apiBaseUrl: https://gitlab.itgix.com/api/v4
+          token: ${GITLAB_TOKEN}
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+
+
+    catalog:
+      locations:
+        - type: url
+          target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+          rules:
+            - allow: [Template]
+
+  ingress:
+    enabled: true
+    className: alb
+    host: backstage.adplab.itgix.eu
+    path: /
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+  postgresql:
+    enabled: true
+
