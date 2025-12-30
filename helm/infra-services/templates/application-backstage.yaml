@@ -1,6 +1,5 @@
 {{- if index .Values "infra-services" "backstage_enabled" }}
 {{- $appsRepo := index .Values "infra-services" "applications_destination_repo" | default "" }}
-{{- /* Extract host from applications_destination_repo URL */ -}}
 {{- $appsRepoHost := "" }}
 {{- $appsRepoIsGitlab := false }}
 {{- $appsRepoIsGithub := false }}
