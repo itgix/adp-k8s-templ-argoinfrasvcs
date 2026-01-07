@@ -20,12 +20,10 @@ spec:
       values: |
         backstage:
           backstage:
-            {{- if index .Values "infra-services" "backstage_image_registry" }}
             image:
-              registry: {{ index .Values "infra-services" "backstage_image_registry" }}
-              repository: {{ index .Values "infra-services" "backstage_image_repository" }}
-              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "latest" }}
-            {{- end }}
+              registry: {{ index .Values "infra-services" "backstage_image_registry" | default "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
+              repository: {{ index .Values "infra-services" "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
+              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.2" }}
             extraEnvVars:
               - name: APP_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
