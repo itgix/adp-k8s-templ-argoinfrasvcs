@@ -26,7 +26,7 @@ spec:
               tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.2" }}
             extraEnvVars:
               - name: APP_BASE_URL
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domdns_main_domainain")) }}
+                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
               - name: BACKEND_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
             extraEnvVarsSecrets:
