@@ -65,6 +65,16 @@ backstage:
                   - resolver: usernameMatchingUserEntityName
           guest:
             dangerouslyAllowOutsideDevelopment: true
+          gitlab:
+            production:
+              clientId: ${AUTH_GITLAB_CLIENT_ID}
+              clientSecret: ${AUTH_GITLAB_CLIENT_SECRET}
+              callbackUrl: ${BACKEND_BASE_URL}/api/auth/gitlab/handler/frame
+              apiBaseUrl: ${GITLAB_API_BASE_URL}
+              baseUrl: ${GITLAB_BASE_URL}
+              signIn:
+                resolvers:
+                  - resolver: usernameMatchingUserEntityName
 
       signInPage: github
 
@@ -87,3 +97,16 @@ backstage:
             target: ./examples/org.yaml
             rules:
               - allow: [User, Group]
+          - type: gitlab
+            target: ${GITLAB_TARGET}
+        providers:
+          gitlab:
+            gitlabId:
+              host: ${GITLAB_HOST}
+              apiBaseUrl: ${GITLAB_API_BASE_URL}
+              token: ${GITLAB_TOKEN}
+              orgEnabled: true
+              groupPattern: '[\s\S]*'
+              schedule:                 
+                frequency: "1h"         
+                timeout: "30s" 
