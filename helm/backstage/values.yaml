@@ -110,6 +110,11 @@ backstage:
                 timeout: "30s" 
 =======
 
+      scaffolder:
+        templateDefaults:
+          repoName: ${GIT_APP_REPO}
+          repoOwner: ${GIT_APP_OWNER}
+
   postgresql:
     enabled: true
     auth:
