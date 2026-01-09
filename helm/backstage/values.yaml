@@ -115,7 +115,7 @@ backstage:
           parameters:
             region: ${AWS_REGION}
             repoName: ${GIT_APP_REPO}
-            repoOwner: ${GIT_APP_OWNER}
+            repoOwner: itgix
           secrets:
             AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
 
