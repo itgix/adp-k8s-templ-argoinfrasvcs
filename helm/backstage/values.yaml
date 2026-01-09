@@ -85,6 +85,11 @@ backstage:
             rules:
               - allow: [User, Group]
 
+      scaffolder:
+        templateDefaults:
+          repoName: ${GIT_APP_REPO}
+          repoOwner: ${GIT_APP_OWNER}
+
   postgresql:
     enabled: true
     auth:
