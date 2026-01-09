@@ -1,13 +1,4 @@
 {{- if index .Values "infra-services" "backstage_enabled" }}
-{{- $appsRepo := index .Values "infra-services" "applications_destination_repo" | default "" }}
-{{- $appsRepoHost := "" }}
-{{- $appsRepoIsGitlab := false }}
-{{- $appsRepoIsGithub := false }}
-{{- if $appsRepo }}
-  {{- $appsRepoHost = regexReplaceAll "^(https?://|git@)([^/:]+).*" $appsRepo "${2}" }}
-  {{- $appsRepoIsGitlab = contains "gitlab" $appsRepoHost }}
-  {{- $appsRepoIsGithub = contains "github" $appsRepoHost }}
-{{- end }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -29,37 +20,21 @@ spec:
       values: |
         backstage:
           backstage:
-            {{- if index .Values "infra-services" "backstage_image_registry" }}
             image:
-              registry: {{ index .Values "infra-services" "backstage_image_registry" }}
-              repository: {{ index .Values "infra-services" "backstage_image_repository" }}
-              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "latest" }}
-              pullSecrets:
-                - gitlab-registry-secret
-            {{- end }}
+              registry: {{ index .Values "infra-services" "backstage_image_registry" | default "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
+              repository: {{ index .Values "infra-services" "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
+              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.2" }}
             extraEnvVars:
               - name: APP_BASE_URL
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
               - name: BACKEND_BASE_URL
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
-              {{- if $appsRepoIsGitlab }}
-              - name: GITLAB_HOST
-                value: {{ $appsRepoHost }}
-              - name: GITLAB_API_BASE_URL
-                value: https://{{ $appsRepoHost }}/api/v4
-              {{- end }}
+                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
             extraEnvVarsSecrets:
               - backstage-secrets
-              {{- if $appsRepoIsGitlab }}
-              - gitlab-token
-              {{- end }}
-              {{- if or $appsRepoIsGithub (index .Values "infra-services" "backstage_github_token") }}
-              - github-token
-              {{- end }}
           ingress:
             enabled: true
             className: alb
-            host: {{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "domain")) }}
+            host: {{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
             annotations:
               alb.ingress.kubernetes.io/scheme: internet-facing
               alb.ingress.kubernetes.io/target-type: ip

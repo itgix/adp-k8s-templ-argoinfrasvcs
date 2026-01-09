@@ -72,10 +72,7 @@ backstage:
         github:
           - host: github.com
             token: ${GITHUB_TOKEN}
-        gitlab:
-          - host: ${GITLAB_HOST}
-            apiBaseUrl: ${GITLAB_API_BASE_URL}
-            token: ${GITLAB_TOKEN}
+
 
       catalog:
         locations:
@@ -87,3 +84,12 @@ backstage:
             target: ./examples/org.yaml
             rules:
               - allow: [User, Group]
+
+  postgresql:
+    enabled: true
+    auth:
+      username: bn_backstage
+      existingSecret: "backstage-postgresql"
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
