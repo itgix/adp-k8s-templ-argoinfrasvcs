@@ -34,7 +34,7 @@ spec:
 {{- $clean := regexReplaceAll "^https://github.com/|\\.git$" $repoUrl "" -}}
 {{- $parts := splitList "/" $clean -}}
 {{- $owner := index $parts 0 -}}
-{{- $repo := index $parts 1 -}}
+{{- $repo := index $parts 1 }}
               - name: GIT_APP_REPO
                 value: {{ $repo | quote }}
               - name: GIT_APP_OWNER
