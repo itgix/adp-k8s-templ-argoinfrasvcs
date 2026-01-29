@@ -19,7 +19,6 @@ spec:
         name: default
         group: karpenter.k8s.aws
         kind: EC2NodeClass
-      expireAfter: 720h
       requirements:
       - key: topology.kubernetes.io/zone
         operator: In
