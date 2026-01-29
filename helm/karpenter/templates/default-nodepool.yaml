@@ -1,12 +1,12 @@
 {{- if .Values.configuration.enabled }}
-apiVersion: karpenter.sh/v1beta1
+apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: default
 spec:
   disruption:
-    consolidationPolicy: WhenUnderutilized
-    expireAfter: 720h0m0s
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 5m
   limits:
     cpu: 1k
     memory: 1000Gi
@@ -17,6 +17,8 @@ spec:
     spec:
       nodeClassRef:
         name: default
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
       requirements:
       - key: topology.kubernetes.io/zone
         operator: In
