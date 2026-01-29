@@ -7,6 +7,7 @@ spec:
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 5m
+    expireAfter: 720h0m0s
   limits:
     cpu: 1k
     memory: 1000Gi
