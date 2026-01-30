@@ -12,7 +12,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision: HEAD
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "prometheus_stack_branch") }}
     path: helm/kube-prometheus-stack
     helm:
       valueFiles:
