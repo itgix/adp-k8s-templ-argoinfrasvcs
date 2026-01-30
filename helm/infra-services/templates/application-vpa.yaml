@@ -12,7 +12,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision: HEAD
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "vpa_branch") }}
     path: helm/vpa
     helm:
       valueFiles:

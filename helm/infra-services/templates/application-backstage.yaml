@@ -11,7 +11,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision: HEAD
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "backstage_branch") }}
     path: helm/backstage
     helm:
       valueFiles:
