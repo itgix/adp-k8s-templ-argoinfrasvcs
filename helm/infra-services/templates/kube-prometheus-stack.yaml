@@ -201,13 +201,6 @@ spec:
                       requests:
                         storage: 50Gi
               retention: 60d
-              resources:
-                requests:
-                  memory: "5Gi"
-                  cpu: "400m"
-                limits:
-                  memory: "7Gi"
-                  cpu: "800m"
               walCompression: true
               serviceMonitorNamespaceSelector: {}
               serviceMonitorSelector: {}
