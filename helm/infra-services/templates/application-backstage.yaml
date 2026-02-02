@@ -23,23 +23,40 @@ spec:
             image:
               registry: {{ index .Values "infra-services" "backstage_image_registry" | default "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
               repository: {{ index .Values "infra-services" "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
-              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.2" }}
+              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.3" }}
             extraEnvVars:
               - name: APP_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
               - name: BACKEND_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
-{{- $repoUrl := index .Values "infra-services" "applications_destination_repo" }}
-{{- if and $repoUrl (contains "github" $repoUrl) }}
-{{- $clean := regexReplaceAll "^https://github.com/|\\.git$" $repoUrl "" -}}
+
+{{- /*
+  Parse applications_destination_repo for both GitHub/GitLab, including GitLab subgroup paths.
+
+  Examples:
+    https://github.com/itgix/adp-backstage-scaffold.git
+      -> host=github.com, owner=itgix, repo=adp-backstage-scaffold
+
+    https://gitlab.itgix.com/rnd/app-platform/demo-environments/demo-client2-argoapps
+      -> host=gitlab.itgix.com, owner=rnd/app-platform/demo-environments, repo=demo-client2-argoapps
+*/ -}}
+{{- $repoUrl := index .Values "infra-services" "applications_destination_repo" -}}
+{{- if $repoUrl }}
+{{- $host := regexReplaceAll "^https?://([^/]+)/.*" $repoUrl "$1" -}}
+{{- $clean := regexReplaceAll "^https?://[^/]+/|\\.git$" $repoUrl "" -}}
 {{- $parts := splitList "/" $clean -}}
-{{- $owner := index $parts 0 -}}
-{{- $repo := index $parts 1 }}
-              - name: GIT_APP_REPO
-                value: {{ $repo | quote }}
+{{- if ge (len $parts) 2 }}
+{{- $repo := index $parts (sub (len $parts) 1) -}}
+{{- $owner := join "/" (slice $parts 0 (sub (len $parts) 1)) -}}
+              - name: GIT_APP_HOST
+                value: {{ $host | quote }}
               - name: GIT_APP_OWNER
                 value: {{ $owner | quote }}
+              - name: GIT_APP_REPO
+                value: {{ $repo | quote }}
 {{- end }}
+{{- end }}
+
             extraEnvVarsSecrets:
               - backstage-secrets
           ingress:
