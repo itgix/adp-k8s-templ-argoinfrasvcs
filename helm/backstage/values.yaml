@@ -87,11 +87,11 @@ backstage:
       catalog:
         locations:
           - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-github.yaml
+            target: https://raw.githubusercontent.com/itgix/adp-backstage-scaffold/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-github.yaml
             rules:
               - allow: [Template]
           - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-gitlab.yaml
+            target: https://raw.githubusercontent.com/itgix/adp-backstage-scaffold/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-gitlab.yaml
             rules:
               - allow: [Template]
           - type: file
