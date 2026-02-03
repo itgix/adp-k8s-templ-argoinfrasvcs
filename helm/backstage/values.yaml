@@ -82,10 +82,7 @@ backstage:
         github:
           - host: github.com
             token: ${GITHUB_TOKEN}
-        gitlab:
-          - host: ${GITLAB_HOST}
-            apiBaseUrl: ${GITLAB_API_BASE_URL}
-            token: ${GITLAB_TOKEN}
+
 
       catalog:
         locations:
@@ -97,6 +94,7 @@ backstage:
             target: ./examples/org.yaml
             rules:
               - allow: [User, Group]
+<<<<<<< HEAD
           - type: gitlab
             target: ${GITLAB_TARGET}
         providers:
@@ -110,3 +108,14 @@ backstage:
               schedule:                 
                 frequency: "1h"         
                 timeout: "30s" 
+=======
+
+  postgresql:
+    enabled: true
+    auth:
+      username: bn_backstage
+      existingSecret: "backstage-postgresql"
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
+>>>>>>> 6762c92 (feat 266: refine Backstage Helm deployment with AWS external secrets (#23))
