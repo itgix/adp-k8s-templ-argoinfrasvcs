@@ -99,6 +99,7 @@ backstage:
             rules:
               - allow: [User, Group]
 <<<<<<< HEAD
+<<<<<<< HEAD
           - type: gitlab
             target: ${GITLAB_TARGET}
         providers:
@@ -114,6 +115,10 @@ backstage:
                 timeout: "30s" 
 =======
 
+=======
+          - type: gitlab
+            target: ${GITLAB_TARGET}
+>>>>>>> 09a8f8d (Solved merge conflict)
       scaffolder:
         defaultEnvironment:
           parameters:
@@ -133,6 +138,21 @@ backstage:
         adminPasswordKey: postgres-password
         userPasswordKey: password
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6762c92 (feat 266: refine Backstage Helm deployment with AWS external secrets (#23))
 =======
 >>>>>>> ff272c8 (Solve merge conflicts)
+=======
+
+      providers:
+        gitlab:
+          gitlabId:
+            host: ${GITLAB_HOST}
+            apiBaseUrl: ${GITLAB_API_BASE_URL}
+            token: ${GITLAB_TOKEN}
+            orgEnabled: true
+            groupPattern: '[\s\S]*'
+            schedule:                 
+              frequency: "1h"         
+              timeout: "30s" 
+>>>>>>> 09a8f8d (Solved merge conflict)
