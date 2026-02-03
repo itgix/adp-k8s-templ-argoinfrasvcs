@@ -132,4 +132,7 @@ backstage:
       secretKeys:
         adminPasswordKey: postgres-password
         userPasswordKey: password
+<<<<<<< HEAD
 >>>>>>> 6762c92 (feat 266: refine Backstage Helm deployment with AWS external secrets (#23))
+=======
+>>>>>>> ff272c8 (Solve merge conflicts)
