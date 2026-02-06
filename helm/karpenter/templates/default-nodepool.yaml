@@ -6,7 +6,7 @@ metadata:
 spec:
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 5m
+    consolidateAfter: 60s
   limits:
     cpu: 1k
     memory: 1000Gi
