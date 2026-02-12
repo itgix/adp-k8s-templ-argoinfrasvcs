@@ -32,8 +32,9 @@ spec:
             sidecar:
               dashboards:
                 provider:
-                allowUiUpdates: true
-                disableDelete: true
+                  name: dashboardsProvider
+                  allowUiUpdates: true
+                  disableDelete: true
             #assertNoLeakedSecrets: false
             # grafana.ini:
             #   server:
