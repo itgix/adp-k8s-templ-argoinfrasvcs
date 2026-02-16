@@ -945,13 +945,14 @@ controller:
   podLabels: {}
 
   # -- Resource limits and requests for the application controller pods
-  resources: {}
-  #  limits:
-  #    cpu: 500m
-  #    memory: 512Mi
-  #  requests:
-  #    cpu: 250m
-  #    memory: 256Mi
+  resources:
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
 
   # Application controller container ports
   containerPorts:
@@ -2109,13 +2110,13 @@ server:
         - ALL
 
     # -- Resource limits and requests for the argocd-extensions container
-    resources: {}
-    #  limits:
-    #    cpu: 50m
-    #    memory: 128Mi
-    #  requests:
-    #    cpu: 10m
-    #    memory: 64Mi
+    resources:
+      limits:
+        cpu: 100m
+        memory: 400Mi
+      requests:
+        cpu: 50m
+        memory: 200Mi
 
   # -- Additional containers to be added to the server pod
   ## Note: Supports use of custom Helm templates
@@ -2972,13 +2973,13 @@ repoServer:
   podLabels: {}
 
   # -- Resource limits and requests for the repo server pods
-  resources: {}
-  #  limits:
-  #    cpu: 50m
-  #    memory: 128Mi
-  #  requests:
-  #    cpu: 10m
-  #    memory: 64Mi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 500Mi
 
   # Repo server container ports
   containerPorts:
@@ -3357,13 +3358,13 @@ applicationSet:
   podLabels: {}
 
   # -- Resource limits and requests for the ApplicationSet controller pods.
-  resources: {}
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
 
   # ApplicationSet controller container ports
   containerPorts:
