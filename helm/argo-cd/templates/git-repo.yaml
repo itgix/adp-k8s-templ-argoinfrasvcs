@@ -1,0 +1,19 @@
+{{- range .Values.argocdRepositories }}
+{{- if and .repoUrl .username .password }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ (splitList "/" .repoUrl) | last | trimSuffix ".git" | quote }}
+  namespace: argocd
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: {{ .repoUrl | quote }}
+  username: {{ .username | quote }}
+  password: {{ .password | quote }}
+---
+{{- end }}
+{{- end }}
