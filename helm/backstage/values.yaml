@@ -29,9 +29,16 @@ backstage:
         name: ${ORGANIZATION_NAME}
 
       backend:
+        logging:
+          level: debug
         baseUrl: ${BACKEND_BASE_URL}
         listen:
           port: 7007
+        reading:
+          allow:
+            - host: raw.githubusercontent.com
+            - host: githubusercontent.com
+            - host: github.com
         auth:
           externalAccess:
             - type: legacy
@@ -72,12 +79,22 @@ backstage:
         github:
           - host: github.com
             token: ${GITHUB_TOKEN}
+        gitlab:
+          - host: gitlab.itgix.com   # your GitLab host or cloud gitlab.com
+            baseUrl: https://gitlab.itgix.com
+            apiBaseUrl: https://gitlab.itgix.com/api/v4
+            token: ${GITLAB_TOKEN}
 
 
       catalog:
+        logLevel: debug
         locations:
           - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app.yaml
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-github.yaml
+            rules:
+              - allow: [Template]
+          - type: url
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-gitlab.yaml
             rules:
               - allow: [Template]
           - type: file
