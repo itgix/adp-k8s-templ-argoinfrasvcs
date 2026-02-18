@@ -428,9 +428,6 @@ configs:
     # -- Annotations to be added to the argocd-cmd-params-cm ConfigMap
     annotations: {}
 
-    # You can customize parameters by adding parameters here.
-    # (e.g.)
-    # otlp.address: ''
     ## Generic parameters
     # -- Open-Telemetry collector address: (e.g. "otel-collector:4317")
     otlp.address: ''
@@ -945,14 +942,6 @@ controller:
   podLabels: {}
 
   # -- Resource limits and requests for the application controller pods
-  resources:
-    resources:
-      limits:
-        cpu: 1
-        memory: 2Gi
-      requests:
-        cpu: 500m
-        memory: 1Gi
 
   # Application controller container ports
   containerPorts:
@@ -1308,13 +1297,13 @@ dex:
   podLabels: {}
 
   # -- Resource limits and requests for dex
-  resources:
-    limits:
-      cpu: 500m
-      memory: 2Gi
-    requests:
-      cpu: 250m
-      memory: 1Gi
+  resources: {}
+  #  limits:
+  #    cpu: 50m
+  #    memory: 64Mi
+  #  requests:
+  #    cpu: 10m
+  #    memory: 32Mi
 
   # Dex container ports
   # NOTE: These ports are currently hardcoded and cannot be changed
@@ -1490,8 +1479,7 @@ redis:
     # -- Redis repository
     repository: ecr-public.aws.com/docker/library/redis
     # -- Redis tag
-    ## Do not use 7.4.0 <= v < 8.0.0, otherwise you are no longer using an open source version of Redis
-    tag: 8.2.2-alpine
+    tag: 7.0.11-alpine
     # -- Redis image pull policy
     # @default -- `""` (defaults to global.image.imagePullPolicy)
     imagePullPolicy: ""
@@ -2077,10 +2065,10 @@ server:
 
     ## Argo CD extension installer image
     image:
-      # -- Repository to use for extension installer image
-      repository: "quay.io/argoprojlabs/argocd-extension-installer"
-      # -- Tag to use for extension installer image
-      tag: "v0.0.9"
+      # -- Repository to use for extensions image
+      repository: "ghcr.io/argoproj-labs/argocd-extensions"
+      # -- Tag to use for extensions image
+      tag: "v0.2.1"
       # -- Image pull policy for extensions
       # @default -- `""` (defaults to global.image.imagePullPolicy)
       imagePullPolicy: ""
@@ -2452,13 +2440,7 @@ server:
   ingress:
     # -- Enable an ingress resource for the Argo CD server
     enabled: true
-    # -- Specific implementation for ingress controller. One of `generic`, `aws` or `gke`
-    ## Additional configuration might be required in related configuration sections
-    controller: generic
-    # -- Additional ingress labels
-    labels: {}
     # -- Additional ingress annotations
-    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
     annotations:
       external-dns.alpha.kubernetes.io/hostname: demo-argocd.itgix.eu.
       alb.ingress.kubernetes.io/actions.response-503: |
@@ -2472,13 +2454,17 @@ server:
       alb.ingress.kubernetes.io/success-codes: 200-404
       alb.ingress.kubernetes.io/target-type: ip
 
-
+    # -- Additional ingress labels
+    labels: {}
     # -- Defines which ingress controller will implement the resource
-    ingressClassName: "alb"
+    ingressClassName: ""
 
-    # -- Argo CD server hostname
-    # @default -- `""` (defaults to global.domain)
-    hostname: "demo-argocd.itgix.eu"
+    # -- List of ingress hosts
+    ## Argo Ingress.
+    ## Hostnames must be provided if Ingress is enabled.
+    ## Secrets must be manually created in the namespace
+    hosts: 
+      - demo-argocd.itgix.eu
 
     # -- The path to Argo CD server
     path: /
@@ -2702,40 +2688,14 @@ server:
   grpcroute:
     # -- Enable GRPCRoute resource for Argo CD server (Gateway API)
     enabled: false
-    # -- Additional GRPCRoute labels
-    labels: {}
-    # -- Additional GRPCRoute annotations
-    annotations: {}
-    # -- Gateway API parentRefs for the GRPCRoute
-    ## Must reference an existing Gateway
-    # @default -- `[]` (See [values.yaml])
-    parentRefs: []
-      # - name: example-gateway
-      #   namespace: example-gateway-namespace
-      #   sectionName: grpc
-    # -- List of hostnames for the GRPCRoute
-    # @default -- `[]` (See [values.yaml])
-    hostnames: []
-      # - grpc.argocd.example.com
-    # -- GRPCRoute rules configuration
-    # @default -- `[]` (See [values.yaml])
-    rules:
-      - matches:
-          - method:
-              type: Exact
-        # filters: []
-        #   - type: RequestHeaderModifier
-        #     requestHeaderModifier:
-        #       add:
-        #         - name: X-Custom-Header
-        #           value: custom-value
+    # -- Domains for the Google Managed Certificate
+    domains:
+    - argocd.example.com
 
-  # Gateway API BackendTLSPolicy configuration
-  # NOTE: BackendTLSPolicy support is in EXPERIMENTAL status
-  # Required for HTTPS backends when using Gateway API
-  # Not all Gateway controllers support this resource (e.g., Cilium does not support it yet)
-  backendTLSPolicy:
-    # -- Enable BackendTLSPolicy resource for Argo CD server (Gateway API)
+  ## Create a Google FrontendConfig Custom Resource, for use with the GKE Ingress Controller
+  ## https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-features#configuring_ingress_features_through_frontendconfig_parameters
+  GKEfrontendConfig:
+    # -- Enable FrontConfig custom resource for Google Kubernetes Engine
     enabled: false
     # -- Additional BackendTLSPolicy labels
     labels: {}
@@ -2976,10 +2936,10 @@ repoServer:
   resources:
     limits:
       cpu: 500m
-      memory: 1Gi
+      memory: 2Gi
     requests:
       cpu: 250m
-      memory: 500Mi
+      memory: 1Gi
 
   # Repo server container ports
   containerPorts:
@@ -3008,8 +2968,8 @@ repoServer:
       drop:
       - ALL
 
-  ## Readiness and liveness probes for Repo Server
-  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## Readiness and liveness probes for default backend
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
   readinessProbe:
     # -- Enable Kubernetes readiness probe for Repo Server
     enabled: true
@@ -3360,11 +3320,11 @@ applicationSet:
   # -- Resource limits and requests for the ApplicationSet controller pods.
   resources:
     limits:
-      cpu: 100m
-      memory: 200Mi
+      cpu: 500m
+      memory: 2Gi
     requests:
-      cpu: 50m
-      memory: 100Mi
+      cpu: 250m
+      memory: 1Gi
 
   # ApplicationSet controller container ports
   containerPorts:
