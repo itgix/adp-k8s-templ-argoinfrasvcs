@@ -207,8 +207,8 @@ fluent-bit:
       cpu: 100m
       memory: 200Mi
     requests:
-      cpu: 50m
-      memory: 100Mi
+      cpu: 100m
+      memory: 200Mi
 
   ## only available if kind is Deployment
   ingress:

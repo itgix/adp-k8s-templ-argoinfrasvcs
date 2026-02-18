@@ -1322,8 +1322,8 @@ loki:
         cpu: 500m
         memory: 1000Mi
       requests:
-        cpu: 250m
-        memory: 500Mi
+        cpu: 500m
+        memory: 1000Mi
     # -- Grace period to allow the single binary to shutdown before it is killed
     terminationGracePeriodSeconds: 30
     # -- Affinity for single binary pods.
@@ -3146,8 +3146,8 @@ loki:
         cpu: 100m
         memory: 200Mi
       requests:
-        cpu: 50m
-        memory: 100Mi
+        cpu: 100m
+        memory: 200Mi
     # -- Service annotations and labels
     service:
       annotations: {}
@@ -3252,9 +3252,9 @@ loki:
     resources:
       limits:
         cpu: 100m
-        memory: 2000Mi
+        memory: 1000Mi
       requests:
-        cpu: 50m
+        cpu: 100m
         memory: 1000Mi
     # -- Service annotations and labels
     service:
