@@ -35,11 +35,11 @@ tempo:
     updateStrategy: RollingUpdate
     resources:
      requests:
-       cpu: 250m
+       cpu: 400m
        memory: 1Gi
      limits:
-       cpu: 500m
-       memory: 500Mi
+       cpu: 400m
+       memory: 1Gi
 
     memBallastSizeMbs: 1024
     multitenancyEnabled: false
