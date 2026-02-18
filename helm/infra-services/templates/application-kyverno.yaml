@@ -28,5 +28,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - Replace=true
+      - ServerSideApply=true
   revisionHistoryLimit: 3
 {{- end }}
