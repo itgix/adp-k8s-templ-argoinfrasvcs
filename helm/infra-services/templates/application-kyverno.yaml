@@ -5,19 +5,22 @@ metadata:
   name: kyverno
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  # Add this finalizer ONLY if you want these to cascade delete.
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "kyverno_branch") }}
+    targetRevision: {{ default "HEAD" (index .Values "infra-services" "kyverno_branch") }}
     path: helm/kyverno
     helm:
       valueFiles:
         - ../kyverno/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      releaseName: kyverno
+      parameters:
+        - name: crds.migration.enabled
+          value: 'false'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kyverno
@@ -27,7 +30,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - Replace=true
       - ServerSideApply=true
   revisionHistoryLimit: 3
 {{- end }}
