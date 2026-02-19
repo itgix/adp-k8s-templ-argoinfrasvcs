@@ -23,7 +23,9 @@ spec:
           ingress:
             enabled: true
             className: alb
-            host: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+            hosts:
+              - host: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                paths: []
             annotations:
               alb.ingress.kubernetes.io/scheme: internet-facing
               alb.ingress.kubernetes.io/target-type: ip
