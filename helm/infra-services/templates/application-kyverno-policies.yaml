@@ -1,8 +1,8 @@
-{{- if index .Values "infra-services" "enable_custom_policies" }}
+{{- if index .Values "infra-services" "enable_kyverno_policies" }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kyverno-custom-policies
+  name: kyverno-policies
   annotations:
     argocd.argoproj.io/sync-wave: "3"
   finalizers:
@@ -11,13 +11,13 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision: {{ default "HEAD" (index .Values "infra-services" "custom_policies_branch") }}
-    path: helm/kyverno-custom-policies
+    targetRevision: {{ default "HEAD" (index .Values "infra-services" "kyverno_policies_branch") }}
+    path: helm/kyverno-policies
     helm:
       valueFiles:
-        - ../kyverno-custom-policies/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../kyverno-policies/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
-      releaseName: kyverno-custom-policies
+      releaseName: kyverno-policies
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kyverno
