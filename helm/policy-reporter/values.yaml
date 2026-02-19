@@ -30,30 +30,6 @@ policy-reporter:
   logging:
     encoding: json
     logLevel: 1
-
-  ingress:
-  # -- Create Ingress
-  # This ingress exposes the policy-reporter core app.
-  enabled: false
-  # -- Ingress className
-  className: ""
-  # -- Labels for the Ingress
-  labels: {}
-  # -- Annotations for the Ingress
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  # -- Ingress host list
-  hosts:
-  #  - host: chart-example.local
-  #    paths: []
-  # -- Ingress tls list
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-  
   ingress:
     enabled: false
     className: "alb"
