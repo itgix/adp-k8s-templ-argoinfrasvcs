@@ -1,4 +1,17 @@
 kyverno:
+  cleanupController:
+    rbac:
+      clusterRole:
+        extraResources:
+          - apiGroups:
+              - ""
+            resources:
+              - pods
+            verbs:
+              - get
+              - list
+              - watch
+              - delete
   reportsController:
     resources:
       limits:
@@ -23,18 +36,3 @@ kyverno:
       requests:
         cpu: 200m
         memory: "256Mi"
-  priorityClassName: "system-cluster-critical"
-  replicaCount: 3
-  cleanupController:
-    enabled: false
-  namespaceOverride: kyverno
-  crds:
-    install: true
-  features:
-    logging:
-      format: json
-      verbosity: -1
-  metricsService:
-    create: false
-  config:
-    excludeKyvernoNamespace: true
