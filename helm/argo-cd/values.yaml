@@ -1484,13 +1484,6 @@ redis:
     ## Has higher precedence over `redis.pdb.minAvailable`
     maxUnavailable: ""
   
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 250m
-      memory: 256Mi
 
   ## Redis image
   image:
@@ -1645,13 +1638,13 @@ redis:
   podLabels: {}
 
   # -- Resource limits and requests for redis
-  resources: {}
-  #  limits:
-  #    cpu: 200m
-  #    memory: 128Mi
-  #  requests:
-  #    cpu: 100m
-  #    memory: 64Mi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
 
   # -- Redis pod-level security context
   # @default -- See [values.yaml]
