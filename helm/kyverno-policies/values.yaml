@@ -2,3 +2,4 @@ kyverno-policies:
   policyType: ValidatingPolicy
   podSecurityStandard: baseline
   validationFailureAction: Audit
+  podSecuritySeverity: Medium
