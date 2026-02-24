@@ -36,3 +36,7 @@ kyverno:
       requests:
         cpu: 200m
         memory: "256Mi"
+  configs:
+    excludeNamespaces:
+      - kube-system
+      - external-dns
