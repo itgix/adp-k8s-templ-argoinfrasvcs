@@ -1483,6 +1483,14 @@ redis:
     # -- Number of pods that are unavailble after eviction as number or percentage (eg.: 50%).
     ## Has higher precedence over `redis.pdb.minAvailable`
     maxUnavailable: ""
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 
   ## Redis image
   image:
