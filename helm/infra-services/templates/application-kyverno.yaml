@@ -18,6 +18,12 @@ spec:
       valueFiles:
         - ../kyverno/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        configs:
+          excludeKyvernoNamespace: true
+          resourceFiltersExcludeNamespaces:
+            - kube-system
+            - external-dns
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kyverno
