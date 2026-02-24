@@ -4,6 +4,7 @@ metadata:
   name: nginx-app-1
   labels:
     app: nginx-app-1
+    app.kubernetes.io/name: nginx-app-1
 spec:
   replicas: 3
   selector:
@@ -13,10 +14,18 @@ spec:
     metadata:
       labels:
         app: nginx-app-1
+        app.kubernetes.io/name: nginx-app-1
     spec:
       containers:
       - name: nginx
         image: nginx:latest
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 32Mi
         ports:
         - containerPort: 80
 
