@@ -2,3 +2,6 @@ kyverno-policies:
   policyType: ValidatingPolicy
   podSecurityStandard: baseline
   validationFailureAction: Audit
+  excludeNamespaces:
+    - kube-system
+    - external-dns
