@@ -5,7 +5,6 @@ metadata:
   name: kyverno-policies
   annotations:
     argocd.argoproj.io/sync-wave: "3"
-    argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
