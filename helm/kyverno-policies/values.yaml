@@ -1,3 +1,4 @@
 kyverno-policies:
-  podSecurityStandard: restricted
+  policyType: ValidatingPolicy
+  podSecurityStandard: baseline
   validationFailureAction: Audit
