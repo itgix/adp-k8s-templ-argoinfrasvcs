@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         name: itgix-adp-agent
+        app.kubernetes.io/name: itgix-adp-agent
     spec:
       containers:
       - name: itgix-adp-agent
