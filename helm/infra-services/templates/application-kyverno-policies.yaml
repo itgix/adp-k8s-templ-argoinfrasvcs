@@ -17,7 +17,6 @@ spec:
       valueFiles:
         - ../kyverno-policies/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
-      releaseName: kyverno-policies
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kyverno
