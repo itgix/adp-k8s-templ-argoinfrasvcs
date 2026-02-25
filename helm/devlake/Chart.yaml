@@ -1,0 +1,11 @@
+apiVersion: v2
+name: devlake
+description: A Helm chart for devlake
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+- name: devlake
+  version: 1.0.2
+  repository: https://apache.github.io/incubator-devlake-helm-chart
