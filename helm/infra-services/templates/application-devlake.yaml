@@ -22,7 +22,7 @@ spec:
         devlake:
           lake:
             encryptionSecret:
-              secretName: "{{ $prefix }}-devlake-encryption-secret"
+              secretName: devlake-encryption-secret
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devlake
