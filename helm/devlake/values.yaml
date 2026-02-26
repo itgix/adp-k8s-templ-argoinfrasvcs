@@ -5,3 +5,5 @@ devlake:
       autoCreateSecret: true
   grafana:
     enabled: false
+    external:
+      url: "http://grafana.monitoring.svc.cluster.local"
