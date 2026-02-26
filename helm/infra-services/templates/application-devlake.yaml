@@ -22,6 +22,8 @@ spec:
         devlake:
           lake:
             encryptionSecret:
+              secret: "PLACEHOLDER_MANAGED_BY_EXTERNAL_SECRETS"
+              autoCreateSecret: false
               secretName: devlake-encryption-secret
   destination:
     server: 'https://kubernetes.default.svc'
