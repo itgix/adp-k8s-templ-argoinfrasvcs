@@ -17,6 +17,12 @@ spec:
       valueFiles:
         - ../devlake/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        devlake:
+          lake:
+            encryptionSecret:
+              secret: "YXVAQNJDVMEZQUREXCSDVPTGLJDGHFBSMLWKIOGGWXHYJPLJHCTTVBWDBILVIMRNICUFZTYPJEEDEEGIHITRCSFBJETOKKJHMULXJFMUXADRDHKKBMLPGUDUMYLUSKCG"
+              autoCreateSecret: true
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devlake
@@ -26,6 +32,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
+      - Replace=true
   revisionHistoryLimit: 3
 {{- end }}
