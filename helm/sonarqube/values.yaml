@@ -1,3 +1,6 @@
 sonarqube:
+  monitoringPasscode: "define-it"
+  community:
+    enabled: true
   ingress:
     enabled: true
