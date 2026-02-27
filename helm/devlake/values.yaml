@@ -3,3 +3,22 @@ devlake:
     enabled: false
     external:
       url: "http://grafana.monitoring.svc.cluster.local"
+  lake:
+    encryptionSecret:
+      secret: "PLACEHOLDER_MANAGED_BY_EXTERNAL_SECRETS"
+      autoCreateSecret: false
+      secretName: devlake-encryption-secret
+  ingress:
+    enabled: true
+    enableHttps: false
+    className: alb
+    annotations:
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400
+      alb.ingress.kubernetes.io/target-type: ip
+    prefix: /
+    httpPort: 80
+    httpsPort: 443
+  
