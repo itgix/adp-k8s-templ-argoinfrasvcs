@@ -1,0 +1,39 @@
+{{- if index .Values "infra-services" "enable_devlake" }}
+{{- $prefix := printf "%s-%s-%s" (index .Values "infra-services" "region_short") (index .Values "infra-services" "environment") (index .Values "infra-services" "project_name") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devlake
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "devlake_branch") }}
+    path: helm/devlake
+    helm:
+      valueFiles:
+        - ../devlake/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        devlake:
+          lake:
+            encryptionSecret:
+              secret: "PLACEHOLDER_MANAGED_BY_EXTERNAL_SECRETS"
+              autoCreateSecret: false
+              secretName: devlake-encryption-secret
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: devlake
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+  revisionHistoryLimit: 3
+{{- end }}
