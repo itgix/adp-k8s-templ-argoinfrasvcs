@@ -20,26 +20,10 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         devlake:
-          lake:
-            encryptionSecret:
-              secret: "PLACEHOLDER_MANAGED_BY_EXTERNAL_SECRETS"
-              autoCreateSecret: false
-              secretName: devlake-encryption-secret
           ingress:
-            enabled: true
-            enableHttps: false
-            className: alb
             annotations:
-              alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
-              alb.ingress.kubernetes.io/scheme: internet-facing
-              alb.ingress.kubernetes.io/ssl-redirect: '443'
-              alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400
-              alb.ingress.kubernetes.io/target-type: ip
               external-dns.alpha.kubernetes.io/hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
             hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
-            prefix: /
-            httpPort: 80
-            httpsPort: 443
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devlake
