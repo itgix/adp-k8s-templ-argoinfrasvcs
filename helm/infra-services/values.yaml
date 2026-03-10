@@ -14,7 +14,7 @@ infra-services:
   enable_prometheus_stack: false
   enable_tempo: false
   enable_loki: false
-  backstage_enabled: false
+  backstage_enabled: true
   enable_devlake: false
 
   aws-load-balancer-controller-version: 1.7.1
