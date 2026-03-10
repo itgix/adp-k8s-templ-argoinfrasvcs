@@ -20,11 +20,10 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         devlake:
-          lake:
-            encryptionSecret:
-              secret: "PLACEHOLDER_MANAGED_BY_EXTERNAL_SECRETS"
-              autoCreateSecret: false
-              secretName: devlake-encryption-secret
+          ingress:
+            annotations:
+              external-dns.alpha.kubernetes.io/hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
+            hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devlake
