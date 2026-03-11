@@ -1,18 +1,17 @@
-{{- if index .Values "infra-services" "enable_default_policies" }}
+{{- if index .Values "infra-services" "enable_kyverno_policies" }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: default-policies
+  name: kyverno-policies
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
-  # Add this finalizer ONLY if you want these to cascade delete.
+    argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "default_policies_branch") }}
+    targetRevision: {{ default "HEAD" (index .Values "infra-services" "kyverno_policies_branch") }}
     path: helm/kyverno-policies
     helm:
       valueFiles:

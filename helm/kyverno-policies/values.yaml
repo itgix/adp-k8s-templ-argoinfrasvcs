@@ -1,5 +1,5 @@
 kyverno-policies:
+  policyType: ValidatingPolicy
+  podSecurityStandard: baseline
   validationFailureAction: Audit
-  policyCategories:
-    bestPractices:
-      enabled: true
+  podSecuritySeverity: Medium

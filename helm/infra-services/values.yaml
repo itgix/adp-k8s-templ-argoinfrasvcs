@@ -7,7 +7,7 @@ infra-services:
   enable_vpa: false
   enable_kyverno: false
   enable_policy_reporter: false
-  enable_default_policies: false
+  enable_kyverno_policies: false
   demo_app_enabled: false
   adp_agent_enabled: true
   enable_fluent_bit: false

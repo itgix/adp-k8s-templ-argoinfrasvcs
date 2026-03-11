@@ -30,6 +30,10 @@ policy-reporter:
   logging:
     encoding: json
     logLevel: 1
+  plugins:
+    kyverno:
+      enabled: true
+  
   ingress:
     enabled: false
     className: "alb"
@@ -41,13 +45,12 @@ policy-reporter:
       alb.ingress.kubernetes.io/success-codes: 200-404
       alb.ingress.kubernetes.io/target-type: ip
       external-dns.alpha.kubernetes.io/hostname: igxadp-policy-reporter.itgix.eu
-    hosts: []
-#      - host: []
-#        paths:
-#          - backend:
-#             service:
-#               name: policy-report-ui
-#               port:
-#                 number: 8080
-#            pathType: Prefix
-#            path: /
+    hosts:
+       paths:
+         - backend:
+            service:
+              name: policy-reporter-ui
+              port:
+                number: 8080
+           pathType: Prefix
+           path: /
