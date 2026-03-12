@@ -24,6 +24,7 @@ spec:
           value: "http://qdrant-vectordb.qdrant:6333/"
         externalsecretEnv:
           data:
+<<<<<<< HEAD
             - secretKey: password
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
@@ -39,6 +40,11 @@ spec:
             - secretKey: AWS_SECRET_ACCESS_KEY
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitops-repo-path-secret"    
+=======
+            - secretKey: QDRANT_API_KEY
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
+>>>>>>> a40485b (Added adp_devops_agent)
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: adp-devops-agent
