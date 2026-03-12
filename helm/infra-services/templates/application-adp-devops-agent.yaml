@@ -1,0 +1,40 @@
+{{- if index .Values "infra-services" "adp_devops_agent_enabled" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: adp-devops-agent
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision: HEAD
+    path: helm/adp-devops-agent
+    helm:
+      valueFiles:
+        - ../adp-devops-agent/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        env:
+        - name: QDRANT_URL
+          value: "http://qdrant-vectordb.qdrant:6333/"
+        externalsecretEnv:
+          data:
+            - secretKey: QDRANT_API_KEY
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: adp-devops-agent
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}

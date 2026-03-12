@@ -1,0 +1,76 @@
+# Default values for adp-devops-agent.
+replicaCount: 1
+
+image:
+  repository: gitlab.itgix.com:5050/rnd/app-platform/adp-devops-agent
+  pullPolicy: IfNotPresent
+  tag: 0c735d77
+
+service:
+  name: adp-devops-agent
+  type: ClusterIP
+  port: 8000
+
+resources: {}
+
+externalSecrets:
+  secretStore: aws-secretsmanager
+  secretName: adp/devops-agent
+
+qdrant:
+  url: "http://qdrant-vectordb.qdrant:6333/"
+  useBedrockEmbeddings: false  
+  replicaCount: 1
+
+  image:
+    repository: docker.io/qdrant/qdrant
+    pullPolicy: IfNotPresent
+    tag: ""
+    useUnprivilegedImage: false
+
+  imagePullSecrets: [ ]
+  nameOverride: ""
+  fullnameOverride: ""
+  args: [ "./config/initialize.sh" ]
+  env:
+    - name: QDRANT__SERVICE__API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: adp-devops-agent-env-secret
+          key: password
+
+apiSettings:
+  APP_NAME: "ADP DevOps Agent"
+  DEBUG: false
+  LOG_LEVEL: "INFO"
+  API_HOST: "0.0.0.0"
+  API_PORT: 8000
+  API_TOKEN: "change-this-to-secure-random-token"
+
+awsSettings:
+  AWS_REGION: "us-east-1"
+  BEDROCK_MODEL_ID: "anthropic.claude-3-sonnet-20240229-v1:0"
+  BEDROCK_MAX_TOKENS: 4096
+  BEDROCK_TEMPERATURE: 0.0
+
+gitLabSettings:
+  GITLAB_URL: ""
+  GITLAB_TOKEN: ""
+  GITOPS_REPO_URL: ""
+  GITOPS_REPO_PATH: "/tmp/gitops-repo"
+
+branchSettings:
+  BRANCH_PREFIX: "ai-agent/"
+  DEFAULT_TARGET_BRANCH: "main"
+
+indexingSettings:
+  AUTO_INDEX_ON_STARTUP: false
+  INDEX_REFRESH_INTERVAL_HOURS: 24
+
+promptsConfig:
+  configMapName: "config/prompts.yaml"
+
+serviceAccount:
+  name: sa-itgix-adp-devops-agent
+configMap:
+  name: adp-devops-agent-config
