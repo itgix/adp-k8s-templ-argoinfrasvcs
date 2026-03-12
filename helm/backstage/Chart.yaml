@@ -1,0 +1,11 @@
+apiVersion: v2
+name: backstage
+description: A Helm chart for Backstage - Developer Portal
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+- name: backstage
+  version: 2.6.3
+  repository: https://backstage.github.io/charts
