@@ -26,3 +26,13 @@ infra-services:
   eks_cluster_name: ~
   vpc_id: ~
   dns_hosted_zone: ~
+
+storageClass:
+  name: gp3
+  isDefault: "true"
+  allowVolumeExpansion: true
+  provisioner: ebs.csi.eks.amazonaws.com
+  volumeBindingMode: WaitForFirstConsumer
+  type: gp3
+  customParameters:
+    encrypted: "true"

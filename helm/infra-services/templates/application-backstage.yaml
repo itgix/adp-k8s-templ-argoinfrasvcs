@@ -1,0 +1,72 @@
+{{- if index .Values "infra-services" "backstage_enabled" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backstage
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "backstage_branch") }}
+    path: helm/backstage
+    helm:
+      valueFiles:
+        - values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        backstage:
+          backstage:
+            image:
+              registry: {{ index .Values "infra-services" "backstage_image_registry" | default "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
+              repository: {{ index .Values "infra-services" "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
+              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.3" }}
+            extraEnvVars:
+              - name: APP_BASE_URL
+                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+              - name: BACKEND_BASE_URL
+                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+
+{{- $repoUrl := index .Values "infra-services" "applications_destination_repo" }}
+{{- if and $repoUrl (or (contains "github.com" $repoUrl) (contains "gitlab." $repoUrl)) }}
+{{- $host := regexReplaceAll "^https?://([^/]+)/.*" $repoUrl "$1" }}
+{{- $clean := regexReplaceAll "^https?://[^/]+/|\\.git$" $repoUrl "" }}
+{{- $parts := splitList "/" $clean }}
+{{- if ge (len $parts) 2 }}
+{{- $repo := index $parts (sub (len $parts) 1) }}
+{{- $owner := join "/" (slice $parts 0 (sub (len $parts) 1)) }}
+              - name: GIT_APP_HOST
+                value: {{ $host | quote }}
+              - name: GIT_APP_OWNER
+                value: {{ $owner | quote }}
+              - name: GIT_APP_REPO
+                value: {{ $repo | quote }}
+{{- end }}
+{{- end }}
+
+            extraEnvVarsSecrets:
+              - backstage-secrets
+          ingress:
+            enabled: true
+            className: alb
+            host: {{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+            annotations:
+              alb.ingress.kubernetes.io/scheme: internet-facing
+              alb.ingress.kubernetes.io/target-type: ip
+              alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+              alb.ingress.kubernetes.io/ssl-redirect: '443'
+              alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: backstage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}
