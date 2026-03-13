@@ -39,3 +39,4 @@ storageClass:
   type: gp3
   customParameters:
     encrypted: "true"
+
