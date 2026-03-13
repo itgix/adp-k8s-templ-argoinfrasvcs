@@ -27,6 +27,10 @@ infra-services:
   vpc_id: ~
   dns_hosted_zone: ~
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 22b4c80 (update storaage class default vars)
 storageClass:
   name: gp3
   isDefault: "true"
@@ -35,4 +39,8 @@ storageClass:
   volumeBindingMode: WaitForFirstConsumer
   type: gp3
   customParameters:
+<<<<<<< HEAD
     encrypted: "true"
+=======
+    encrypted: "true"
+>>>>>>> 22b4c80 (update storaage class default vars)
