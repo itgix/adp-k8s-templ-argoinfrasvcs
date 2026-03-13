@@ -27,7 +27,6 @@ infra-services:
   vpc_id: ~
   dns_hosted_zone: ~
 
-
 storageClass:
   name: gp3
   isDefault: "true"
