@@ -14,7 +14,7 @@ service:
 resources: {}
 
 externalSecrets:
-  secretStore: aws-secretsmanager
+  secretStore: secretstore-aws
   secretName: adp/devops-agent
 
 qdrant:
