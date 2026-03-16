@@ -23,10 +23,9 @@ spec:
         - name: QDRANT_URL
           value: "http://qdrant-vectordb.qdrant:6333/"
         externalsecretEnv:
-          data:
-            - secretKey: QDRANT_API_KEY
-              remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
+          dataFrom:
+            - extract:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: adp-devops-agent
