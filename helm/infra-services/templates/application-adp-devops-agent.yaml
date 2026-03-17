@@ -22,6 +22,8 @@ spec:
         env:
         - name: QDRANT_URL
           value: "http://qdrant-vectordb.qdrant:6333/"
+        externalsecretEnv:
+          data:
             - secretKey: password
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
