@@ -37,6 +37,7 @@ spec:
             - secretKey: AWS_SECRET_ACCESS_KEY
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitops-repo-path-secret"    
+  destination:
     server: 'https://kubernetes.default.svc'
     namespace: adp-devops-agent
   syncPolicy:
