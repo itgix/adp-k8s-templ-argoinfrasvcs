@@ -22,11 +22,21 @@ spec:
         env:
         - name: QDRANT_URL
           value: "http://qdrant-vectordb.qdrant:6333/"
-        externalsecretEnv:
-          dataFrom:
-            - extract:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret"
-  destination:
+            - secretKey: password
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
+            - secretKey: GITLAB_TOKEN
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitlab-token-secret"
+            - secretKey: API_TOKEN
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitlab-url-secret"
+            - secretKey: AWS_ACCESS_KEY_ID
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitops-repo-url-secret"
+            - secretKey: AWS_SECRET_ACCESS_KEY
+              remoteRef:
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitops-repo-path-secret"    
     server: 'https://kubernetes.default.svc'
     namespace: adp-devops-agent
   syncPolicy:
