@@ -28,9 +28,12 @@ infra-services:
   dns_hosted_zone: ~
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 22b4c80 (update storaage class default vars)
+=======
+>>>>>>> 2f0319f (update storaage class default vars)
 storageClass:
   name: gp3
   isDefault: "true"
