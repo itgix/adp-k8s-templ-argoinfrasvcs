@@ -18,30 +18,12 @@ externalSecrets:
   secretName: adp/devops-agent
 
 qdrant:
-  url: "http://qdrant-vectordb.qdrant:6333/"
-  useBedrockEmbeddings: false  
-  replicaCount: 1
+  QDRANT_URL: "http://qdrant-vectordb.qdrant:6333/"
 
-  image:
-    repository: docker.io/qdrant/qdrant
-    pullPolicy: IfNotPresent
-    tag: ""
-    useUnprivilegedImage: false
-
-  imagePullSecrets: [ ]
-  nameOverride: ""
-  fullnameOverride: ""
-  args: [ "./config/initialize.sh" ]
-  env:
-    - name: QDRANT__SERVICE__API_KEY
-      valueFrom:
-        secretKeyRef:
-          name: adp-devops-agent-env-secret
-          key: password
 
 apiSettings:
   APP_NAME: "ADP DevOps Agent"
-  DEBUG: false
+  DEBUG: "false"
   LOG_LEVEL: "INFO"
   API_HOST: "0.0.0.0"
   API_PORT: "8000"
@@ -64,7 +46,7 @@ branchSettings:
   DEFAULT_TARGET_BRANCH: "main"
 
 indexingSettings:
-  AUTO_INDEX_ON_STARTUP: false
+  AUTO_INDEX_ON_STARTUP: "false"
   INDEX_REFRESH_INTERVAL_HOURS: "24"
 
 promptsConfig:
