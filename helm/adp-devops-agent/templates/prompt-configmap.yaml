@@ -4,7 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: adp-agent-prompts
-  namespace: adp-agent
+  namespace: adp-devops-agent
   labels:
     app: adp-devops-agent
     component: config
