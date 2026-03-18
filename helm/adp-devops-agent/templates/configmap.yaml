@@ -40,4 +40,4 @@ data:
   # Prompts Configuration
   PROMPTS_CONFIG_PATH: {{ .Values.promptsConfig.PROMPTS_CONFIG_PATH | quote }}
 
-  QDRANT_URL: {{ .Values.qdrant.QDRANT_URL }}
+  QDRANT_URL: {{ .Values.qdrant.QDRANT_URL | quote }}
