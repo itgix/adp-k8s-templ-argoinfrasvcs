@@ -19,7 +19,7 @@ externalSecrets:
 
 qdrant:
   QDRANT_URL: "http://qdrant-vectordb.qdrant:6333/"
-
+  useBedrockEmbeddings: "false"
 
 apiSettings:
   APP_NAME: "ADP DevOps Agent"
