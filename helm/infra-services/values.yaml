@@ -38,6 +38,7 @@ storageClass:
   name: gp3
   isDefault: "true"
   allowVolumeExpansion: true
+<<<<<<< HEAD
   provisioner: ebs.csi.eks.amazonaws.com
   volumeBindingMode: WaitForFirstConsumer
   type: gp3
@@ -45,5 +46,14 @@ storageClass:
 <<<<<<< HEAD
     encrypted: "true"
 =======
+<<<<<<< HEAD
     encrypted: "true"
 >>>>>>> 22b4c80 (update storaage class default vars)
+=======
+  provisioner: ebs.csi.aws.com
+  volumeBindingMode: WaitForFirstConsumer
+  type: gp3
+  customParameters:
+    encrypted: "true"
+>>>>>>> 307b4f3 (Modified the external secret)
+>>>>>>> b9b1722 (Solving merge conflict)
