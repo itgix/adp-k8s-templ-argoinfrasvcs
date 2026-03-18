@@ -1,0 +1,30 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpunode
+spec:
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 60s
+  template:
+    spec:
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+      - key: eks.amazonaws.com/instance-gpu-manufacturer
+        operator: In
+        values: ["nvidia"]
+      - key: "kubernetes.io/arch"
+        operator: In
+        values:
+          - amd64
+      taints:
+      - key: nvidia.com/gpu
+        value: "true"
+        effect: NoSchedule
+  limits:
+    cpu: 100
+    memory: 1000Gi
+    nvidia.com/gpu: 8
