@@ -32,7 +32,7 @@ spec:
           data:
             - secretKey: password
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret"
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret"
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: qdrant

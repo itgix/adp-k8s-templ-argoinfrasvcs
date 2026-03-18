@@ -26,22 +26,22 @@ spec:
           data:
             - secretKey: password
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret" 
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
             - secretKey: GITLAB_TOKEN
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret"
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-gitlab-token-secret"
             - secretKey: API_TOKEN
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret"
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-api-token-secret"
             - secretKey: AWS_ACCESS_KEY_ID
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret"
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-aws-secret-access-key-id"
             - secretKey: AWS_SECRET_ACCESS_KEY
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret"
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-aws-secret-access-key"
             - secretKey: QDRANT_API_KEY
               remoteRef:
-                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-all-qdrant-env-secret" 
+                key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: adp-devops-agent
