@@ -51,7 +51,7 @@ indexingSettings:
 
 promptsConfig:
   PROMPTS_CONFIG_PATH: "/app/config/prompts.yaml"
-  configMapName: "config/prompts.yaml"
+  configMapName: adp-agent-prompts
 
 serviceAccount:
   name: sa-itgix-adp-devops-agent

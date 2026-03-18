@@ -47,7 +47,7 @@ spec:
             - configMapRef:
                 name: {{ .Values.configMap.name }}
             - secretRef:
-                name: qdrant-env-secret
+                name: all-qdrant-env-secret
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -71,8 +71,9 @@ spec:
             failureThreshold: 3
 
           volumeMounts:
-            - name: prompts-config
-              mountPath: /app/config
+            - name: adp-agent-prompts
+              mountPath: /app/config/prompts.yaml
+              subPath: prompts.yaml
               readOnly: true
 
             - name: gitops-workspace
@@ -88,7 +89,7 @@ spec:
                 - ALL
 
       volumes:
-        - name: prompts-config
+        - name: adp-agent-prompts
           configMap:
             name: {{ .Values.promptsConfig.configMapName }}
 
