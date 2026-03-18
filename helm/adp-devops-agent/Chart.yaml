@@ -1,5 +1,5 @@
 apiVersion: v2
-name: itgix-adp-agent
+name: adp-devops-agent
 description: A Helm chart for Kubernetes for installing the ITGix application development platform agent
 
 # A chart can be either an 'application' or a 'library' chart.
