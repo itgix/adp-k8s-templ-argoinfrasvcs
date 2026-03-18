@@ -6,38 +6,37 @@ metadata:
     app: adp-devops-agent
 data:
   # Application Settings
-  APP_NAME: {{ .Values.apiSettings.APP_NAME }}
+  APP_NAME: {{ .Values.apiSettings.APP_NAME | quote}}
   DEBUG: {{ .Values.apiSettings.DEBUG | quote }}
   LOG_LEVEL: {{ .Values.apiSettings.LOG_LEVEL | quote }}
-  API_HOST: {{ .Values.apiSettings.API_HOST }}
-  API_PORT: {{ .Values.apiSettings.API_PORT }}
+  API_HOST: {{ .Values.apiSettings.API_HOST | quote }}
+  API_PORT: {{ .Values.apiSettings.API_PORT | quote}}
   API_TOKEN: {{ .Values.apiSettings.API_TOKEN | quote }}
 
   # AWS Bedrock (IRSA in K8s, or use keys for local testing)
-  AWS_REGION: {{ .Values.awsSettings.AWS_REGION }}
+  AWS_REGION: {{ .Values.awsSettings.AWS_REGION | quote}}
   BEDROCK_MODEL_ID: {{ .Values.awsSettings.BEDROCK_MODEL_ID | quote }}
-  BEDROCK_MAX_TOKENS: {{ .Values.awsSettings.BEDROCK_MAX_TOKENS }}
-  BEDROCK_TEMPERATURE: {{ .Values.awsSettings.BEDROCK_TEMPERATURE }}
+  BEDROCK_MAX_TOKENS: {{ .Values.awsSettings.BEDROCK_MAX_TOKENS | quote }}
+  BEDROCK_TEMPERATURE: {{ .Values.awsSettings.BEDROCK_TEMPERATURE | quote }}
 
   # GitLab Settings
   GITLAB_URL: {{ .Values.gitLabSettings.GITLAB_URL | quote }}
   GITLAB_TOKEN: {{ .Values.gitLabSettings.GITLAB_TOKEN | quote }}
   GITOPS_REPO_URL: {{ .Values.gitLabSettings.GITOPS_REPO_URL | quote }}
-  GITOPS_REPO_PATH: {{ .Values.gitLabSettings.GITOPS_REPO_PATH }}
+  GITOPS_REPO_PATH: {{ .Values.gitLabSettings.GITOPS_REPO_PATH | quote}}
 
   # Qdrant Settings
-  QDRANT_URL: {{ .Values.qdrant.url }}
+  QDRANT_URL: {{ .Values.qdrant.QDRANT_URL | quote }}
   USE_BEDROCK_EMBEDDINGS: {{ .Values.qdrant.useBedrockEmbeddings | quote }}
 
   # Branch Settings
-  BRANCH_PREFIX: {{ .Values.branchSettings.BRANCH_PREFIX }}
-  DEFAULT_TARGET_BRANCH: {{ .Values.branchSettings.DEFAULT_TARGET_BRANCH }}
+  BRANCH_PREFIX: {{ .Values.branchSettings.BRANCH_PREFIX | quote }}
+  DEFAULT_TARGET_BRANCH: {{ .Values.branchSettings.DEFAULT_TARGET_BRANCH | quote }}
 
   # Indexing Settings
   AUTO_INDEX_ON_STARTUP: {{ .Values.indexingSettings.AUTO_INDEX_ON_STARTUP | quote }}
-  INDEX_REFRESH_INTERVAL_HOURS: {{ .Values.indexingSettings.INDEX_REFRESH_INTERVAL_HOURS }}
-
+  INDEX_REFRESH_INTERVAL_HOURS: {{ .Values.indexingSettings.INDEX_REFRESH_INTERVAL_HOURS | quote }}
   # Prompts Configuration
   PROMPTS_CONFIG_PATH: {{ .Values.promptsConfig.PROMPTS_CONFIG_PATH | quote }}
 
-  QDRANT_URL: {{ .Values.qdrant.QDRANT_URL | quote }}
+  
