@@ -39,7 +39,7 @@ spec:
             - secretKey: AWS_SECRET_ACCESS_KEY
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-aws-secret-access-key"
-            - secretKey: QDRANT_API_KEY
+            - secretKey: QDRANT__SERVICE__API_KEY
               remoteRef:
                 key: "{{ index .Values "infra-services" "region_short" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "project_name" }}-qdrant-env-secret" 
   destination:
