@@ -66,14 +66,14 @@ secretEnv:
     secretName: qdrant-env-secret
     secretKey: password
   - name: GITLAB_TOKEN
-    secretName: gitlab-token-secret
+    secretName: qdrant-env-secret
     secretKey: token
   - name: API_TOKEN
-    secretName: api-token-secret
+    secretName: qdrant-env-secret
     secretKey: token
   - name: AWS_ACCESS_KEY_ID   
-    secretName: aws-secret-access-key-id
+    secretName: qdrant-env-secret
     secretKey: key_id
   - name: AWS_SECRET_ACCESS_KEY   
-    secretName: aws-secret-access-key
+    secretName: qdrant-env-secret
     secretKey: access_key
