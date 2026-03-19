@@ -1827,10 +1827,10 @@ falco:
       enabled: true
     config:
       loki:
-        hostport: 
+        hostport: "http://loki.monitoring:3100"
         format: json
       alertmanager:
-        hostport: 
+        hostport: "http://alertmanager-operated.monitoring:9093"
         endpoint: "/api/v2/alerts"
         minimumpriority: "notice"
         expireafter: "300"
