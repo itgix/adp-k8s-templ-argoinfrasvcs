@@ -56,23 +56,23 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 10
-            failureThreshold: 3
+#          livenessProbe:
+#            httpGet:
+#              path: /health
+#              port: http
+#            initialDelaySeconds: 30
+#            periodSeconds: 30
+#            timeoutSeconds: 10
+#            failureThreshold: 3
 
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+#          readinessProbe:
+#            httpGet:
+#              path: /health
+#              port: http
+#            initialDelaySeconds: 10
+#            periodSeconds: 10
+#            timeoutSeconds: 5
+#            failureThreshold: 3
 
           volumeMounts:
             - name: adp-agent-prompts
