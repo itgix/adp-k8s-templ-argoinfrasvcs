@@ -42,13 +42,17 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-
+          env:
+{{- range .Values.secretEnv }}
+        - name: {{ .name }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .secretName }}
+              key: {{ .secretKey }}
+{{- end }}
           envFrom:
             - configMapRef:
                 name: {{ .Values.configMap.name }}
-            - secretRef:
-                name: qdrant-env-secret
-
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
