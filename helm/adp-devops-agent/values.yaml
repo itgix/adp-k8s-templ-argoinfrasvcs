@@ -57,3 +57,23 @@ serviceAccount:
   name: sa-itgix-adp-devops-agent
 configMap:
   name: adp-devops-agent-config
+
+secretEnv:
+  - name: QDRANT__SERVICE__API_KEY
+    secretName: qdrant-env-secret
+    secretKey: password
+  - name: QDRANT_API_KEY
+    secretName: qdrant-env-secret
+    secretKey: password
+  - name: GITLAB_TOKEN
+    secretName: gitlab-token-secret
+    secretKey: token
+  - name: API_TOKEN
+    secretName: api-token-secret
+    secretKey: token
+  - name: AWS_ACCESS_KEY_ID   
+    secretName: aws-secret-access-key-id
+    secretKey: key_id
+  - name: AWS_SECRET_ACCESS_KEY   
+    secretName: aws-secret-access-key
+    secretKey: access_key
