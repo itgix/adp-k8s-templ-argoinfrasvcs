@@ -43,13 +43,13 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           env:
-{{- range .Values.secretEnv }}
-        - name: {{ .name }}
-          valueFrom:
-            secretKeyRef:
-              name: {{ .secretName }}
-              key: {{ .secretKey }}
-{{- end }}
+            {{- range .Values.secretEnv }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .secretKey }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ .Values.configMap.name }}
