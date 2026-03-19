@@ -31,7 +31,7 @@ storageClass:
   name: gp3
   isDefault: "true"
   allowVolumeExpansion: true
-  provisioner: ebs.csi.aws.com
+  provisioner: ebs.csi.eks.amazonaws.com
   volumeBindingMode: WaitForFirstConsumer
   type: gp3
   customParameters:
