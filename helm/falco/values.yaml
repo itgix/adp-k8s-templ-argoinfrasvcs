@@ -1944,7 +1944,7 @@ falco:
     # -- create specifies whether a ServiceMonitor CRD should be created for a prometheus operator.
     # https://github.com/coreos/prometheus-operator
     # Enable it only if the ServiceMonitor CRD is installed in your cluster.
-    create: false
+    create: true
     # -- path at which the metrics are exposed by Falco.
     path: /metrics
     # -- labels set of labels to be applied to the ServiceMonitor resource.
