@@ -101,96 +101,9 @@ spec:
               enabled: false
             serviceMonitor:
               enabled: false
-          alertmanager:
-            ingress:
-              enabled: true
-              ingressClassName: alb
-              annotations:
-                kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: alertmanager-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
-                alb.ingress.kubernetes.io/actions.response-503: |
-                  {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
-                alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
-                  { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-                alb.ingress.kubernetes.io/group.name: public
-                alb.ingress.kubernetes.io/healthcheck-path: /
-                alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-                alb.ingress.kubernetes.io/scheme: internet-facing
-                alb.ingress.kubernetes.io/success-codes: 200-404
-                alb.ingress.kubernetes.io/target-type: ip
-              hosts:
-                - alertmanager-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
-              paths:
-                - /*
-              port: 80
-            # config:
-            #   global:
-            #     pagerduty_url: 'https://events.eu.pagerduty.com/generic/2010-04-15/create_event.json'
-            #   route:
-            #     group_wait: 30s
-            #     repeat_interval: 1h
-            #     group_interval: 5m
-            #     receiver: 'itgixP1'
-            #     routes:
-            #       - matchers:
-            #           - 'alertname=KubeMemoryOvercommit'
-            #         receiver: 'null'
-            #       - matchers:
-            #           - 'alertname=KubeCPUOvercommit'
-            #         receiver: 'null'
-            #       - matchers:
-            #           - 'alertname=PrometheusRuleFailures'
-            #         receiver: 'null'  
-            #       - matchers:
-            #           - 'severity=info'
-            #         receiver: 'null'
-            #       - matchers:
-            #           - 'severity=none'
-            #         receiver: 'null'
-            #       - matchers:
-            #           - 'severity=warning'
-            #         receiver: 'itgixWarnings'
-            #       - matchers:
-            #         - 'alertname=Watchdog'
-            #       receiver: 'metamon_aks_prod'
-            #       repeat_interval: 5m                  
-            #   receivers:
-            #     - name: 'null'
-            #     - name: 'itgixWarnings'
-            #       pagerduty_configs:
-            #       - send_resolved: true
-            #         service_key: '7fd55b64cbfb4806d1339daeee3c636e'
-            #         url: 'https://events.eu.pagerduty.com/generic/2010-04-15/create_event.json'
-
-            #         - name: 'itgixP2'
-            #         pagerduty_configs:
-            #         - send_resolved: true
-            #           service_key: '34fd648bc369470bd1ee2c64264bca42'
-            #           url: 'https://events.eu.pagerduty.com/generic/2010-04-15/create_event.json'
           prometheus:
             tls:
               enabled: false
-            ingress:
-              enabled: true
-              ingressClassName: alb
-              annotations:
-                kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: prometheus-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
-                alb.ingress.kubernetes.io/actions.response-503: |
-                  {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
-                alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig":
-                  { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
-                alb.ingress.kubernetes.io/group.name: public
-                alb.ingress.kubernetes.io/healthcheck-path: /
-                alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-                alb.ingress.kubernetes.io/scheme: internet-facing
-                alb.ingress.kubernetes.io/success-codes: 200-404
-                alb.ingress.kubernetes.io/target-type: ip
-              hosts:
-                - prometheus-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
-              paths:
-                - /*
-              port: 80
             prometheusSpec:        
               scrapeInterval: 1m 
               storageSpec:
@@ -232,5 +145,3 @@ spec:
       - PruneLast=true
   revisionHistoryLimit: 3
 {{- end }}
-
-
