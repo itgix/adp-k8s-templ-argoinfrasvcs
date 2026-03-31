@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    component: api
+spec:
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: api
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.port }}"
+        prometheus.io/path: "/metrics"
+
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      imagePullSecrets:
+      - name: gitlab-itgix-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - git config --global --add safe.directory /tmp/gitops-repo && exec python main.py
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            {{- range .Values.secretEnv }}
+            - name: {{ .name }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .secretKey }}
+            {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.configMap.name }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: adp-agent-prompts
+              mountPath: /app/config/prompts.yaml
+              subPath: prompts.yaml
+              readOnly: true
+
+            - name: gitops-workspace
+              mountPath: /tmp/gitops-repo
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+
+      volumes:
+        - name: adp-agent-prompts
+          configMap:
+            name: {{ .Values.promptsConfig.configMapName }}
+
+        - name: gitops-workspace
+          emptyDir: {}
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-itgix-secret
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJnaXRsYWIuaXRnaXguY29tOjUwNTAiOiB7CiAgICAgICJhdXRoIjogIllXUndMV1JsZG05d2N5MWhaMlZ1ZEMxMWMyVnlPbWRzWkhRdGJsZDFiblp2Ums1WE5tNWFOM1ZqWmtjM04yMD0iCiAgICB9CiAgfQp9
+type: kubernetes.io/dockerconfigjson
