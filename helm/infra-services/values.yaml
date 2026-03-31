@@ -31,8 +31,16 @@ storageClass:
   name: gp3
   isDefault: "true"
   allowVolumeExpansion: true
+<<<<<<< HEAD
   provisioner: ebs.csi.eks.amazonaws.com
   volumeBindingMode: WaitForFirstConsumer
   type: gp3
   customParameters:
     encrypted: "true"
+=======
+  provisioner: ebs.csi.aws.com
+  volumeBindingMode: WaitForFirstConsumer
+  type: gp3
+  customParameters:
+    encrypted: "true"
+>>>>>>> 307b4f3 (Modified the external secret)
