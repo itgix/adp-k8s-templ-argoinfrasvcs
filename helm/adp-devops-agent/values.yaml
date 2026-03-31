@@ -49,7 +49,7 @@ apiSettings:
 
 awsSettings:
   AWS_REGION: "us-east-1"
-  BEDROCK_MODEL_ID: "anthropic.claude-3-sonnet-20240229-v1:0"
+  BEDROCK_MODEL_ID: "eu.anthropic.claude-opus-4-5-20251101-v1:0"
   BEDROCK_MAX_TOKENS: 4096
   BEDROCK_TEMPERATURE: 0.0
 
