@@ -38,8 +38,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
-            args:
-              - git config --global --add safe.directory /tmp/gitops-repo && exec python main.py
+          args:
+            - git config --global --add safe.directory /tmp/gitops-repo && exec python main.py
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
