@@ -1,0 +1,13 @@
+# Example ConfigMap for customizing AI prompts
+# Mount this at /app/config/prompts.yaml in the pod
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: adp-agent-prompts
+  namespace: adp-devops-agent
+  labels:
+    app: adp-devops-agent
+    component: config
+data:
+  prompts.yaml: |
+{{ .Values.prompts | toYaml | indent 4 }}
