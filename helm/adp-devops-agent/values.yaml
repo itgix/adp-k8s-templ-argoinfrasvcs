@@ -54,9 +54,9 @@ awsSettings:
   BEDROCK_TEMPERATURE: 0.0
 
 gitLabSettings:
-  GITLAB_URL: ""
+  GITLAB_URL: "https://gitlab.itgix.com"
   GITLAB_TOKEN: ""
-  GITOPS_REPO_URL: ""
+  GITOPS_REPO_URL: "https://gitlab.itgix.com/rnd/app-platform/demo-environments/demo-aiargoapps-test.git"
   GITOPS_REPO_PATH: "/tmp/gitops-repo"
 
 branchSettings:
