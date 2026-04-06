@@ -11,18 +11,22 @@ metadata:
 spec:
   project: infra
   source:
-    repoURL: https://aws.github.io/eks-charts
-    targetRevision: {{ index .Values "infra-services" "aws-load-balancer-controller-version" }}
-    chart: aws-load-balancer-controller
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "aws_loadbalancer_branch") }}
+    path: helm/aws-load-balancer-controller
     helm:
+      valueFiles:
+        - ../aws-load-balancer-controller/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
-        region: {{ index .Values "infra-services" "region" }}
-        vpcID: {{ index .Values "infra-services" "vpc_id" }}
-        clusterName: {{ index .Values "infra-services" "eks_cluster_name" }}
-        serviceAccount:
-          name: "aws-load-balancer-controller-sa"
-          annotations:
-            eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account_id" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "eks_cluster_name" }}
+        aws-load-balancer-controller:
+          region: {{ index .Values "infra-services" "region" }}
+          vpcID: {{ index .Values "infra-services" "vpc_id" }}
+          clusterName: {{ index .Values "infra-services" "eks_cluster_name" }}
+          serviceAccount:
+            name: "aws-load-balancer-controller-sa"
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account_id" }}:role/aws-load-balancer-controller-{{ index .Values "infra-services" "eks_cluster_name" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
