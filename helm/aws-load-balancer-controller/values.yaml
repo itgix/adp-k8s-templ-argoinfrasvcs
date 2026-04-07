@@ -9,9 +9,10 @@ aws-load-balancer-controller:
 
   image:
     repository: public.ecr.aws/eks/aws-load-balancer-controller
-    tag: v2.7.1
+    tag: v3.2.1
     pullPolicy: IfNotPresent
 
+  runtimeClassName: ""
   imagePullSecrets: []
   nameOverride: ""
   fullnameOverride: ""
@@ -91,7 +92,7 @@ aws-load-balancer-controller:
   # nodes, and other user-defined topology domains.
   #
   # more details here: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
-  topologySpreadConstraints: {}
+  topologySpreadConstraints: []
 
   updateStrategy: {}
     # type: RollingUpdate
@@ -115,13 +116,29 @@ aws-load-balancer-controller:
   # Enable cert-manager
   enableCertManager: false
 
+  # Overrideable variables when enableCertManager is set to true
+  certManager:
+    # Webhook serving certificate configuration
+    duration: "8760h0m0s"  # 1 year
+    renewBefore: "720h0m0s"  # 30 days
+    revisionHistoryLimit:
+
+    # Root CA certificate configuration
+    rootCert:
+      duration: "43800h0m0s"  # 5 years
+
+    # Optional: custom issuer reference
+    # issuerRef:
+    #   name: my-issuer
+    #   kind: ClusterIssuer
+
   # The name of the Kubernetes cluster. A non-empty value is required
   clusterName:
 
   # cluster contains configurations specific to the kubernetes cluster
   cluster:
-      # Cluster DNS domain (required for requesting TLS certificates)
-      dnsDomain: cluster.local
+    # Cluster DNS domain (required for requesting TLS certificates)
+    dnsDomain: cluster.local
 
   # The ingress class this controller will satisfy. If not specified, controller will match all
   # ingresses without ingress class annotation and ingresses of type alb
@@ -161,6 +178,11 @@ aws-load-balancer-controller:
   # The VPC ID for the Kubernetes cluster. Set this manually when your pods are unable to use the metadata service to determine this automatically
   vpcId:
 
+  # This is alternative to vpcId. Set this when your pods are unable to use the metadata service to determine VPC automatically.
+  # All specified tags are used as AND filters for VPC lookup.
+  vpcTags: {}
+  # Name: tagValue
+
   # Custom AWS API Endpoints (serviceID1=URL1,serviceID2=URL2)
   awsApiEndpoints:
 
@@ -179,6 +201,11 @@ aws-load-balancer-controller:
   # The value "instance" should be used for overlay-based CNIs, such as Calico in VXLAN or IPIP mode or
   # Cilium with masquerading enabled.
   defaultTargetType: instance
+
+  # Default load balancer scheme when not specifying "alb.ingress.kubernetes.io/scheme" or
+  # "service.beta.kubernetes.io/aws-load-balancer-scheme" annotations.
+  # Possible values are "internal" and "internet-facing" (default "internal")
+  defaultLoadBalancerScheme:
 
   # If enabled, targetHealth readiness gate will get injected to the pod spec for the matching endpoint pods (default true)
   enablePodReadinessGateInject:
@@ -201,6 +228,21 @@ aws-load-balancer-controller:
   # The address the metric endpoint binds to. (default ":8080")
   metricsBindAddr: ""
 
+  webhookConfig:
+    # disableIngressValidation disables the validation of resources of kind Ingress, false by default
+    disableIngressValidation:
+    # whether or not to fail the ingress creation if the webhook fails
+    ingressValdationFailurePolicy: Fail
+    # limit ingress validation webhook to only validate ingresses matching the objectSelector
+    ingressValidationObjectSelector:
+      matchExpressions:
+      matchLabels:
+    # limit ingress validation webhook to only validate ingresses in the namespace matching the object selector.
+    ingressValidationNamespaceSelector:
+      matchExpressions:
+      matchLabels:
+
+
   # The TCP port the Webhook server binds to. (default 9443)
   webhookBindPort:
 
@@ -210,15 +252,15 @@ aws-load-balancer-controller:
     cert:
     key:
 
-  # array of namespace selectors for the webhook
+  # keepTLSSecret specifies whether to reuse existing TLS secret for chart upgrade when cert-manager is not being used
+  keepTLSSecret: false
+
+  # array of namespace selectors for the pod mutator webhook
   webhookNamespaceSelectors:
   # - key: elbv2.k8s.aws/pod-readiness-gate-inject
   #   operator: In
   #   values:
   #   - enabled
-
-  # keepTLSSecret specifies whether to reuse existing TLS secret for chart upgrade
-  keepTLSSecret: true
 
   # Maximum number of concurrently running reconcile loops for service (default 3)
   serviceMaxConcurrentReconciles:
@@ -228,6 +270,24 @@ aws-load-balancer-controller:
 
   # Maximum duration of exponential backoff for targetGroupBinding reconcile failures
   targetgroupbindingMaxExponentialBackoffDelay:
+
+  # Duration after which TargetGroupBinding will be requeued for reconciliation when it's waiting for AWS resources to update.
+  targetgroupbindingRequeueDuration:
+
+  # Maximum number of concurrently running reconcile loops for ALB gateways (default 3)
+  albGatewayMaxConcurrentReconciles:
+
+  # Maximum number of concurrently running reconcile loops for NLB gateways (default 3)
+  nlbGatewayMaxConcurrentReconciles:
+
+  # Maximum number of concurrently running reconcile loops for GlobalAccelerator objects
+  globalAcceleratorMaxConcurrentReconciles:
+
+  # Maximum duration of exponential backoff for GlobalAccelerator reconcile failures
+  globalAcceleratorMaxExponentialBackoffDelay:
+
+  # Interval at which the controller monitors the state of load balancer after creation for stabilization
+  lbStabilizationMonitorInterval:
 
   # Period at which the controller forces the repopulation of its local object stores. (default 10h0m0s)
   syncPeriod:
@@ -281,8 +341,12 @@ aws-load-balancer-controller:
   # Use Environment variables credentials from Secret (aws-secret) for aws-load-balancer-controller pod similarly as The EBS CSI Driver does.
   # envSecretName: aws-secret
 
+  # Use envFrom to set environment variables from a Secret or ConfigMap
+  # envFrom:
+  #   - secretRef:
+  #       name: my-secret
+
   # Specifies if aws-load-balancer-controller should be started in hostNetwork mode.
-  #
   # This is required if using a custom CNI where the managed control plane nodes are unable to initiate
   # network connections to the pods, for example using Calico CNI plugin on EKS. This is not required or
   # recommended if using the Amazon VPC CNI plugin.
@@ -331,11 +395,17 @@ aws-load-balancer-controller:
   # enableBackendSecurityGroup enables shared security group for backend traffic (default true)
   enableBackendSecurityGroup:
 
+  # enableManageBackendSecurityGroupRules enables controller manages security group rules (default false)
+  enableManageBackendSecurityGroupRules:
+
   # backendSecurityGroup specifies backend security group id (default controller auto create backend security group)
   backendSecurityGroup:
 
   # disableRestrictedSecurityGroupRules specifies whether to disable creating port-range restricted security group rules for traffic
   disableRestrictedSecurityGroupRules:
+
+  # maxTargetsPerTargetGroup specifies the maximum number of targets that the controller will attempt to add to a given ELB instance
+  maxTargetsPerTargetGroup:
 
   # controllerConfig specifies controller configuration
   controllerConfig:
@@ -347,9 +417,23 @@ aws-load-balancer-controller:
     # EndpointsFailOpen: true
     # EnableServiceController: true
     # EnableIPTargetType: true
+    # EnableTCPUDPListener: false
+    # EnableRGTAPI: false
     # SubnetsClusterTagCheck: true
     # NLBHealthCheckAdvancedConfig: true
+    # NLBSecurityGroup: true
     # ALBSingleSubnet: false
+    # LBCapacityReservation: true
+    # SubnetDiscoveryByReachability: true
+    # NLBGatewayAPI: true
+    # ALBGatewayAPI: true
+    # GlobalAcceleratorController: false
+    # EnhancedDefaultBehavior: false
+    # EnableDefaultTagsLowPriority: false
+    # ALBTargetControlAgent: false
+
+  certDiscovery:
+    allowedCertificateAuthorityARNs: "" # empty means all CAs are in scope
 
   # objectSelector for webhook
   objectSelector:
@@ -364,12 +448,18 @@ aws-load-balancer-controller:
   serviceMonitor:
     # Specifies whether a service monitor should be created
     enabled: false
-    # Labels to add to the service account
+    # Namespace to create the service monitor in
+    namespace:
+    # Labels to add to the service monitor
     additionalLabels: {}
     # Prometheus scrape interval
     interval: 1m
-    # Namespace to create the service monitor in
-    namespace:
+    # Prometheus scrape timeout
+    scrapeTimeout:
+    # Relabelings to apply to samples before ingestion
+    relabelings:
+    # Metric relabelings to apply to samples before ingestion
+    metricRelabelings:
 
   # clusterSecretsPermissions lets you configure RBAC permissions for secret resources
   # Access to secrets resource is required only if you use the OIDC feature, and instead of
@@ -387,5 +477,40 @@ aws-load-balancer-controller:
   # enableServiceMutatorWebhook allows you enable the webhook which makes this controller the default for all new services of type LoadBalancer
   enableServiceMutatorWebhook: true
 
+  # serviceMutatorWebhook contains configurations specific to the service mutator webhook
+  serviceMutatorWebhookConfig:
+    # whether or not to fail the service creation if the webhook fails
+    failurePolicy: Fail
+    # limit webhook to only mutate services matching the objectSelector
+    objectSelector:
+      matchExpressions: []
+      # - key: <key>
+      #   operator: <operator>
+      #   values:
+      #   - <value>
+      matchLabels: {}
+        # key: value
+    # array of namespace selectors for the service mutator webhook
+    namespaceSelectors:
+    # - key: <key>
+    #   operator: <operator>
+    #   values:
+    #   - <value>
+    # which operations trigger the webhook
+    operations:
+    - CREATE
+      # - UPDATE
+
+  # podMutatorWebhookConfig contains configurations specific to the service mutator webhook
+  podMutatorWebhookConfig:
+    # whether or not to fail the pod creation if the webhook fails
+    failurePolicy: Ignore
+
   # serviceTargetENISGTags specifies AWS tags, in addition to the cluster tags, for finding the target ENI SG to which to add inbound rules from NLBs.
   serviceTargetENISGTags:
+
+  # Specifies the class of load balancer to use for services. This affects how services are provisioned if type LoadBalancer is used (default service.k8s.aws/nlb)
+  loadBalancerClass:
+
+  # creator will disable helm default labels, so you can only add yours
+  # creator: "me"
