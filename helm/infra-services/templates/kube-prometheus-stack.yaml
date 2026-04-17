@@ -68,6 +68,9 @@ spec:
                 alb.ingress.kubernetes.io/scheme: internet-facing
                 alb.ingress.kubernetes.io/success-codes: 200-404
                 alb.ingress.kubernetes.io/target-type: ip
+                {{- if index .Values "infra-services" "grafana_load_balancer_attributes" }}
+                alb.ingress.kubernetes.io/load-balancer-attributes: {{ index .Values "infra-services" "grafana_load_balancer_attributes" }}
+                {{- end }}
               hosts:
                 - grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
               path: /
