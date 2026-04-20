@@ -5,3 +5,11 @@ external-dns:
   provider: aws
   registry: txt
   triggerLoopOnEvent: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

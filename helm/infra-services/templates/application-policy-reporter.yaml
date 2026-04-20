@@ -21,6 +21,7 @@ spec:
       values: |
         policy-reporter:
           ingress:
+            enabled: true
             className: "alb"
             annotations:
               external-dns.alpha.kubernetes.io/hostname: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
@@ -29,9 +30,9 @@ spec:
               paths:
                 - backend:
                     service:
-                     name: policy-report-ui
-                     port:
-                       number: 8080
+                      name: policy-reporter-ui
+                      port:
+                        number: 8080
                   pathType: Prefix
                   path: /
   destination:
