@@ -839,3 +839,5 @@ trivy-operator:
     podSecurityContext:
       runAsUser: 10000
       fsGroup: 10000
+  grafanaDashboard:
+    enabled: true
