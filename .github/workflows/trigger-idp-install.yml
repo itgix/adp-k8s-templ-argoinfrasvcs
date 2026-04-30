@@ -1,0 +1,20 @@
+name: Trigger IDP Install Pipeline
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+
+jobs:
+  trigger-idp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger GitLab idp-installer pipeline
+        run: |
+          curl -s -X POST \
+            --form token="${{ secrets.GITLAB_TRIGGER_TOKEN }}" \
+            --form ref=ci-pipeline-env \
+            --form "variables[TEMPLATE_BRANCH]=${{ github.ref_name }}" \
+            --form "variables[TEMPLATE_REPO]=gitops" \
+            "https://gitlab.itgix.com/api/v4/projects/${{ secrets.IDP_INSTALLER_PROJECT_ID }}/trigger/pipeline"
