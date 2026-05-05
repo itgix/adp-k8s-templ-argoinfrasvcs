@@ -30,6 +30,8 @@ kyverno:
   namespaceOverride: kyverno
   crds:
     install: true
+    migration:
+      enabled: false
   features:
     logging:
       format: json
