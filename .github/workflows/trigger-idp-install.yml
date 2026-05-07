@@ -6,7 +6,7 @@ on:
   #     - main
   #     - master
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
   push:
     tags:
       - 'v*'
@@ -23,9 +23,16 @@ jobs:
             BRANCH="${{ github.ref_name }}"
           fi
 
+          if [ "${{ github.event.action }}" = "closed" ]; then
+            DESTROY="true"
+          else
+            DESTROY="false"
+          fi
+
           curl -s -X POST \
             --form token="${{ secrets.GITLAB_TRIGGER_TOKEN }}" \
             --form ref=ci-pipeline-env \
             --form "variables[TEMPLATE_BRANCH]=$BRANCH" \
             --form "variables[TEMPLATE_REPO]=gitops" \
+            --form "variables[DESTROY]=$DESTROY" \
             "https://gitlab.itgix.com/api/v4/projects/${{ secrets.IDP_INSTALLER_PROJECT_ID }}/trigger/pipeline"
