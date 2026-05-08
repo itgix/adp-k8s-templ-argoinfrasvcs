@@ -7,6 +7,10 @@ backstage:
       - backstage-secrets
       - backstage-postgresql
 
+    extraEnvVars:
+      - name: enabled_guest
+        value: false
+
     appConfig:
       app:
         title: Backstage
