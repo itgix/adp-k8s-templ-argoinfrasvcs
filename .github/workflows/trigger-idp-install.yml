@@ -1,10 +1,6 @@
 name: Trigger IDP Install Pipeline
 
 on:
-  # push:
-  #   branches-ignore:
-  #     - main
-  #     - master
   pull_request:
     types: [opened, synchronize, reopened, closed]
   push:
@@ -31,7 +27,7 @@ jobs:
 
           curl -s -X POST \
             --form token="${{ secrets.GITLAB_TRIGGER_TOKEN }}" \
-            --form ref=ci-pipeline-env \
+            --form ref=develop \
             --form "variables[TEMPLATE_BRANCH]=$BRANCH" \
             --form "variables[TEMPLATE_REPO]=gitops" \
             --form "variables[DESTROY]=$DESTROY" \
