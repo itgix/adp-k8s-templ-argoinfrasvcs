@@ -29,6 +29,7 @@ spec:
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
               - name: BACKEND_BASE_URL
                 value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+
 {{- $repoUrl := index .Values "infra-services" "applications_destination_repo" }}
 {{- if and $repoUrl (or (contains "github.com" $repoUrl) (contains "gitlab." $repoUrl)) }}
 {{- $host := regexReplaceAll "^https?://([^/]+)/.*" $repoUrl "$1" }}
