@@ -1,0 +1,39 @@
+{{- if index .Values "infra-services" "enable_efs_csi" }}
+{{- $efsFilesystemId := required "infra-services.efs_file_system_id is required when infra-services.enable_efs_csi=true" (index .Values "infra-services" "efs_file_system_id") }}
+{{- $provisioningMode := .Values.efsStorageClass.parameters.provisioningMode | default "efs-ap" }}
+{{- $additionalParameters := .Values.efsStorageClass.parameters.additionalParameters | default dict }}
+{{- range $reservedKey := list "provisioningMode" "fileSystemId" "directoryPerms" "ensureUniqueDirectory" "basePath" "gidRangeStart" "gidRangeEnd" }}
+{{- if hasKey $additionalParameters $reservedKey }}
+{{- fail (printf "efsStorageClass.parameters.additionalParameters.%s conflicts with a reserved key managed by the template" $reservedKey) }}
+{{- end }}
+{{- end }}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.efsStorageClass.name | default "efs-sc" }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "{{ .Values.efsStorageClass.isDefault | default "false" }}"
+allowVolumeExpansion: {{ .Values.efsStorageClass.allowVolumeExpansion | default true }}
+provisioner: {{ .Values.efsStorageClass.provisioner | default "efs.csi.aws.com" }}
+reclaimPolicy: {{ .Values.efsStorageClass.reclaimPolicy | default "Delete" }}
+volumeBindingMode: {{ .Values.efsStorageClass.volumeBindingMode | default "Immediate" }}
+parameters:
+  provisioningMode: {{ $provisioningMode }}
+  fileSystemId: {{ $efsFilesystemId | quote }}
+  {{- if eq $provisioningMode "efs-ap" }}
+  directoryPerms: {{ .Values.efsStorageClass.parameters.directoryPerms | default "700" | quote }}
+  ensureUniqueDirectory: {{ .Values.efsStorageClass.parameters.ensureUniqueDirectory | default "true" | quote }}
+  {{- if .Values.efsStorageClass.parameters.basePath }}
+  basePath: {{ .Values.efsStorageClass.parameters.basePath | quote }}
+  {{- end }}
+  {{- if .Values.efsStorageClass.parameters.gidRangeStart }}
+  gidRangeStart: {{ .Values.efsStorageClass.parameters.gidRangeStart | quote }}
+  {{- end }}
+  {{- if .Values.efsStorageClass.parameters.gidRangeEnd }}
+  gidRangeEnd: {{ .Values.efsStorageClass.parameters.gidRangeEnd | quote }}
+  {{- end }}
+  {{- end }}
+  {{- with $additionalParameters }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

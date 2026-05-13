@@ -14,6 +14,7 @@ infra-services:
   enable_prometheus_stack: false
   enable_tempo: false
   enable_loki: false
+  enable_efs_csi: false
   backstage_enabled: false
   enable_devlake: false
 
@@ -28,6 +29,7 @@ infra-services:
   eks_cluster_name: ~
   vpc_id: ~
   dns_hosted_zone: ~
+  efs_file_system_id: ~
 
 
 storageClass:
@@ -39,3 +41,21 @@ storageClass:
   type: gp3
   customParameters:
     encrypted: "true"
+
+efsStorageClass:
+  name: efs-sc
+  isDefault: "false"
+  allowVolumeExpansion: true
+  provisioner: efs.csi.aws.com
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  parameters:
+    provisioningMode: efs-ap
+    directoryPerms: "700"
+    ensureUniqueDirectory: "true"
+    basePath: ""
+    gidRangeStart: ""
+    gidRangeEnd: ""
+    # Advanced optional overrides passed as-is to the EFS CSI StorageClass parameters.
+    # Keep empty for the default dynamic Access Point provisioning flow.
+    additionalParameters: {}
