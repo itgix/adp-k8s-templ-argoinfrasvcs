@@ -62,12 +62,15 @@ spec:
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/ssl-redirect: "443"
-                alb.ingress.kubernetes.io/group.name: public
+                alb.ingress.kubernetes.io/group.name: {{ default "public" (index .Values "infra-services" "grafana-ingress-group-name") }}
                 alb.ingress.kubernetes.io/healthcheck-path: /
                 alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-                alb.ingress.kubernetes.io/scheme: internet-facing
+                alb.ingress.kubernetes.io/scheme: {{ default "internet-facing" (index .Values "infra-services" "grafana-ingress-scheme") }}
                 alb.ingress.kubernetes.io/success-codes: 200-404
                 alb.ingress.kubernetes.io/target-type: ip
+                {{- if index .Values "infra-services" "grafana-load-balancer-attributes" }}
+                alb.ingress.kubernetes.io/load-balancer-attributes: {{ index .Values "infra-services" "grafana-load-balancer-attributes" }}
+                {{- end }}
               hosts:
                 - grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
               path: /
