@@ -17,7 +17,8 @@ infra-services:
   enable_efs_csi: false
   backstage_enabled: false
   enable_devlake: false
-
+  enable_guest_login: false
+  
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12
   external-dns-version: HEAD

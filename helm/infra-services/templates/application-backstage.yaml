@@ -49,6 +49,13 @@ spec:
 
             extraEnvVarsSecrets:
               - backstage-secrets
+{{- if index .Values "infra-services" "enable_guest_login" }}
+            appConfig:
+              auth:
+                providers:
+                  guest:
+                    dangerouslyAllowOutsideDevelopment: true
+{{- end }}
           ingress:
             enabled: true
             className: alb
