@@ -58,7 +58,11 @@ spec:
               ingressClassName: alb
               annotations:
                 kubernetes.io/ingress.class: alb
+                {{- if index .Values "infra-services" "use_env" }}
+                external-dns.alpha.kubernetes.io/hostname: grafana-{{ index .Values "infra-services" "region" }}-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                {{- else }}
                 external-dns.alpha.kubernetes.io/hostname: grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                {{- end }}
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/ssl-redirect: "443"
@@ -72,7 +76,11 @@ spec:
                 alb.ingress.kubernetes.io/load-balancer-attributes: {{ index .Values "infra-services" "grafana_load_balancer_attributes" }}
                 {{- end }}
               hosts:
+                {{- if index .Values "infra-services" "use_env" }}
+                - grafana-{{ index .Values "infra-services" "region" }}-{{ index .Values "infra-services" "environment" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                {{- else }}
                 - grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                {{- end }}
               path: /
               port: 80
               # tls:
