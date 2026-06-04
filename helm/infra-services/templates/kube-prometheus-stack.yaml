@@ -1,4 +1,5 @@
 {{- if index .Values "infra-services" "enable_prometheus_stack" }}
+{{- $grafanaIngressHost := index .Values "infra-services" "grafana_ingress_host" | default (printf "grafana-%s.%s" (index .Values "infra-services" "region") (index .Values "infra-services" "dns_main_domain")) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -58,7 +59,7 @@ spec:
               ingressClassName: alb
               annotations:
                 kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                external-dns.alpha.kubernetes.io/hostname: {{ $grafanaIngressHost }}
                 alb.ingress.kubernetes.io/actions.response-503: |
                   {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
                 alb.ingress.kubernetes.io/ssl-redirect: "443"
@@ -72,7 +73,7 @@ spec:
                 alb.ingress.kubernetes.io/load-balancer-attributes: {{ index .Values "infra-services" "grafana_load_balancer_attributes" }}
                 {{- end }}
               hosts:
-                - grafana-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+                - {{ $grafanaIngressHost }}
               path: /
               port: 80
               # tls:
