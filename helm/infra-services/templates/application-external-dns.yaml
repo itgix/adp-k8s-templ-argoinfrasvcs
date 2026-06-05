@@ -22,6 +22,9 @@ spec:
         external-dns:
           domainFilters:
             - {{ index .Values "infra-services" "dns_main_domain" }}
+{{- range (default list (index .Values "infra-services" "dns_extra_domains")) }}
+            - {{ . }}
+{{- end }}
           serviceAccount:
             name: "external-dns-sa"
             annotations:
