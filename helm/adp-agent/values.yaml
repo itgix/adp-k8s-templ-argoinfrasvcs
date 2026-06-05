@@ -12,5 +12,5 @@ adpagent:
       cpu: 800m
       memory: 150Mi
     requests:
-      cpu: 100m
-      memory: 100Mi
+      cpu: 50m
+      memory: 90Mi
