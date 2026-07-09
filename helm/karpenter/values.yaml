@@ -31,3 +31,16 @@ configuration:
     allowedTypes:
       - t3
       - m7a
+  instanceType:
+    enabled: false
+    allowedTypes:
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+      - m7a.large
+      - m7a.xlarge
+      - m7a.2xlarge
