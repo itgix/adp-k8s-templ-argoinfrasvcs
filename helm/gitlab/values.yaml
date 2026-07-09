@@ -1,0 +1,79 @@
+gitlab:
+  global:
+    edition: ee
+    hosts:
+      domain: example.com        # overridden by infra-facts
+      https: true
+
+    ingress:
+      configureCertmanager: false
+      class: alb
+      enabled: true
+      tls:
+        enabled: true
+
+    # Object storage configuration for AWS S3
+    # Uses IRSA (IAM Roles for Service Accounts) for authentication
+    appConfig:
+      object_store:
+        enabled: true
+        proxy_download: true
+        connection:
+          secret: gitlab-object-storage
+          key: connection
+
+      # Individual bucket configurations
+      lfs:
+        enabled: true
+        bucket: ""               # overridden per environment
+      artifacts:
+        enabled: true
+        bucket: ""               # overridden per environment
+      uploads:
+        enabled: true
+        bucket: ""               # overridden per environment
+      packages:
+        enabled: true
+        bucket: ""               # overridden per environment
+      backups:
+        bucket: ""               # overridden per environment
+      terraformState:
+        enabled: true
+        bucket: ""               # overridden per environment
+      dependencyProxy:
+        enabled: true
+        bucket: ""               # overridden per environment
+
+    # Service account annotations for IRSA
+    serviceAccount:
+      enabled: true
+      create: true
+      annotations: {}            # overridden per environment with IRSA role ARN
+
+    # Minio disabled - using external S3
+    minio:
+      enabled: false
+
+    # Registry storage on S3
+    registry:
+      bucket: ""                 # overridden per environment
+
+  # Disable bundled NGINX ingress controller (using ALB)
+  nginx-ingress:
+    enabled: false
+
+  # Disable bundled cert-manager
+  certmanager:
+    install: false
+
+  # Disable bundled Prometheus
+  prometheus:
+    install: false
+
+  # GitLab Runner (optional, can be enabled per environment)
+  gitlab-runner:
+    install: false
+
+  # PostgreSQL - use bundled or external
+  postgresql:
+    install: true

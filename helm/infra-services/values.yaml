@@ -32,6 +32,21 @@ infra-services:
   dns_hosted_zone: ~
   efs_file_system_id: ~
 
+  # GitLab configuration
+  gitlab_sa_role_arn: ~
+  gitlab_s3_use_irsa: true
+  gitlab_s3_bucket_lfs: ~
+  gitlab_s3_bucket_artifacts: ~
+  gitlab_s3_bucket_uploads: ~
+  gitlab_s3_bucket_packages: ~
+  gitlab_s3_bucket_backups: ~
+  gitlab_s3_bucket_terraform_state: ~
+  gitlab_s3_bucket_dependency_proxy: ~
+  gitlab_s3_bucket_registry: ~
+  gitlab_domain: ~
+  gitlab_ingress_scheme: internet-facing
+  gitlab_ingress_group_name: public
+
 
 storageClass:
   name: gp3

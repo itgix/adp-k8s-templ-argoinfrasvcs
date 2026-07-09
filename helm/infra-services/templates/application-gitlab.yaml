@@ -1,0 +1,70 @@
+{{- if index .Values "infra-services" "enable_gitlab" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision: {{ default "HEAD" (index .Values "infra-services" "gitlab_branch") }}
+    path: helm/gitlab
+    helm:
+      valueFiles:
+        - ../gitlab/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        gitlab:
+          global:
+            hosts:
+              domain: {{ index .Values "infra-services" "gitlab_domain" | default (printf "gitlab-%s.%s" (index .Values "infra-services" "region") (index .Values "infra-services" "dns_main_domain")) }}
+            serviceAccount:
+              annotations:
+                eks.amazonaws.com/role-arn: {{ index .Values "infra-services" "gitlab_sa_role_arn" }}
+            appConfig:
+              lfs:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_lfs" | default (printf "%s-gitlab-lfs-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              artifacts:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_artifacts" | default (printf "%s-gitlab-artifacts-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              uploads:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_uploads" | default (printf "%s-gitlab-uploads-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              packages:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_packages" | default (printf "%s-gitlab-packages-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              backups:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_backups" | default (printf "%s-gitlab-backups-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              terraformState:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_terraform_state" | default (printf "%s-gitlab-terraform-state-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+              dependencyProxy:
+                bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_dependency_proxy" | default (printf "%s-gitlab-dependency-proxy-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+            registry:
+              bucket: {{ index .Values "infra-services" "gitlab_s3_bucket_registry" | default (printf "%s-gitlab-registry-%s" (index .Values "infra-services" "eks_cluster_name") (index .Values "infra-services" "region")) }}
+          ingress:
+            annotations:
+              kubernetes.io/ingress.class: alb
+              alb.ingress.kubernetes.io/scheme: {{ default "internet-facing" (index .Values "infra-services" "gitlab_ingress_scheme") }}
+              alb.ingress.kubernetes.io/target-type: ip
+              alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+              alb.ingress.kubernetes.io/ssl-redirect: '443'
+              alb.ingress.kubernetes.io/group.name: {{ default "public" (index .Values "infra-services" "gitlab_ingress_group_name") }}
+              external-dns.alpha.kubernetes.io/hostname: {{ index .Values "infra-services" "gitlab_domain" | default (printf "gitlab-%s.%s" (index .Values "infra-services" "region") (index .Values "infra-services" "dns_main_domain")) }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gitlab
+  ignoreDifferences:
+  - group: apps
+    jsonPointers:
+    - /spec/template
+    kind: Deployment
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+  revisionHistoryLimit: 3
+{{- end }}
