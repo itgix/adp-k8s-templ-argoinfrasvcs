@@ -50,12 +50,6 @@ spec:
           {{- if index .Values "infra-services" "karpenter_instance_type_enabled" }}
           instanceType:
             enabled: true
-            {{- if index .Values "infra-services" "karpenter_instance_type_allowed" }}
-            allowedTypes:
-              {{- range index .Values "infra-services" "karpenter_instance_type_allowed" }}
-              - {{ . }}
-              {{- end }}
-            {{- end }}
           {{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
