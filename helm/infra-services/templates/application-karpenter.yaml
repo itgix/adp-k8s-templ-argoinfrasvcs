@@ -47,6 +47,10 @@ spec:
             Environment: {{ index .Values "infra-services" "environment" }}
             CostCenter: na
             Application: adp
+          {{- if index .Values "infra-services" "karpenter_instance_type_enabled" }}
+          instanceType:
+            enabled: true
+          {{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: karpenter
