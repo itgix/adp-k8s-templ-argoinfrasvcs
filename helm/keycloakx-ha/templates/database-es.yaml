@@ -1,0 +1,20 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: keycloak-db-credentials
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: secretstore-vault
+    kind: ClusterSecretStore
+  target:
+    name: keycloak-db-credentials
+    creationPolicy: Owner
+  data:
+    - secretKey: password
+      remoteRef:
+        key: dbs/keycloak
+        property: password

@@ -1,0 +1,115 @@
+keycloakx:
+  replicas: 3
+
+  podManagementPolicy: Parallel
+
+  image:
+    repository: registry.phoenix.net-digital.com/phoenix/infrastructure/keycloak
+    tag: 26.5.2-phoenix
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: keycloak-pull-secret
+
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+  args:
+    - "start"
+
+  http:
+    relativePath: /
+
+  serviceAccount:
+    create: true
+    allowReadPods: true
+
+  rbac:
+    create: true
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+        verbs:
+          - get
+          - list
+
+  extraEnv: |
+    - name: KEYCLOAK_ADMIN
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin-credentials
+          key: username
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin-credentials
+          key: password
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+    - name: KC_HOSTNAME_STRICT_HTTPS
+      value: "true"
+    - name: KC_FEATURES
+      value: "admin-fine-grained-authz,client-secret-rotation,token-exchange,recovery-codes"
+    - name: KC_CACHE
+      value: "ispn"
+    - name: KC_CACHE_STACK
+      value: "kubernetes"
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -XX:MaxRAMPercentage=70.0
+        -Djgroups.dns.query={{ include "keycloak.serviceDnsName" . }}
+
+  database:
+    vendor: postgres
+    existingSecret: keycloak-db-credentials
+    existingSecretKey: password
+
+  dbchecker:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+
+  podDisruptionBudget:
+    minAvailable: 1
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    servicePort: http
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    rules:
+      - host: ""
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - ""
+        secretName: keycloak-tls
+
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+
+  proxy:
+    enabled: true
+    mode: xforwarded
+
+  startupProbe: |
+    httpGet:
+      path: '/health'
+      port: '{{ .Values.http.internalPort }}'
+      scheme: '{{ .Values.http.internalScheme }}'
+    initialDelaySeconds: 30
+    timeoutSeconds: 1
+    failureThreshold: 60
+    periodSeconds: 5
