@@ -3,9 +3,9 @@ keycloakx:
 
   podManagementPolicy: Parallel
 
-  image:
-    repository: registry.phoenix.net-digital.com/phoenix/infrastructure/keycloak
-    tag: 26.5.2-phoenix
+  image: quay.io/keycloak/keycloak
+    repository: 
+    tag: 26.5.2
     pullPolicy: IfNotPresent
 
   imagePullSecrets:
