@@ -1,4 +1,5 @@
 infra-services:
+  cloud: aws
   aws_loadbalancer_enabled: true
   external_dns_enabled: true
   external_secrets_enabled: true
