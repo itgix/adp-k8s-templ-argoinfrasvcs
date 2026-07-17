@@ -19,6 +19,28 @@ infra-services:
   backstage_enabled: false
   enable_devlake: false
   enable_guest_login: false
+
+  # Shared ingress defaults. Each map is merged from broadest to most specific:
+  # ingress_annotations, <cloud>_ingress_annotations, <app>_ingress_annotations.
+  ingress_class_name: ""
+  aws_ingress_class_name: ""
+  gcp_ingress_class_name: ""
+  ingress_annotations: {}
+  aws_ingress_annotations: {}
+  gcp_ingress_annotations: {}
+  backstage_ingress_annotations: {}
+  policy_reporter_ingress_annotations: {}
+  grafana_ingress_annotations: {}
+  alertmanager_ingress_annotations: {}
+  prometheus_ingress_annotations: {}
+  devlake_ingress_annotations: {}
+  gcp_ingress_managed_certificates_enabled: true
+  gcp_ingress_https_redirect_enabled: true
+  service_account_annotations: {}
+  aws_service_account_annotations: {}
+  gcp_service_account_annotations: {}
+  external_dns_service_account_annotations: {}
+  external_secrets_service_account_annotations: {}
   
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12

@@ -1,6 +1,17 @@
 {{- if and .Values.server.ingress.enabled (eq .Values.server.ingress.controller "gke") }}
 {{- $insecure := index .Values.configs.params "server.insecure" | toString -}}
 {{- $servicePort := eq $insecure "true" | ternary .Values.server.service.servicePortHttp .Values.server.service.servicePortHttps -}}
+{{- $annotations := dict -}}
+{{- with .Values.server.ingress.ingressClassName -}}
+{{- $_ := set $annotations "kubernetes.io/ingress.class" . -}}
+{{- end -}}
+{{- if .Values.server.ingress.gke.managedCertificate.create -}}
+{{- $_ := set $annotations "networking.gke.io/managed-certificates" (include "argo-cd.server.fullname" .) -}}
+{{- end -}}
+{{- if .Values.server.ingress.gke.frontendConfig -}}
+{{- $_ := set $annotations "networking.gke.io/v1beta1.FrontendConfig" (include "argo-cd.server.fullname" .) -}}
+{{- end -}}
+{{- $annotations = mergeOverwrite $annotations .Values.server.ingress.annotations -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -12,16 +23,7 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
   annotations:
-    {{- with .Values.server.ingress.ingressClassName }}
-    kubernetes.io/ingress.class: {{ . }}
-    {{- end }}
-    {{- if .Values.server.ingress.gke.managedCertificate.create }}
-    networking.gke.io/managed-certificates: {{ include "argo-cd.server.fullname" . }}
-    {{- end }}
-    {{- if .Values.server.ingress.gke.frontendConfig }}
-    networking.gke.io/v1beta1.FrontendConfig: {{ include "argo-cd.server.fullname" . }}
-    {{- end }}
-    {{- range $key, $value := .Values.server.ingress.annotations }}
+    {{- range $key, $value := $annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:

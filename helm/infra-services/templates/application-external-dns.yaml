@@ -4,6 +4,12 @@
 {{- $externalDnsAccount := default dict (index $workloadIdentityAccounts "external-dns") -}}
 {{- $externalDnsKsaName := default "external-dns-sa" (index $externalDnsAccount "ksa_name") -}}
 {{- if index $infraServices "external_dns_enabled" }}
+{{- $externalDnsAnnotations := dict -}}
+{{- if eq $cloud "gcp" -}}
+{{- $_ := set $externalDnsAnnotations "iam.gke.io/gcp-service-account" (required "external_dns_service_account_email is required for GCP external-dns" (index $infraServices "external_dns_service_account_email")) -}}
+{{- else -}}
+{{- $_ := set $externalDnsAnnotations "eks.amazonaws.com/role-arn" (printf "arn:aws:iam::%v:role/%v-external-dns" (index $infraServices "aws_account_id") (index $infraServices "eks_cluster_name")) -}}
+{{- end -}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -39,11 +45,7 @@ spec:
           serviceAccount:
             name: {{ ternary $externalDnsKsaName "external-dns-sa" (eq $cloud "gcp") | quote }}
             annotations:
-{{ if eq $cloud "gcp" }}
-              iam.gke.io/gcp-service-account: {{ required "external_dns_service_account_email is required for GCP external-dns" (index $infraServices "external_dns_service_account_email") | quote }}
-{{ else }}
-              eks.amazonaws.com/role-arn: arn:aws:iam::{{ index .Values "infra-services" "aws_account_id" }}:role/{{ index .Values "infra-services" "eks_cluster_name" }}-external-dns    
-{{ end }}
+{{ include "infra-services.serviceAccountAnnotations" (dict "infraServices" $infraServices "app" "external_dns" "defaultAnnotations" $externalDnsAnnotations) | nindent 14 }}
           txtOwnerId: {{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}-{{ ternary (index $infraServices "dns_managed_zone") (index $infraServices "dns_hosted_zone") (eq $cloud "gcp") }}
   destination:
     server: 'https://kubernetes.default.svc'

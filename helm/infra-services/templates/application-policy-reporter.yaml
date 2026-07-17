@@ -1,4 +1,6 @@
 {{- if index .Values "infra-services" "enable_policy_reporter" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $policyReporterIngressHost := index $infraServices "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infraServices "project_name") (index $infraServices "environment") (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -21,11 +23,11 @@ spec:
       values: |
         policy-reporter:
           ingress:
-            className: "alb"
+            className: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "policy_reporter") }}
             annotations:
-              external-dns.alpha.kubernetes.io/hostname: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "policy_reporter" "host" $policyReporterIngressHost "managedCertificateName" "policy-reporter" "frontendConfigName" "policy-reporter") | nindent 14 }}
             hosts:
-            - host: policies-{{ index .Values "infra-services" "project_name" }}-{{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}.{{ index .Values "infra-services" "dns_main_domain" }}
+            - host: {{ $policyReporterIngressHost }}
               paths:
                 - backend:
                     service:
