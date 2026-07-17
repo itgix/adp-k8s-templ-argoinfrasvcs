@@ -13,4 +13,4 @@ spec:
   source:
     path: manifests/deployments
     repoURL: {{ gitops_destination_repo }}
-    targetRevision: HEAD
+    targetRevision: {{ gitops_destination_repo_branch | default("HEAD") }}
