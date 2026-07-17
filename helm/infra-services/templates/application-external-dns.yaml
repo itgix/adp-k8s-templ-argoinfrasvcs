@@ -17,7 +17,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "external_dns_branch") }}
+    targetRevision:  {{ default (default "HEAD" (index .Values "infra-services" "gitops_destination_repo_branch")) (index .Values "infra-services" "external_dns_branch") }}
     path: helm/external-dns
     helm:
       valueFiles:
