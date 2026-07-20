@@ -10,7 +10,7 @@ spec:
   source:
     path: manifests/applications
     repoURL:  {{ gitops_destination_repo }}
-    targetRevision: {{ gitops_destination_repo_branch | default("HEAD") }}
+    targetRevision: HEAD
   project: infra
   syncPolicy:
     automated:
