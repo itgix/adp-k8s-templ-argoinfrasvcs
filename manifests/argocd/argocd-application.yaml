@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: {{ gitops_destination_repo }}
-    targetRevision: {{ gitops_destination_repo_branch | default("HEAD") }}
+    targetRevision: HEAD
     path: helm/argo-cd
     helm:
       valueFiles:

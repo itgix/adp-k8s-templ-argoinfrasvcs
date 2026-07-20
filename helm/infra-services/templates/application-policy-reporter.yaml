@@ -14,7 +14,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision:  {{ default (default "HEAD" (index .Values "infra-services" "gitops_destination_repo_branch")) (index .Values "infra-services" "policy_reporter_branch") }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "policy_reporter_branch") }}
     path: helm/policy-reporter
     helm:
       valueFiles:

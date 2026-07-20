@@ -13,7 +13,7 @@ spec:
   project: infra
   source:
     repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
-    targetRevision:  {{ default (default "HEAD" (index .Values "infra-services" "gitops_destination_repo_branch")) (index .Values "infra-services" "aws_loadbalancer_branch") }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "aws_loadbalancer_branch") }}
     path: helm/aws-load-balancer-controller
     helm:
       valueFiles:
