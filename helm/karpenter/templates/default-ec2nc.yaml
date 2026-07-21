@@ -7,6 +7,13 @@ spec:
   amiFamily: {{ .Values.configuration.amiFamily }}
   amiSelectorTerms:
     - alias: bottlerocket@latest
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: {{ .Values.configuration.dataVolumeSize | default "50Gi" }}
+        volumeType: {{ .Values.configuration.dataVolumeType | default "gp3" }}
+        encrypted: true
+        deleteOnTermination: true
   metadataOptions:
     httpEndpoint: enabled
     httpProtocolIPv6: disabled
