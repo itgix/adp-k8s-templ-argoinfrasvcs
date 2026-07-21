@@ -10,7 +10,7 @@ spec:
   blockDeviceMappings:
     - deviceName: /dev/xvdb
       ebs:
-        volumeSize: {{ .Values.configuration.dataVolumeSize | default "50Gi" }}
+        volumeSize: {{ .Values.configuration.dataVolumeSize | default "20Gi" }}
         volumeType: {{ .Values.configuration.dataVolumeType | default "gp3" }}
         encrypted: true
         deleteOnTermination: true
