@@ -24,8 +24,9 @@ spec:
   {{- range .Values.configuration.subnetIDs }}
   - id: {{ . }}
   {{- end }}
-  {{- if .Values.configuration.tags }}
   tags:
+    aws-apn-id: "pc:5uhf95x0bz6d518p795cfi07s"
+    {{- if .Values.configuration.tags }}
     {{- toYaml .Values.configuration.tags | nindent 4 }}
-  {{- end }}
+    {{- end }}
 {{- end }}
