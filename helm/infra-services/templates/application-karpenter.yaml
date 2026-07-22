@@ -47,6 +47,7 @@ spec:
             Environment: {{ index .Values "infra-services" "environment" }}
             CostCenter: na
             Application: adp
+            aws-apn-id: "pc:5uhf95x0bz6d518p795cfi07s"
           {{- if index .Values "infra-services" "karpenter_instance_type_enabled" }}
           instanceType:
             enabled: true
