@@ -1,5 +1,7 @@
 {{- if index .Values "infra-services" "enable_devlake" }}
-{{- $prefix := printf "%s-%s-%s" (index .Values "infra-services" "region_short") (index .Values "infra-services" "environment") (index .Values "infra-services" "project_name") }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $prefix := printf "%s-%s-%s" (index $infraServices "region_short") (index $infraServices "environment") (index $infraServices "project_name") }}
+{{- $devlakeIngressHost := index $infraServices "devlake_ingress_host" | default (printf "%s-%s-devlake-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -21,9 +23,10 @@ spec:
       values: |
         devlake:
           ingress:
+            className: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "devlake") }}
             annotations:
-              external-dns.alpha.kubernetes.io/hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
-            hostname: {{ printf "%s-%s-devlake-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain") }}
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "devlake" "host" $devlakeIngressHost "managedCertificateName" "devlake" "frontendConfigName" "devlake") | nindent 14 }}
+            hostname: {{ $devlakeIngressHost }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: devlake

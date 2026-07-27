@@ -1,0 +1,70 @@
+{{- $infraServices := index .Values "infra-services" -}}
+{{- $cloud := default "aws" (index $infraServices "cloud") -}}
+{{- if eq $cloud "gcp" -}}
+{{- $managedCertificatesEnabled := true -}}
+{{- if hasKey $infraServices "gcp_ingress_managed_certificates_enabled" -}}
+{{- $managedCertificatesEnabled = index $infraServices "gcp_ingress_managed_certificates_enabled" -}}
+{{- end -}}
+{{- $httpsRedirectEnabled := true -}}
+{{- if hasKey $infraServices "gcp_ingress_https_redirect_enabled" -}}
+{{- $httpsRedirectEnabled = index $infraServices "gcp_ingress_https_redirect_enabled" -}}
+{{- end -}}
+{{- $backstageHost := index $infraServices "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) -}}
+{{- $policyReporterHost := index $infraServices "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infraServices "project_name") (index $infraServices "environment") (index $infraServices "region") (index $infraServices "dns_main_domain")) -}}
+{{- $grafanaHost := index $infraServices "grafana_ingress_host" | default (printf "grafana-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) -}}
+{{- $devlakeHost := index $infraServices "devlake_ingress_host" | default (printf "%s-%s-devlake-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) -}}
+{{- $ingresses := list
+      (dict "enabled" (index $infraServices "backstage_enabled") "name" "backstage" "namespace" "backstage" "host" $backstageHost)
+      (dict "enabled" (index $infraServices "enable_policy_reporter") "name" "policy-reporter" "namespace" "kyverno" "host" $policyReporterHost)
+      (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "grafana" "namespace" "monitoring" "host" $grafanaHost)
+      (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "alertmanager" "namespace" "monitoring" "host" (index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain"))))
+      (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "prometheus" "namespace" "monitoring" "host" (index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain"))))
+      (dict "enabled" (index $infraServices "enable_devlake") "name" "devlake" "namespace" "devlake" "host" $devlakeHost)
+-}}
+{{- $enabledNamespaces := dict -}}
+{{- range $ingress := $ingresses -}}
+{{- if $ingress.enabled -}}
+{{- $_ := set $enabledNamespaces $ingress.namespace true -}}
+{{- end -}}
+{{- end -}}
+{{- range $namespace, $_ := $enabledNamespaces }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+{{- end }}
+{{- range $ingress := $ingresses }}
+{{- if $ingress.enabled }}
+{{- if $managedCertificatesEnabled }}
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: {{ $ingress.name }}
+  namespace: {{ $ingress.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  domains:
+    - {{ $ingress.host }}
+{{- end }}
+{{- if $httpsRedirectEnabled }}
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: {{ $ingress.name }}
+  namespace: {{ $ingress.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

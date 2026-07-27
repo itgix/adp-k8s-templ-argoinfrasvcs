@@ -1,5 +1,10 @@
 {{- if index .Values "infra-services" "enable_prometheus_stack" }}
-{{- $grafanaIngressHost := index .Values "infra-services" "grafana_ingress_host" | default (printf "grafana-%s.%s" (index .Values "infra-services" "region") (index .Values "infra-services" "dns_main_domain")) }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $cloud := default "aws" (index $infraServices "cloud") }}
+{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "grafana-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $alertmanagerIngressHost := index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $prometheusIngressHost := index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $monitoringIngressPath := ternary "/" "/*" (eq $cloud "gcp") }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -56,22 +61,9 @@ spec:
                     memory: 100Mi
             ingress:
               enabled: true
-              ingressClassName: alb
+              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}
               annotations:
-                kubernetes.io/ingress.class: alb
-                external-dns.alpha.kubernetes.io/hostname: {{ $grafanaIngressHost }}
-                alb.ingress.kubernetes.io/actions.response-503: |
-                  {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"503","messageBody":"503 Service Unavailable"}}
-                alb.ingress.kubernetes.io/ssl-redirect: "443"
-                alb.ingress.kubernetes.io/group.name: {{ default "public" (index .Values "infra-services" "grafana_ingress_group_name") }}
-                alb.ingress.kubernetes.io/healthcheck-path: /
-                alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-                alb.ingress.kubernetes.io/scheme: {{ default "internet-facing" (index .Values "infra-services" "grafana_ingress_scheme") }}
-                alb.ingress.kubernetes.io/success-codes: 200-404
-                alb.ingress.kubernetes.io/target-type: ip
-                {{- if index .Values "infra-services" "grafana_load_balancer_attributes" }}
-                alb.ingress.kubernetes.io/load-balancer-attributes: {{ index .Values "infra-services" "grafana_load_balancer_attributes" }}
-                {{- end }}
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "grafana" "host" $grafanaIngressHost "managedCertificateName" "grafana" "frontendConfigName" "grafana") | nindent 16 }}
               hosts:
                 - {{ $grafanaIngressHost }}
               path: /
@@ -104,9 +96,30 @@ spec:
               enabled: false
             serviceMonitor:
               enabled: false
+          alertmanager:
+            ingress:
+              enabled: true
+              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "alertmanager") }}
+              annotations:
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "alertmanager" "host" $alertmanagerIngressHost "managedCertificateName" "alertmanager" "frontendConfigName" "alertmanager") | nindent 16 }}
+              hosts:
+                - {{ $alertmanagerIngressHost }}
+              paths:
+                - {{ $monitoringIngressPath | quote }}
+              port: 80
           prometheus:
             tls:
               enabled: false
+            ingress:
+              enabled: true
+              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "prometheus") }}
+              annotations:
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "prometheus" "host" $prometheusIngressHost "managedCertificateName" "prometheus" "frontendConfigName" "prometheus") | nindent 16 }}
+              hosts:
+                - {{ $prometheusIngressHost }}
+              paths:
+                - {{ $monitoringIngressPath | quote }}
+              port: 80
             prometheusSpec:        
               scrapeInterval: 1m 
               storageSpec:

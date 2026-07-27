@@ -1,3 +1,4 @@
+{{- if eq (default "aws" (index .Values "infra-services" "cloud")) "aws" }}
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
@@ -12,3 +13,4 @@ parameters:
   {{- if index .Values "infra-services" "storage_class_custom_params_enabled" }}
   {{- toYaml .Values.storageClass.customParameters | nindent 2 }}
   {{- end }}
+{{- end }}

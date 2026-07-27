@@ -1,4 +1,16 @@
 {{- if index .Values "infra-services" "backstage_enabled" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $cloud := default "aws" (index $infraServices "cloud") }}
+{{- $backstageIngressHost := index $infraServices "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
+{{- $backstageImageRegistry := index $infraServices "backstage_image_registry" }}
+{{- if not $backstageImageRegistry }}
+{{- if eq $cloud "gcp" }}
+{{- $artifactRegistryUrls := default dict (index $infraServices "artifact_registry_repository_urls") }}
+{{- $backstageImageRegistry = required "infra-services.backstage_image_registry or artifact_registry_repository_urls.platform is required for Backstage on GCP" (index $artifactRegistryUrls "platform") }}
+{{- else }}
+{{- $backstageImageRegistry = "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
+{{- end }}
+{{- end }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -21,14 +33,16 @@ spec:
         backstage:
           backstage:
             image:
-              registry: {{ index .Values "infra-services" "backstage_image_registry" | default "709825985650.dkr.ecr.us-east-1.amazonaws.com" }}
-              repository: {{ index .Values "infra-services" "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
-              tag: {{ index .Values "infra-services" "backstage_image_tag" | default "v1.2.7" }}
+              registry: {{ $backstageImageRegistry }}
+              repository: {{ index $infraServices "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
+              tag: {{ index $infraServices "backstage_image_tag" | default "v1.2.7" }}
             extraEnvVars:
+              - name: CLOUD_REGION
+                value: {{ index $infraServices "region" | quote }}
               - name: APP_BASE_URL
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+                value: https://{{ $backstageIngressHost }}
               - name: BACKEND_BASE_URL
-                value: https://{{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+                value: https://{{ $backstageIngressHost }}
 
 {{- $repoUrl := index .Values "infra-services" "applications_destination_repo" }}
 {{- if and $repoUrl (or (contains "github.com" $repoUrl) (contains "gitlab." $repoUrl)) }}
@@ -58,14 +72,10 @@ spec:
 {{- end }}
           ingress:
             enabled: true
-            className: alb
-            host: {{ index .Values "infra-services" "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index .Values "infra-services" "project_name") (index .Values "infra-services" "region") (index .Values "infra-services" "environment") (index .Values "infra-services" "dns_main_domain")) }}
+            className: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "backstage") }}
+            host: {{ $backstageIngressHost }}
             annotations:
-              alb.ingress.kubernetes.io/scheme: internet-facing
-              alb.ingress.kubernetes.io/target-type: ip
-              alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
-              alb.ingress.kubernetes.io/ssl-redirect: '443'
-              alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "backstage" "host" $backstageIngressHost "managedCertificateName" "backstage" "frontendConfigName" "backstage") | nindent 14 }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: backstage
