@@ -8,4 +8,4 @@ appVersion: "1.0"
 dependencies:
 - name: devlake
   version: 1.0.2
-  repository: https://apache.github.io/incubator-devlake-helm-chart
+  repository: https://apache.github.io/devlake-helm-chart
