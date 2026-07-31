@@ -1,0 +1,30 @@
+cert-manager:
+  crds:
+    enabled: true
+  resources:
+    requests:
+      cpu: 25m
+      memory: 124Mi
+    limits:
+      memory: 124Mi
+  cainjector:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 124Mi
+      limits:
+        memory: 124Mi
+  webhook:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+      limits:
+        memory: 64Mi
+
+defaultAcmeIssuer:
+  enabled: false
+  name: letsencrypt-prod
+  email: ""
+  server: https://acme-v02.api.letsencrypt.org/directory
+  ingressClassName: ""
