@@ -7,6 +7,9 @@ infra-services:
   enable_metrics_server: true
   enable_vpa: false
   enable_kyverno: false
+  enable_cert_manager: false
+  enable_cloudnative_pg: false
+  enable_barman_cloud_plugin: false
   enable_policy_reporter: false
   enable_default_policies: false
   demo_app_enabled: false
