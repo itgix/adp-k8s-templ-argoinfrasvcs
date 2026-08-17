@@ -41,10 +41,6 @@ spec:
                   name: dashboardsProvider
                   allowUiUpdates: true
                   disableDelete: true
-            #assertNoLeakedSecrets: false
-            # grafana.ini:
-            #   server:
-            #     root_url: https://< DOMAIN NAME >
               users:
                 viewers_can_edit: true
               auth:
@@ -68,10 +64,6 @@ spec:
                 - {{ $grafanaIngressHost }}
               path: /
               port: 80
-              # tls:
-              #   - secretName: grafana-ingress-tls     ### Secret must exist
-              #     hosts:
-              #     - < DOMAIN NAME >
           defaultRules:
             rules:
               kubeScheduler: false
@@ -96,30 +88,9 @@ spec:
               enabled: false
             serviceMonitor:
               enabled: false
-          alertmanager:
-            ingress:
-              enabled: true
-              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "alertmanager") }}
-              annotations:
-{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "alertmanager" "host" $alertmanagerIngressHost "managedCertificateName" "alertmanager" "frontendConfigName" "alertmanager") | nindent 16 }}
-              hosts:
-                - {{ $alertmanagerIngressHost }}
-              paths:
-                - {{ $monitoringIngressPath | quote }}
-              port: 80
           prometheus:
             tls:
               enabled: false
-            ingress:
-              enabled: true
-              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "prometheus") }}
-              annotations:
-{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "prometheus" "host" $prometheusIngressHost "managedCertificateName" "prometheus" "frontendConfigName" "prometheus") | nindent 16 }}
-              hosts:
-                - {{ $prometheusIngressHost }}
-              paths:
-                - {{ $monitoringIngressPath | quote }}
-              port: 80
             prometheusSpec:        
               scrapeInterval: 1m 
               storageSpec:
