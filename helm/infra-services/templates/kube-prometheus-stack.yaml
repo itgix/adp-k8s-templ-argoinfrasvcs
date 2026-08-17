@@ -33,8 +33,6 @@ spec:
               - grafana-clock-panel
             imageRenderer:
               enabled: false
-            persistence:
-              enabled: false
             sidecar:
               dashboards:
                 provider:
