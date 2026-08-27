@@ -3901,7 +3901,7 @@ kube-prometheus-stack:
 
       ## How long to retain metrics
       ##
-      retention: 10d
+      retention: 60d
 
       ## Maximum size of metrics
       ##
@@ -4010,7 +4010,14 @@ kube-prometheus-stack:
       ## Prometheus StorageSpec for persistent data
       ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
       ##
-      storageSpec: {}
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp3
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
       ## Using PersistentVolumeClaim
       ##
       #  volumeClaimTemplate:
