@@ -28,7 +28,6 @@ spec:
         kube-prometheus-stack:
           grafana:
             plugins:
-              - grafana-lokiexplore-app
               - flant-statusmap-panel
               - grafana-clock-panel
             imageRenderer:
@@ -90,16 +89,7 @@ spec:
             tls:
               enabled: false
             prometheusSpec:        
-              scrapeInterval: 1m 
-              storageSpec:
-                volumeClaimTemplate:
-                  spec:
-                    #storageClassName: < STORAGE CLASS >
-                    accessModes: ["ReadWriteOnce"]
-                    resources:
-                      requests:
-                        storage: 50Gi
-              retention: 60d
+              scrapeInterval: 1m
               walCompression: true
               serviceMonitorNamespaceSelector: {}
               serviceMonitorSelector: {}
