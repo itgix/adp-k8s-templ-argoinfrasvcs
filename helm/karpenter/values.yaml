@@ -21,6 +21,11 @@ configuration:
     - on-demand
   # Default ec2nodeclass settings
   amiFamily: Bottlerocket
+  blockDeviceMappings:
+    overrideDefaultConfig: false
+    deviceName: "/dev/xvdb"
+    dataVolumeSize: "20Gi"
+    dataVolumeType: "gp3"
   nodeRole: ""
   subnetIDs: []
   securityGroupIDs: []
