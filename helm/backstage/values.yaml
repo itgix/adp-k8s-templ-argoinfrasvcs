@@ -70,6 +70,8 @@ backstage:
               signIn:
                 resolvers:
                   - resolver: usernameMatchingUserEntityName
+          #guest:
+          #  dangerouslyAllowOutsideDevelopment: true
 
       signInPage: github
 

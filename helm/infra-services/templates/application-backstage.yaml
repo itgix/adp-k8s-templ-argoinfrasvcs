@@ -35,7 +35,7 @@ spec:
             image:
               registry: {{ $backstageImageRegistry }}
               repository: {{ index $infraServices "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
-              tag: {{ index $infraServices "backstage_image_tag" | default "v1.2.7" }}
+              tag: {{ index $infraServices "backstage_image_tag" | default "v1.3.0" }}
             extraEnvVars:
               - name: CLOUD_REGION
                 value: {{ index $infraServices "region" | quote }}
