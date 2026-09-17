@@ -1,0 +1,4 @@
+# Downloaded OCI chart dependency for kubernetes-mcp-server; helm dependency
+# build fetches it at install time from oci://ghcr.io/containers/charts, so it
+# is not committed (Chart.lock pins the version/digest instead).
+helm/kubernetes-mcp-server/charts/
