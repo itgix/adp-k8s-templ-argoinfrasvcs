@@ -1,7 +1,7 @@
 {{- if index .Values "infra-services" "enable_prometheus_stack" }}
 {{- $infraServices := index .Values "infra-services" }}
 {{- $cloud := default "aws" (index $infraServices "cloud") }}
-{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "grafana-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
 {{- $alertmanagerIngressHost := index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
 {{- $prometheusIngressHost := index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
 {{- $monitoringIngressPath := ternary "/" "/*" (eq $cloud "gcp") }}
