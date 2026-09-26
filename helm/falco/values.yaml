@@ -1823,32 +1823,37 @@ falco:
     resources:
       requests:
         cpu: 100m
-        memory: 128Mi
+        memory: 1Gi
       limits:
         cpu: 500m
-        memory: 256Mi
+        memory: 1Gi
     webui:
       enabled: true
       replicaCount: 1
-      # -- Resource limits for the Web UI process.
+      ttl: 86400
       resources:
         requests:
           cpu: 100m
-          memory: 128Mi
+          memory: 1Gi
         limits:
           cpu: 500m
-          memory: 512Mi
+          memory: 1Gi
       # -- Redis backend stores received events in memory. Without a cap it can
       # grow unbounded (observed ~28GB). Bound the container and its storage.
       redis:
+        storageEnabled: true
+        storageClassName: "default-class"
+        customConfig:
+          - maxmemory 1536mb
+          - maxmemory-policy allkeys-lru
         resources:
           requests:
             cpu: 100m
-            memory: 256Mi
+            memory: 2Gi
           limits:
             cpu: 500m
-            memory: 1Gi
-        storageSize: "1Gi"
+            memory: 2Gi
+        storageSize: "2Gi"
     serviceMonitor:
       enabled: true
     prometheusRules:
@@ -2331,7 +2336,9 @@ falco:
     # certain priority or higher are active and evaluated by Falco. Supported
     # levels: "emergency", "alert", "critical", "error", "warning", "notice",
     # "info", "debug"
-    priority: debug
+    # Set to "notice" to drop noisy info/debug file-open events that flood the
+    # sidekick/webui. Matches the alertmanager minimumpriority threshold below.
+    priority: notice
 
     # [Stable] `json_output`
     #
