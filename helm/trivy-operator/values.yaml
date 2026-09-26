@@ -82,7 +82,7 @@ trivy-operator:
     scanJobTimeout: 5m
 
     # -- scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
-    scanJobsConcurrentLimit: 10
+    scanJobsConcurrentLimit: 3
 
     # -- scanNodeCollectorLimit the maximum number of node collector jobs create by the operator
     scanNodeCollectorLimit: 1
@@ -97,7 +97,7 @@ trivy-operator:
     # -- the flag to enable cluster sbom cache generation
     clusterSbomCacheEnabled: false
     # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
-    scannerReportTTL: "24h"
+    scannerReportTTL: "48h"
     # -- cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled
     cacheReportTTL: "120h"
     # -- configAuditScannerEnabled the flag to enable configuration audit scanner
@@ -506,11 +506,11 @@ trivy-operator:
     resources:
       requests:
         cpu: 100m
-        memory: 100M
+        memory: 2Gi
         # ephemeralStorage: "2Gi"
       limits:
         cpu: 500m
-        memory: 500M
+        memory: 2Gi
         # ephemeralStorage: "2Gi"
 
     # -- githubToken is the GitHub access token used by Trivy to download the vulnerabilities
