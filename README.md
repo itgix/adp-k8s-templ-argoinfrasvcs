@@ -56,3 +56,15 @@ kubectl apply -n argocd -f ./manifests/applications/infra-app-stages/stage/eu-we
 P.S. 
 
 There is also a generic application.yaml that has all options for creating other applications. Can be used for reference.
+
+# Optional infra services
+
+## Kafka operator (Strimzi)
+
+Set `enable_kafka_operator: true` in the environment config to deploy the Strimzi cluster
+operator (`helm/kafka-operator`, a wrapper around the upstream `strimzi-kafka-operator` chart)
+into the `strimzi-system` namespace. It installs the operator only, watching all namespaces
+(`watchAnyNamespace: true`), so Kafka clusters are meant to be created by application repos in
+their own namespace, not by this chart. A sample `Kafka` cluster manifest ships in a follow-up
+PR. `kafka_operator_branch` overrides the targetRevision of the `helm/kafka-operator` path the
+same way the other `<app>_branch` keys do.
