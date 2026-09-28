@@ -10,6 +10,7 @@ infra-services:
   enable_cert_manager: false
   enable_cloudnative_pg: false
   enable_barman_cloud_plugin: false
+  enable_kafka_operator: false
   enable_policy_reporter: false
   enable_default_policies: false
   demo_app_enabled: false

@@ -1,0 +1,19 @@
+# strimzi-kafka-operator: do not rename this key -- Helm routes these values to the
+# strimzi-kafka-operator dependency by chart name (see Chart.yaml).
+strimzi-kafka-operator:
+  # Operator only, no Kafka cluster here. Watches every namespace so application
+  # repos can create their own Kafka/KafkaTopic/KafkaUser resources without a
+  # per-namespace RBAC grant in this chart; the upstream chart renders
+  # ClusterRoleBindings instead of per-namespace RoleBindings when this is true.
+  watchAnyNamespace: true
+
+  replicas: 1
+
+  # Modest defaults for a single-replica controller; upstream chart's own defaults.
+  resources:
+    requests:
+      cpu: 200m
+      memory: 384Mi
+    limits:
+      cpu: 1000m
+      memory: 384Mi
