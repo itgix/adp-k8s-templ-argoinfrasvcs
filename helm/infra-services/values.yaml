@@ -21,7 +21,6 @@ infra-services:
   enable_loki: false
   enable_efs_csi: false
   backstage_enabled: false
-  enable_devlake: false
   enable_guest_login: false
 
   # Shared ingress defaults. Each map is merged from broadest to most specific:
@@ -37,7 +36,6 @@ infra-services:
   grafana_ingress_annotations: {}
   alertmanager_ingress_annotations: {}
   prometheus_ingress_annotations: {}
-  devlake_ingress_annotations: {}
   gcp_ingress_managed_certificates_enabled: true
   gcp_ingress_https_redirect_enabled: true
   service_account_annotations: {}

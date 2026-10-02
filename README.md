@@ -68,3 +68,19 @@ into the `strimzi-system` namespace. It installs the operator only, watching all
 their own namespace, not by this chart. A sample `Kafka` cluster manifest ships in a follow-up
 PR. `kafka_operator_branch` overrides the targetRevision of the `helm/kafka-operator` path the
 same way the other `<app>_branch` keys do.
+
+## DevLake (deprecated here)
+
+DevLake is no longer part of this template as of the next tag. It is installed as an optional
+platform tool from the Backstage software catalog (`itgix/adp-backstage-scaffold`, template
+"Apache DevLake") into the environment's applications GitOps repo. `enable_devlake`,
+`devlake_ingress_annotations`, `devlake_ingress_host` and `devlake_branch` are no longer read.
+Existing `helm/devlake/` and `application-devlake.yaml` files in a destination repo are not
+removed by installer updates and keep working until deleted by hand.
+
+## Backstage software catalog
+
+Backstage imports its catalog from a single location,
+`https://github.com/itgix/adp-backstage-scaffold/blob/main/catalog-info.yaml`
+(`catalog.locations` in `helm/backstage/values.yaml`). New catalog items are added in that file
+in the scaffold repo, not in this template.
