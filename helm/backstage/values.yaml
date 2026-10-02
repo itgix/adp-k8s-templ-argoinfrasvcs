@@ -89,14 +89,11 @@ backstage:
       catalog:
         logLevel: debug
         locations:
+          # New catalog items are added in this file in the scaffold repo, not here.
           - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-github.yaml
+            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/catalog-info.yaml
             rules:
-              - allow: [Template]
-          - type: url
-            target: https://github.com/itgix/adp-backstage-scaffold/blob/main/argo-helm-templates/bckstg-scaf-templ-argocd-app-gitlab.yaml
-            rules:
-              - allow: [Template]
+              - allow: [Location, Template]
           - type: file
             target: ./examples/org.yaml
             rules:
