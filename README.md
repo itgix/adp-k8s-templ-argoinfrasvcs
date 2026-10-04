@@ -80,7 +80,8 @@ removed by installer updates and keep working until deleted by hand.
 
 ## Backstage software catalog
 
-Backstage imports its catalog from a single location,
-`https://github.com/itgix/adp-backstage-scaffold/blob/main/catalog-info.yaml`
-(`catalog.locations` in `helm/backstage/values.yaml`). New catalog items are added in that file
-in the scaffold repo, not in this template.
+`catalog.locations` in `helm/backstage/values.yaml` registers two kinds of entries from
+`itgix/adp-backstage-scaffold`: the scaffolder forms (new application on GitHub, new application
+on GitLab) one by one, and the optional platform applications (DevLake, ...) through the single
+`Location` file `catalog-info.yaml`. A new optional application is added to that file in the
+scaffold repo, not in this template; a new scaffolder form gets its own entry here.
