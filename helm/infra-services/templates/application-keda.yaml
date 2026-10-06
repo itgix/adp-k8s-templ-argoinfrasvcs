@@ -1,0 +1,38 @@
+{{- $cloud := default "aws" (index .Values "infra-services" "cloud") -}}
+{{- if and (eq $cloud "aws") (index .Values "infra-services" "enable_keda") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keda
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "keda_branch") }}
+    path: helm/keda
+    helm:
+      valueFiles:
+        - ../keda/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        keda:
+          podIdentity:
+            aws:
+              irsa:
+                enabled: true
+                roleArn: {{ index .Values "infra-services" "keda_sa_role" }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: keda
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}
