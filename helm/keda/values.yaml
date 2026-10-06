@@ -1,4 +1,6 @@
 keda:
+  crds:
+    install: true
   serviceAccount:
     operator:
       create: true
