@@ -1,0 +1,44 @@
+{{- if .Values.kubernetesMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-mcp-server
+  labels:
+    app: kubernetes-mcp-server
+spec:
+  replicas: {{ .Values.kubernetesMcp.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: kubernetes-mcp-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: kubernetes-mcp-server
+    spec:
+      serviceAccountName: {{ include "aiops-platform.kubernetesMcp.serviceAccountName" . }}
+      containers:
+      - name: kubernetes-mcp-server
+        image: "{{ .Values.kubernetesMcp.image.repository }}:{{ .Values.kubernetesMcp.image.tag }}"
+        imagePullPolicy: {{ .Values.kubernetesMcp.image.pullPolicy | default "Always" }}
+        args:
+        - "--config=/etc/mcp/config.toml"
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: kubernetes-mcp-configmap
+          mountPath: /etc/mcp
+          readOnly: true
+        resources:
+          {{- toYaml .Values.kubernetesMcp.resources | nindent 10 }}
+      volumes:
+      - name: kubernetes-mcp-configmap
+        configMap:
+          name: {{ include "aiops-platform.kubernetesMcp.configMapName" . }}
+{{- end }}

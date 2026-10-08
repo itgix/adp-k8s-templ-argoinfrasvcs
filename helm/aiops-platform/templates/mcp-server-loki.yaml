@@ -1,0 +1,42 @@
+{{- if .Values.lokiMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-mcp-server
+  labels:
+    app: loki-mcp-server
+spec:
+  replicas: {{ .Values.lokiMcp.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: loki-mcp-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: loki-mcp-server
+    spec:
+      containers:
+      - name: loki-mcp-server
+        image: "{{ .Values.lokiMcp.image.repository }}:{{ .Values.lokiMcp.image.tag }}"
+        imagePullPolicy: {{ .Values.lokiMcp.image.pullPolicy | default "Always" }}
+        env:
+        - name: LOKI_URL
+          value: {{ .Values.lokiMcp.lokiUrl | quote }}
+        - name: SSE_PORT
+          value: "8080"
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.lokiMcp.resources | nindent 10 }}
+      {{- with .Values.lokiMcp.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end }}

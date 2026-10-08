@@ -1,0 +1,17 @@
+{{- if .Values.grafanaMcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-mcp-server
+  labels:
+    app: grafana-mcp-server
+spec:
+  type: ClusterIP
+  selector:
+    app: grafana-mcp-server
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+{{- end }}
