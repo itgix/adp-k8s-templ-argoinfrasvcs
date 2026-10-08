@@ -1,0 +1,17 @@
+{{- if .Values.prometheusMcp.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-mcp-server
+  labels:
+    app: prometheus-mcp-server
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus-mcp-server
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+{{- end }}

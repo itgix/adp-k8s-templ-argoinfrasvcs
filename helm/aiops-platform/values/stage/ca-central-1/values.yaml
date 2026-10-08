@@ -1,0 +1,95 @@
+externalSecrets:
+  websocketConfig:
+    remoteKey: "stage-aiops-agent-websocket-config"
+  vectorSecret:
+    remoteKey: "aiops-vector-secret-stage"
+  grafanaServiceAccountToken:
+    remoteKey: stage-grafana-mcp-service-account-token
+    remoteProperty: token
+
+backends:
+  loki:
+    host: loki-mcp-stage.ieg.zone
+  prometheus:
+    host: prometheus-mcp-stage.ieg.zone
+  kubernetes:
+    host: kubernetes-mcp-stage.ieg.zone
+  grafana:
+    host: grafana-mcp-stage.ieg.zone
+
+lokiMcp:
+  enabled: true
+  replicas: 1
+  image:
+    repository: 173315559216.dkr.ecr.ca-central-1.amazonaws.com/bet99-loki-mcp-server
+    tag: latest
+    pullPolicy: Always
+  lokiUrl: "http://loki-gateway.monitoring.svc.cluster.local:80"
+  imagePullSecrets: []
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+prometheusMcp:
+  enabled: true
+  replicas: 1
+  image:
+    repository: ghcr.io/pab1it0/prometheus-mcp-server
+    tag: latest
+    pullPolicy: Always
+  prometheusUrl: "https://prometheus.itgix.eu"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+kubernetesMcp:
+  enabled: true
+  replicas: 1
+  image:
+    repository: quay.io/containers/kubernetes_mcp_server
+    tag: latest
+    pullPolicy: Always
+  logLevel: 4
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+grafanaMcp:
+  enabled: false
+  image:
+    repository: grafana/mcp-grafana
+    tag: latest
+    pullPolicy: Always
+  grafanaUrl: "http://kube-prometheus-stack-grafana.monitoring.svc:80"
+  serviceAccountToken:
+    secretName: grafana-mcp-service-account-token
+    secretKey: token
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+annotations:
+  kubernetes.io/ingress.class: alb
+  alb.ingress.kubernetes.io/ssl-redirect: "443"
+  alb.ingress.kubernetes.io/group.name: mcp-servers
+  alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+  alb.ingress.kubernetes.io/ssl-redirect: '443'
+  alb.ingress.kubernetes.io/scheme: internet-facing
+  alb.ingress.kubernetes.io/target-type: ip
+  alb.ingress.kubernetes.io/success-codes: "200-404"
+  alb.ingress.kubernetes.io/healthcheck-path: / # or /status
+  alb.ingress.kubernetes.io/security-group-prefix-lists: pl-08df88c2af17ba501
+
+ingressClassName: alb
