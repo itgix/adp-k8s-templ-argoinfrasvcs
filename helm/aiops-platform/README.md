@@ -19,8 +19,74 @@ that expose observability data to the platform.
 | Grafana MCP | Deployment, Service, `ExternalSecret` | `grafanaMcp.enabled` |
 | MCP ingresses | one `Ingress` per enabled backend | `backends.<name>.enabled` |
 
-Everything lands in the `monitoring` namespace. All MCP ingresses share the
-`mcp-servers` ALB group, so they are served by a single load balancer.
+All MCP ingresses share the `mcp-servers` ALB group, so they are served by a
+single load balancer. For which namespace to deploy into, see
+[Namespace](#namespace).
+
+## Namespace
+
+The chart itself is namespace-agnostic. Every template uses
+`{{ .Release.Namespace }}`, which under ArgoCD comes from
+`spec.destination.namespace` in `application-aiops-platform.yaml`. Nothing in
+the chart hardcodes a namespace.
+
+`monitoring` is the usual choice because that is where `kube-prometheus-stack`
+installs, and several components have to be co-located with the things they talk
+to. Clients whose observability stack lives elsewhere should set the
+Application's `destination.namespace` accordingly — but mind the constraints
+below.
+
+### What must live where
+
+| Resource | Constraint |
+|---|---|
+| `AlertmanagerConfig` | Must be in a namespace matched by Alertmanager's `alertmanagerConfigNamespaceSelector`. By default that is **Alertmanager's own namespace**. |
+| MCP ingresses | An `Ingress` can only target a `Service` in its **own namespace**. |
+| `backends.tempo` ingress | Points at a Tempo-owned Service, so it only works if this chart is deployed into **Tempo's namespace**. |
+| Agent pod + its secrets | `agent-websocket-security` and `gitlab-secret` are mounted by the agent, so they must share **the agent's namespace** — the chart handles this, since all three come from the same release. |
+| Grafana MCP token secret | Same namespace as the Grafana MCP Deployment — also handled within the release. |
+| `ClusterRole` / `ClusterRoleBinding` | Cluster-scoped. The `ServiceAccount` subject namespace is templated, so no change needed. |
+| MCP server → backend URLs | Not a namespace constraint. `lokiUrl`, `prometheusUrl`, and `grafanaUrl` are explicit FQDNs and can cross namespaces freely. |
+
+The `AlertmanagerConfig` one is the quiet failure: if it lands in a namespace
+Alertmanager's selector does not match, the Prometheus Operator ignores it
+silently. No error, no event — alerts simply never reach the AIOps platform.
+Verify the selector before deploying:
+
+```bash
+kubectl get alertmanager -A \
+  -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,\
+SELECTOR:.spec.alertmanagerConfigNamespaceSelector
+```
+
+An empty selector (`{}`) matches all namespaces. A `null` selector restricts to
+Alertmanager's own namespace.
+
+### If the client's stack is split across namespaces
+
+If Alertmanager and Tempo are in different namespaces, a single release cannot
+satisfy both. Options, in order of preference:
+
+1. Widen `alertmanagerConfigNamespaceSelector` on the Alertmanager resource, and
+   deploy this chart into Tempo's namespace.
+2. Leave `backends.tempo.enabled: false` and keep the Tempo MCP ingress in the
+   `tempo-distributed` chart, where it ships by default.
+3. Run two releases of this chart with different components enabled. Workable
+   but the agent would be duplicated, so avoid unless necessary.
+
+### Changing the namespace
+
+`destination.namespace` in `application-aiops-platform.yaml` is a literal by
+default. To make it configurable per environment:
+
+```yaml
+  destination:
+    namespace: {{ default "monitoring" (index .Values "infra-services" "aiops_platform_namespace") }}
+```
+
+Then set `aiops_platform_namespace` in that environment's `infra-facts.yaml`.
+Note the Application uses `CreateNamespace=false`, so the namespace must already
+exist or the sync fails.
 
 ## How it is deployed
 
@@ -70,7 +136,7 @@ helm dependency update helm/aiops-platform
 helm template aiops-platform helm/aiops-platform \
   -f helm/aiops-platform/values.yaml \
   -f helm/aiops-platform/values/<env>/<region>/values.yaml \
-  --namespace monitoring
+  --namespace <namespace>
 ```
 
 ## Prerequisites
@@ -80,6 +146,8 @@ helm template aiops-platform helm/aiops-platform \
 - AWS Load Balancer Controller, for the MCP ingresses.
 - `kube-prometheus-stack`, for the `AlertmanagerConfig` CRD and as the
   Prometheus/Grafana/Alertmanager source.
+- The target namespace must already exist — the Application sets
+  `CreateNamespace=false`. See [Namespace](#namespace).
 - Secrets created in AWS Secrets Manager for the target environment (below).
 
 ## ArgoCD repository credential
@@ -167,7 +235,7 @@ aws secretsmanager create-secret \
   --name <env>-aiops-agent-websocket-config \
   --description "AIOps agent websocket config for <env>" \
   --secret-string file:///tmp/websocket-config.yaml \
-  --tags Key=Application,Value=aiops
+  --tags Key=Application,Value=aiops Key=Environment,Value=<env> Key=Project,Value=<project> Key=CostCenter,Value=n/a \
   --region <region>
 ```
 
@@ -239,7 +307,7 @@ aws secretsmanager create-secret \
   --name <env>-aiops-vector-secret \
   --description "AIOps vector basic-auth credentials for <env>" \
   --secret-string file:///tmp/vector-secret.json \
-  --tags Key=Application,Value=aiops
+  --tags Key=Application,Value=aiops Key=Environment,Value=<env> Key=Project,Value=<project> Key=CostCenter,Value=n/a \
   --region <region>
 ```
 
@@ -278,7 +346,7 @@ aws secretsmanager create-secret \
   --name <env>-grafana-mcp-service-account-token \
   --description "Grafana MCP service account token for <env>" \
   --secret-string file:///tmp/grafana-mcp-token.json \
-  --tags Key=Application,Value=aiops
+  --tags Key=Application,Value=aiops Key=Environment,Value=<env> Key=Project,Value=<project> Key=CostCenter,Value=n/a \
   --region <region>
 ```
 
