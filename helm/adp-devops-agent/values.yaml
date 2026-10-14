@@ -12,7 +12,7 @@ infra-services:
 image:
   repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-devops-agent
   pullPolicy: IfNotPresent
-  tag: v1.1.3
+  tag: v1.2.0
 
 service:
   name: adp-devops-agent
@@ -45,10 +45,22 @@ pytorchSettings:
   pytorchIndexUrl: "https://download.pytorch.org/whl/cu121"
 
 awsSettings:
+  # AWS region of the agent's AWS clients (IRSA)
   AWS_REGION: "eu-west-1"
-  BEDROCK_MODEL_ID: "eu.anthropic.claude-opus-4-6-v1"
-  BEDROCK_MAX_TOKENS: "4096"
-  BEDROCK_TEMPERATURE: "0.0"
+  # Bedrock text model, called through the Converse API. Accepts foundation-model ids and
+  # eu./us./global. inference-profile ids (for example global.anthropic.claude-fable-5-1)
+  BEDROCK_MODEL_ID: "global.anthropic.claude-fable-5-1"
+  # Region for Bedrock calls; empty means not sent (the agent uses AWS_REGION)
+  BEDROCK_REGION: ""
+  # Reasoning effort: low, medium, high, xhigh or max; sent only for effort-capable Anthropic ids.
+  # Empty means not sent
+  BEDROCK_EFFORT: "high"
+  # Maximum tokens per model response
+  BEDROCK_MAX_TOKENS: "16000"
+  # Sampling temperature (float); empty means not sent (model default)
+  BEDROCK_TEMPERATURE: ""
+  # Read timeout of a Bedrock call, in seconds
+  BEDROCK_READ_TIMEOUT_SECONDS: "600"
 
 gitLabSettings:
   GITLAB_URL: "https://gitlab.itgix.com"
