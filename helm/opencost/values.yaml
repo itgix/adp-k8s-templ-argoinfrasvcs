@@ -1,0 +1,33 @@
+opencost:
+  # Cost data comes from the in-cluster kube-prometheus-stack Prometheus (Application
+  # `kube-prometheus-stack` in namespace `monitoring`, release name = Application name).
+  # The Grafana dashboard in templates/opencost-dashboard.yaml is the only surface: no UI, no ingress.
+  # The cluster id (opencost.exporter.defaultClusterId) is set per cloud by the
+  # infra-services Application (helm/infra-services/templates/application-opencost.yaml).
+  opencost:
+    prometheus:
+      internal:
+        enabled: true
+        serviceName: kube-prometheus-stack-prometheus
+        namespaceName: monitoring
+        port: 9090
+        scheme: http
+    exporter:
+      # Public list prices only: no cloud credentials, no cloud integration (cloudIntegrationSecret
+      # and cloudIntegrationJSON stay empty).
+      resources:
+        requests:
+          cpu: 10m
+          memory: 55Mi
+        limits:
+          memory: 1Gi
+    metrics:
+      serviceMonitor:
+        enabled: true
+        scrapeInterval: 1m
+        scrapeTimeout: 10s
+    ui:
+      enabled: false
+
+grafanaDashboard:
+  enabled: true

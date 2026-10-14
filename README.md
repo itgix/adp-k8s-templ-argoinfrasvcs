@@ -69,6 +69,21 @@ their own namespace, not by this chart. A sample `Kafka` cluster manifest ships 
 PR. `kafka_operator_branch` overrides the targetRevision of the `helm/kafka-operator` path the
 same way the other `<app>_branch` keys do.
 
+## OpenCost (Kubernetes cost monitoring)
+
+Set `opencost_enabled: true` in the environment config to deploy OpenCost (`helm/opencost`, a
+wrapper around the upstream `opencost` chart) into the `opencost` namespace. It requires
+`enable_prometheus_stack: true` and fails the render with a message naming that key otherwise:
+OpenCost reads its cost data from the kube-prometheus-stack Prometheus
+(`kube-prometheus-stack-prometheus.monitoring:9090`) and exposes its own metrics through a
+ServiceMonitor. Costs are calculated from public list prices, so no cloud credentials or IAM
+are needed. The OpenCost UI is disabled and there is no ingress; Grafana is the only surface,
+through the upstream community dashboard "OpenCost / Cost reporter / Basic overview"
+(`helm/opencost/dashboards/`, provisioned as a ConfigMap in `monitoring` with the
+`grafana_dashboard` label). The cluster id comes from `eks_cluster_name` (aws, default),
+`gke_cluster_name` (gcp) or `aks_cluster_name` (azure). `opencost_branch` overrides the
+targetRevision of the `helm/opencost` path the same way the other `<app>_branch` keys do.
+
 ## DevLake (deprecated here)
 
 DevLake is no longer part of this template as of the next tag. It is installed as an optional
