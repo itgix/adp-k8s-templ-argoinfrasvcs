@@ -9,6 +9,7 @@ infra-services:
   adp_agent_enabled: true
   enable_fluent_bit: false
   enable_prometheus_stack: false
+  opencost_enabled: false
   enable_tempo: false
   enable_loki: false
 
