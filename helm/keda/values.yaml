@@ -1,0 +1,13 @@
+keda:
+  crds:
+    install: true
+  serviceAccount:
+    operator:
+      create: true
+      name: "keda-operator"
+      annotations: {}
+  podIdentity:
+    aws:
+      irsa:
+        enabled: false
+        roleArn: ""
