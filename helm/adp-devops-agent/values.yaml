@@ -64,6 +64,21 @@ indexingSettings:
   AUTO_INDEX_ON_STARTUP: "false"
   INDEX_REFRESH_INTERVAL_HOURS: "24"
 
+validationSettings:
+  # Comma-separated validator names the agent runs on generated changes.
+  # New check names arrive with later agent releases.
+  ENABLED_VALIDATORS: "yamllint,k8s-schema"
+  # Read by the agent once the validation correction loop ships (#328).
+  MAX_CORRECTION_ROUNDS: "2"
+
+# Infra GitOps and policy context. Set by the infra-services Application from
+# infra-facts; empty values are not rendered into the ConfigMap.
+infraContext:
+  INFRA_GITOPS_REPO_URL: ""
+  INFRA_GITOPS_REVISION: ""
+  POLICY_ENVIRONMENT: ""
+  POLICY_REGION: ""
+
 promptsConfig:
   PROMPTS_CONFIG_PATH: "/app/config/prompts.yaml"
   configMapName: adp-agent-prompts

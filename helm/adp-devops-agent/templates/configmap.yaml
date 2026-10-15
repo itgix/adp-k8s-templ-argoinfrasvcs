@@ -43,6 +43,18 @@ data:
   # Indexing Settings
   AUTO_INDEX_ON_STARTUP: {{ .Values.indexingSettings.AUTO_INDEX_ON_STARTUP | quote }}
   INDEX_REFRESH_INTERVAL_HOURS: {{ .Values.indexingSettings.INDEX_REFRESH_INTERVAL_HOURS | quote }}
+
+  # Validation Settings
+  ENABLED_VALIDATORS: {{ .Values.validationSettings.ENABLED_VALIDATORS | quote }}
+  MAX_CORRECTION_ROUNDS: {{ .Values.validationSettings.MAX_CORRECTION_ROUNDS | quote }}
+
+  # Infra GitOps and policy context, passed by the infra-services Application from infra-facts; unset values are omitted
+  {{- range $key, $value := .Values.infraContext }}
+  {{- if $value }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+
   # Prompts Configuration
   PROMPTS_CONFIG_PATH: {{ .Values.promptsConfig.PROMPTS_CONFIG_PATH | quote }}
 

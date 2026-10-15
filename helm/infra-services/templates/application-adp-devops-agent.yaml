@@ -19,6 +19,11 @@ spec:
         - ../adp-devops-agent/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
+        infraContext:
+          INFRA_GITOPS_REPO_URL: {{ index .Values "infra-services" "gitops_destination_repo" | quote }}
+          INFRA_GITOPS_REVISION: {{ default "HEAD" (index .Values "infra-services" "default_policies_branch") | quote }}
+          POLICY_ENVIRONMENT: {{ index .Values "infra-services" "environment" | quote }}
+          POLICY_REGION: {{ index .Values "infra-services" "region" | quote }}
         env:
         - name: QDRANT_URL
           value: "http://qdrant-vectordb.qdrant:6333/"

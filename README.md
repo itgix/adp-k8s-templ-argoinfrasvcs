@@ -56,3 +56,23 @@ kubectl apply -n argocd -f ./manifests/applications/infra-app-stages/stage/eu-we
 P.S. 
 
 There is also a generic application.yaml that has all options for creating other applications. Can be used for reference.
+
+
+# adp-devops-agent validation settings
+
+The `helm/adp-devops-agent` chart renders these maps into the agent ConfigMap (UPPER_SNAKE keys, string values). Override them in `helm/adp-devops-agent/values/<environment>/<region>/values.yaml`.
+
+```yaml
+validationSettings:
+  ENABLED_VALIDATORS: "yamllint,k8s-schema"   # comma-separated validator names; new names arrive with later agent releases
+  MAX_CORRECTION_ROUNDS: "2"                  # read by the agent once the correction loop ships
+```
+
+The `infra-services` Application also sets `infraContext` from infra-facts. Empty values are omitted from the ConfigMap:
+
+| Env name | Source |
+|---|---|
+| `INFRA_GITOPS_REPO_URL` | `gitops_destination_repo` |
+| `INFRA_GITOPS_REVISION` | `default_policies_branch`, default `HEAD` |
+| `POLICY_ENVIRONMENT` | `environment` |
+| `POLICY_REGION` | `region` |
