@@ -1,0 +1,156 @@
+# kubernetes-mcp-server wraps two aliased instances of the upstream OCI chart
+# oci://ghcr.io/containers/charts/kubernetes-mcp-server (chart 0.1.0):
+#   readonly -> Service "kubernetes-mcp-server"       (diagnosis, always on)
+#   write    -> Service "kubernetes-mcp-server-write" (restart-only remediation, opt-in)
+# See README.md for the tool allowlists, RBAC and the design boundary behind them.
+
+readonly:
+  enabled: true
+
+  nameOverride: kubernetes-mcp-server
+  fullnameOverride: kubernetes-mcp-server
+
+  image:
+    registry: quay.io
+    repository: containers/kubernetes_mcp_server
+    version: v0.0.66
+
+  serviceAccount:
+    create: true
+    automountToken: true
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  metrics:
+    serviceMonitor:
+      enabled: true
+
+  rbac:
+    create: true
+    extraClusterRoleBindings:
+      # Baseline read access; the "view" ClusterRole already excludes Secrets,
+      # RBAC objects and Nodes, so no additional deny rule is needed for those.
+      - name: view
+        roleRef:
+          name: view
+          external: true
+
+  config:
+    port: "{{ .Values.service.port }}"
+    read_only: true
+    cluster_provider_strategy: in-cluster
+    cluster_auth_mode: kubeconfig
+    toolsets:
+      - config
+      - core
+    denied_resources:
+      - group: ""
+        version: v1
+        kind: Secret
+
+write:
+  enabled: false
+
+  nameOverride: kubernetes-mcp-server-write
+  fullnameOverride: kubernetes-mcp-server-write
+
+  image:
+    registry: quay.io
+    repository: containers/kubernetes_mcp_server
+    version: v0.0.66
+
+  serviceAccount:
+    create: true
+    automountToken: true
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  metrics:
+    serviceMonitor:
+      enabled: true
+
+  rbac:
+    create: true
+    extraClusterRoles:
+      # ONLY mutating verb granted anywhere in this chart: delete on pods.
+      # This is the restart mechanism (see README.md) - deleting a pod under a
+      # Deployment/ReplicaSet/StatefulSet makes the controller recreate it.
+      - name: pods-delete
+        rules:
+          - apiGroups: [""]
+            resources: ["pods"]
+            verbs: ["delete"]
+    extraClusterRoleBindings:
+      - name: view
+        roleRef:
+          name: view
+          external: true
+      - name: pods-delete
+        roleRef:
+          name: pods-delete
+
+  config:
+    port: "{{ .Values.service.port }}"
+    cluster_provider_strategy: in-cluster
+    cluster_auth_mode: kubeconfig
+    toolsets:
+      - config
+      - core
+    # Allowlist: every read-only tool in config+core, plus pods_delete (restart).
+    # Explicitly excludes resources_create_or_update, resources_delete,
+    # resources_scale, pods_run, pods_exec and any helm_* tool.
+    enabled_tools:
+      - configuration_contexts_list
+      - targets_list
+      - configuration_view
+      - events_list
+      - namespaces_list
+      - projects_list
+      - nodes_log
+      - nodes_stats_summary
+      - nodes_top
+      - pods_list
+      - pods_list_in_namespace
+      - pods_get
+      - pods_top
+      - pods_log
+      - resources_list
+      - resources_get
+      - pods_delete
+    denied_resources:
+      - group: ""
+        version: v1
+        kind: Secret
+
+# Optional NetworkPolicy restricting ingress on port 8080 to selected namespaces.
+# Disabled by default; the Service is ClusterIP-only regardless.
+networkPolicy:
+  enabled: false
+  allowedNamespaces:
+    - adp-devops-agent

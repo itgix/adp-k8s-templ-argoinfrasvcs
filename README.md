@@ -9,6 +9,21 @@ This is a template repository for the ITGix ADP (Application development platfor
 - Batch and scheduling systems that run on Kubernetes that allow complex bat
 
 
+# AI profile services
+
+Toggled from `helm/infra-services/values.yaml` (or, per environment, from the customer's
+environment YAML which the installer forwards into `infra-facts.yaml`):
+
+| Service | Chart | Toggle flag(s) |
+|---|---|---|
+| qdrant-vectordb | `helm/qdrant-vectordb` | `qdrant_vectordb` |
+| rag-demo | `helm/rag-demo` | `ragdemo_enabled` |
+| adp-devops-agent | `helm/adp-devops-agent` | `adp_devops_agent_enabled` |
+| kubernetes-mcp-server | `helm/kubernetes-mcp-server` | `kubernetes_mcp_server_enabled`, `kubernetes_mcp_server_write_enabled` |
+
+See each chart's own README for what it does and how to configure it.
+
+
 # ArgoCD Installation
 1. Install ArgoCD via HELM:
 
