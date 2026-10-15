@@ -1,0 +1,5 @@
+kyverno-policies:
+  validationFailureAction: Audit
+  policyCategories:
+    bestPractices:
+      enabled: true

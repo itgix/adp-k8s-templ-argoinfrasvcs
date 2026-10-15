@@ -56,3 +56,19 @@ kubectl apply -n argocd -f ./manifests/applications/infra-app-stages/stage/eu-we
 P.S. 
 
 There is also a generic application.yaml that has all options for creating other applications. Can be used for reference.
+
+
+# Kyverno policy engine (optional)
+
+Three optional `infra-services` Applications are shipped, all disabled by default. Set the keys in the environment YAML (they reach `infra-facts.yaml`):
+
+| Key | Default | Effect |
+|---|---|---|
+| `enable_kyverno` | `false` | Deploys Kyverno (`helm/kyverno`, chart 3.5.2) into the `kyverno` namespace. |
+| `enable_default_policies` | `false` | Deploys the best-practices policies (`helm/kyverno-policies`, chart 0.2.0), `validationFailureAction: Audit`. Requires `enable_kyverno`. |
+| `enable_policy_reporter` | `false` | Deploys Policy Reporter with its UI (`helm/policy-reporter`, chart 2.24.1) behind an ALB ingress. |
+| `policy_reporter_ingress_annotations` | `{}` | Extra ingress annotations for Policy Reporter, merged over the built-in ALB annotations (this template is AWS only). |
+| `policy_reporter_ingress_host` | `policies-<project>-<environment>-<region>.<dns_main_domain>` | Optional host override for the Policy Reporter ingress. |
+| `kyverno_branch`, `default_policies_branch`, `policy_reporter_branch` | `HEAD` | Optional git revision of the destination GitOps repo each Application tracks. |
+
+Per-environment overrides go in `helm/<kyverno|kyverno-policies|policy-reporter>/values/<environment>/<region>/values.yaml`.
