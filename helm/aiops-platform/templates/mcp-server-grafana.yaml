@@ -1,0 +1,50 @@
+{{- if .Values.grafanaMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-mcp-server
+  labels:
+    app: grafana-mcp-server
+spec:
+  replicas: {{ .Values.grafanaMcp.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: grafana-mcp-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: grafana-mcp-server
+    spec:
+      containers:
+      - name: grafana-mcp-server
+        image: "{{ .Values.grafanaMcp.image.repository }}:{{ .Values.grafanaMcp.image.tag }}"
+        imagePullPolicy: {{ .Values.grafanaMcp.image.pullPolicy | default "Always" }}
+        args:
+        - "-t"
+        - "sse"
+        - "--address"
+        - "0.0.0.0:8080"
+        env:
+        - name: GRAFANA_URL
+          value: {{ .Values.grafanaMcp.grafanaUrl | quote }}
+        - name: GRAFANA_SERVICE_ACCOUNT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.grafanaMcp.serviceAccountToken.secretName }}
+              key: {{ .Values.grafanaMcp.serviceAccountToken.secretKey }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.grafanaMcp.resources | nindent 10 }}
+      {{- with .Values.grafanaMcp.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+{{- end }}

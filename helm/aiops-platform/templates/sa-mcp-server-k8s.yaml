@@ -1,0 +1,8 @@
+{{- if .Values.kubernetesMcp.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "aiops-platform.kubernetesMcp.serviceAccountName" . }}
+  labels:
+    app: kubernetes-mcp-server
+{{- end }}

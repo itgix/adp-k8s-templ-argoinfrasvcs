@@ -1,0 +1,6 @@
+dependencies:
+- name: itgix-client-go
+  repository: https://gitlab.itgix.com/api/v4/projects/683/packages/helm/stable
+  version: 0.3.0
+digest: sha256:75abc6a35ee389bc75d9f664f30aed5654fce7746a4986145cf1e41547da8a24
+generated: "2026-10-06T14:36:37.022551386+03:00"

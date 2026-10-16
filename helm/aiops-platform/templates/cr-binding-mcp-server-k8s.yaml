@@ -1,0 +1,16 @@
+{{- if .Values.kubernetesMcp.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-mcp-readonly-binding
+  labels:
+    app: kubernetes-mcp-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "aiops-platform.kubernetesMcp.clusterRoleName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "aiops-platform.kubernetesMcp.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -1,0 +1,42 @@
+{{- if .Values.prometheusMcp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-mcp-server
+  labels:
+    app: prometheus-mcp-server
+spec:
+  replicas: {{ .Values.prometheusMcp.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: prometheus-mcp-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: prometheus-mcp-server
+    spec:
+      containers:
+      - name: prometheus-mcp-server
+        image: "{{ .Values.prometheusMcp.image.repository }}:{{ .Values.prometheusMcp.image.tag }}"
+        imagePullPolicy: {{ .Values.prometheusMcp.image.pullPolicy | default "Always" }}
+        env:
+        - name: PROMETHEUS_URL
+          value: {{ .Values.prometheusMcp.prometheusUrl | quote }}
+        - name: PROMETHEUS_MCP_SERVER_TRANSPORT
+          value: "sse"
+        - name: PROMETHEUS_MCP_BIND_HOST
+          value: "0.0.0.0"
+        - name: PROMETHEUS_MCP_BIND_PORT
+          value: "8080"
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          {{- toYaml .Values.prometheusMcp.resources | nindent 10 }}
+{{- end }}

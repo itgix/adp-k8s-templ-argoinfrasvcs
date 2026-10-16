@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: aiops-vector-basic-auth
+  namespace: {{ .Release.Namespace }}
+  labels:
+    alertmanagerConfig: aiops-vector-basic-auth
+spec:
+  receivers:
+    - name: aiops-vector-basic-auth
+      webhookConfigs:
+        - httpConfig:
+            basicAuth:
+              password:
+                key: client-secret
+                name: aiops-vector-secret
+              username:
+                key: client-id
+                name: aiops-vector-secret
+          sendResolved: true
+          url: {{ .Values.alertmanagerconfig.receiverUrl }}
+  route:
+    groupInterval: 5m
+    groupWait: 30s
+    receiver: aiops-vector-basic-auth
+    repeatInterval: 1h
