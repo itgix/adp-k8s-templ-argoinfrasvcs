@@ -23,6 +23,8 @@ spec:
           region: {{ index .Values "infra-services" "stackit_region" }}
           projectId: {{ index .Values "infra-services" "project_id" }}
           networkId: {{ index .Values "infra-services" "network_id" }}
+        cloudSecret:
+          saKeySecretName: {{ index .Values "infra-services" "alb_controller_sa_key_secret_name" | default "alb-controller-sa-key" }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: stackit-lb-controller

@@ -25,6 +25,7 @@ cloudConfig:
 cloudSecret:
   # Name of an existing Secret with sa_key.json key
   existingSecret: stackit-cloud-secret
+  saKeySecretName: alb-controller-sa-key
 
 resources:
   requests:
