@@ -11,6 +11,10 @@ infra-services:
   enable_prometheus_stack: false
   enable_tempo: false
   enable_loki: false
+  enable_kyverno: false
+  enable_default_policies: false
+  enable_policy_reporter: false
+  policy_reporter_ingress_annotations: {}
 
   #AI
   qdrant_vectordb: true

@@ -1,0 +1,59 @@
+{{- if index .Values "infra-services" "enable_policy_reporter" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $policyReporterIngressHost := index $infraServices "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infraServices "project_name") (index $infraServices "environment") (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $policyReporterIngressAnnotations := dict
+      "external-dns.alpha.kubernetes.io/hostname" $policyReporterIngressHost
+      "alb.ingress.kubernetes.io/listen-ports" "[{\"HTTP\": 80}, {\"HTTPS\": 443}]"
+      "alb.ingress.kubernetes.io/scheme" "internet-facing"
+      "alb.ingress.kubernetes.io/target-type" "ip"
+      "alb.ingress.kubernetes.io/group.name" "public"
+      "alb.ingress.kubernetes.io/healthcheck-path" "/"
+      "alb.ingress.kubernetes.io/success-codes" "200-404"
+-}}
+{{- $policyReporterIngressAnnotations = mergeOverwrite $policyReporterIngressAnnotations (default dict (index $infraServices "policy_reporter_ingress_annotations")) }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: policy-reporter
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  # Add this finalizer ONLY if you want these to cascade delete.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "policy_reporter_branch") }}
+    path: helm/policy-reporter
+    helm:
+      valueFiles:
+        - ../policy-reporter/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        policy-reporter:
+          ingress:
+            className: alb
+            annotations:
+{{- toYaml $policyReporterIngressAnnotations | nindent 14 }}
+            hosts:
+            - host: {{ $policyReporterIngressHost }}
+              paths:
+                - backend:
+                    service:
+                     name: policy-report-ui
+                     port:
+                       number: 8080
+                  pathType: Prefix
+                  path: /
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}
