@@ -20,8 +20,12 @@ data:
   BEDROCK_TEMPERATURE: {{ .Values.awsSettings.BEDROCK_TEMPERATURE | quote }}
 
   # GitLab Settings
+  {{- if .Values.gitLabSettings.GITLAB_URL }}
   GITLAB_URL: {{ .Values.gitLabSettings.GITLAB_URL | quote }}
+  {{- end }}
+  {{- if .Values.gitLabSettings.GITOPS_REPO_URL }}
   GITOPS_REPO_URL: {{ .Values.gitLabSettings.GITOPS_REPO_URL | quote }}
+  {{- end }}
   GITOPS_REPO_PATH: {{ .Values.gitLabSettings.GITOPS_REPO_PATH | quote}}
 
   # Qdrant Settings
