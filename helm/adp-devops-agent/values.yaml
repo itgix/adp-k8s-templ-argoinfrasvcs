@@ -34,7 +34,6 @@ apiSettings:
   LOG_LEVEL: "INFO"
   API_HOST: "0.0.0.0"
   API_PORT: "8000"
-  API_TOKEN: "change-this-to-secure-random-token"
 
 # PyTorch installation configuration
 pytorchSettings:
@@ -121,6 +120,7 @@ secretEnv:
     secretName: qdrant-env-secret
     secretKey: GITLAB_TOKEN
     secretManagerName: backstage-secret-gitlab-token
+  # Token comes from Secrets Manager <prefix>-api-token-secret, shared with Backstage DEVOPS_AGENT_TOKEN
   - name: API_TOKEN
     secretName: qdrant-env-secret
     secretKey: API_TOKEN

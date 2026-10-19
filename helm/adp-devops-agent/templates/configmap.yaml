@@ -11,7 +11,6 @@ data:
   LOG_LEVEL: {{ .Values.apiSettings.LOG_LEVEL | quote }}
   API_HOST: {{ .Values.apiSettings.API_HOST | quote }}
   API_PORT: {{ .Values.apiSettings.API_PORT | quote}}
-  API_TOKEN: {{ .Values.apiSettings.API_TOKEN | quote }}
 
   # AWS Bedrock (IRSA in K8s, or use keys for local testing)
   AWS_REGION: {{ .Values.awsSettings.AWS_REGION | quote}}
