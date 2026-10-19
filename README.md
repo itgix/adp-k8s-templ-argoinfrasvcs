@@ -27,8 +27,9 @@ See each chart's own README for what it does and how to configure it.
 
 The agent calls Bedrock through the Converse API. The `awsSettings` map in `helm/adp-devops-agent/values.yaml` holds the settings (`BEDROCK_MODEL_ID`, `BEDROCK_REGION`, `BEDROCK_EFFORT`, `BEDROCK_MAX_TOKENS`, `BEDROCK_TEMPERATURE`, `BEDROCK_READ_TIMEOUT_SECONDS`); empty optional values are not rendered.
 
-The default model is Claude Opus 5.5 (`global.anthropic.claude-opus-5-5`), a global cross-region inference profile that may route requests to any commercial AWS region; set an `eu.` or other geo profile where data residency requires it, if Bedrock offers one for the model. Override `awsSettings.BEDROCK_MODEL_ID` per environment in `helm/adp-devops-agent/values/<env>/<region>/values.yaml`. Alternatives:
+The default model is Claude Opus 5.5 (`eu.anthropic.claude-opus-5-5`), the EU geo inference profile, which keeps requests inside EU regions. It only works when the Bedrock call region (`BEDROCK_REGION`, default `AWS_REGION`) is an EU region; for an environment outside the EU use `us.anthropic.claude-opus-5-5` (US regions) or `global.anthropic.claude-opus-5-5` (any region, no data residency). Override `awsSettings.BEDROCK_MODEL_ID` per environment in `helm/adp-devops-agent/values/<env>/<region>/values.yaml`. Alternatives:
 
+- `global.anthropic.claude-opus-5-5`: Claude Opus 5.5, any region, no data residency.
 - `global.anthropic.claude-sonnet-5-5`: Claude Sonnet 5.5, cheaper.
 - `eu.anthropic.claude-opus-4-6-v1`: Claude Opus 4.6, EU profile, the previous default.
 - `global.anthropic.claude-fable-5-1`: Claude Fable 5.1, an explicit per-environment choice; requires the data-retention mode below.
