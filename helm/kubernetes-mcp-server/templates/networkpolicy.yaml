@@ -1,0 +1,36 @@
+{{/*
+Optional NetworkPolicy admitting ingress on port 8080 only from the namespaces
+listed in networkPolicy.allowedNamespaces. Disabled by default (networkPolicy.enabled:
+false); the Services are ClusterIP-only regardless, this only tightens which
+in-cluster namespaces may reach them. One NetworkPolicy is rendered per enabled
+instance (readonly / write).
+*/}}
+{{- if .Values.networkPolicy.enabled }}
+{{- range $key, $instance := (dict "readonly" .Values.readonly "write" .Values.write) }}
+{{- if $instance.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $instance.fullnameOverride | default (printf "kubernetes-mcp-server-%s" $key) }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $instance.nameOverride | default (printf "kubernetes-mcp-server-%s" $key) }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        {{- range $.Values.networkPolicy.allowedNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: 8080
+{{- end }}
+{{- end }}
+{{- end }}

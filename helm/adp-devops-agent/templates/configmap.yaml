@@ -17,7 +17,17 @@ data:
   AWS_REGION: {{ .Values.awsSettings.AWS_REGION | quote}}
   BEDROCK_MODEL_ID: {{ .Values.awsSettings.BEDROCK_MODEL_ID | quote }}
   BEDROCK_MAX_TOKENS: {{ .Values.awsSettings.BEDROCK_MAX_TOKENS | quote }}
+  BEDROCK_READ_TIMEOUT_SECONDS: {{ .Values.awsSettings.BEDROCK_READ_TIMEOUT_SECONDS | quote }}
+  # Optional: an unset variable is None for the agent, an empty string fails its validation
+  {{- if ne (toString .Values.awsSettings.BEDROCK_REGION) "" }}
+  BEDROCK_REGION: {{ .Values.awsSettings.BEDROCK_REGION | quote }}
+  {{- end }}
+  {{- if ne (toString .Values.awsSettings.BEDROCK_EFFORT) "" }}
+  BEDROCK_EFFORT: {{ .Values.awsSettings.BEDROCK_EFFORT | quote }}
+  {{- end }}
+  {{- if ne (toString .Values.awsSettings.BEDROCK_TEMPERATURE) "" }}
   BEDROCK_TEMPERATURE: {{ .Values.awsSettings.BEDROCK_TEMPERATURE | quote }}
+  {{- end }}
 
   # GitLab Settings
   {{- if .Values.gitLabSettings.GITLAB_URL }}

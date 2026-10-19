@@ -1,0 +1,18 @@
+apiVersion: v2
+name: kubernetes-mcp-server
+description: Two internal instances (read-only and restart-only write) of Red Hat's Kubernetes MCP server for AIOps diagnosis and pod-restart remediation
+type: application
+version: 0.1.0
+appVersion: "0.0.66"
+
+dependencies:
+  - name: kubernetes-mcp-server
+    version: "0.1.0"
+    repository: "oci://ghcr.io/containers/charts"
+    alias: readonly
+    condition: readonly.enabled
+  - name: kubernetes-mcp-server
+    version: "0.1.0"
+    repository: "oci://ghcr.io/containers/charts"
+    alias: write
+    condition: write.enabled

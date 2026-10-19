@@ -11,11 +11,17 @@ infra-services:
   enable_prometheus_stack: false
   enable_tempo: false
   enable_loki: false
+  enable_kyverno: false
+  enable_default_policies: false
+  enable_policy_reporter: false
+  policy_reporter_ingress_annotations: {}
 
   #AI
   qdrant_vectordb: true
   ragdemo_enabled: true
   adp_devops_agent_enabled: true
+  kubernetes_mcp_server_enabled: true
+  kubernetes_mcp_server_write_enabled: false
 
   aws-load-balancer-controller-version: 1.7.1
   secrets-operator-version: 0.9.12
