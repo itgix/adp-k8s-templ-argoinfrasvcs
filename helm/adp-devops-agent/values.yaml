@@ -48,11 +48,16 @@ awsSettings:
   # AWS region of the agent's AWS clients (IRSA)
   AWS_REGION: "eu-west-1"
   # Bedrock text model, called through the Converse API. Accepts foundation-model ids and
-  # eu./us./global. inference-profile ids (for example global.anthropic.claude-fable-5-1)
-  # Default is Opus 4.6. Claude Fable 5 / 5.1 (global.anthropic.claude-fable-5-1) are an explicit
-  # per-environment choice and require the AWS account's Bedrock data-retention mode aws_review in
-  # the region the agent calls (BEDROCK_REGION, default AWS_REGION); see the README.
-  BEDROCK_MODEL_ID: "eu.anthropic.claude-opus-4-6-v1"
+  # eu./us./global. inference-profile ids.
+  # Default is Claude Opus 5.5 (global cross-region inference profile, which may route requests to
+  # any commercial AWS region). Set an eu. or other geo profile where data residency requires it,
+  # if Bedrock offers one for the model. Alternatives:
+  # BEDROCK_MODEL_ID: "global.anthropic.claude-sonnet-5-5"  # Claude Sonnet 5.5, cheaper
+  # BEDROCK_MODEL_ID: "eu.anthropic.claude-opus-4-6-v1"  # Claude Opus 4.6, EU profile, previous default
+  # BEDROCK_MODEL_ID: "global.anthropic.claude-fable-5-1"  # Claude Fable 5.1; requires the AWS account's
+  # Bedrock data-retention mode aws_review in the region the agent calls (BEDROCK_REGION, default
+  # AWS_REGION); see the README
+  BEDROCK_MODEL_ID: "global.anthropic.claude-opus-5-5"
   # Region for Bedrock calls; empty means not sent (the agent uses AWS_REGION)
   BEDROCK_REGION: ""
   # Reasoning effort: low, medium, high, xhigh or max; sent only for effort-capable Anthropic ids.
