@@ -38,3 +38,12 @@ resources:
 serviceAccount:
   create: true
   name: ""
+
+ingressClass:
+  name: stackit-alb
+  networkMode: NodePort
+  internal: false
+  externalAddress: ""
+  planId: ""
+  wafName: ""
+  allowedSourceRanges: ""
