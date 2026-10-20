@@ -130,7 +130,7 @@ The `infra-services` Application also sets `infraContext` from infra-facts. Empt
 |---|---|
 | `INFRA_GITOPS_REPO_URL` | `gitops_destination_repo` |
 | `INFRA_GITOPS_REVISION` | `default_policies_branch`, default `HEAD` |
-| `POLICY_ENVIRONMENT` | `environment` |
-| `POLICY_REGION` | `region` |
+
+There is no environment or region setting: the agent takes the target environment and region from the request and the application's `values/<env>/<region>/` folders.
 
 The agent's GitOps repository (`GITOPS_REPO_URL`) and GitLab URL (`GITLAB_URL`, the `<scheme>://<host>` of that repository) come from `applications_destination_repo` in infra-facts, set by the `infra-services` Application. When the key is unset neither variable is rendered, and the agent (v1.2.1 and later) refuses to start because `GITOPS_REPO_URL` is required.

@@ -101,8 +101,6 @@ validationSettings:
 infraContext:
   INFRA_GITOPS_REPO_URL: ""
   INFRA_GITOPS_REVISION: ""
-  POLICY_ENVIRONMENT: ""
-  POLICY_REGION: ""
 
 promptsConfig:
   PROMPTS_CONFIG_PATH: "/app/config/prompts.yaml"
