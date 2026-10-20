@@ -12,7 +12,7 @@ infra-services:
 image:
   repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-devops-agent
   pullPolicy: IfNotPresent
-  tag: v1.2.1
+  tag: v1.2.2
 
 service:
   name: adp-devops-agent
@@ -34,7 +34,6 @@ apiSettings:
   LOG_LEVEL: "INFO"
   API_HOST: "0.0.0.0"
   API_PORT: "8000"
-  API_TOKEN: "change-this-to-secure-random-token"
 
 # PyTorch installation configuration
 pytorchSettings:
@@ -112,19 +111,22 @@ venvCache:
   storageClassName: gp3
   venvCachePath: /var/lib/adp-agent/venv-cache
 
+# Entries are grouped by secretName into one ExternalSecret and one Kubernetes Secret each.
+# secretManagerName is the Secrets Manager entry without the <region>-<env>-<project>- prefix.
 secretEnv:
   - name: QDRANT_API_KEY
     secretName: qdrant-env-secret
     secretKey: password
     secretManagerName: qdrant-env-secret
   - name: GITLAB_TOKEN
-    secretName: qdrant-env-secret
+    secretName: adp-devops-agent-env
     secretKey: GITLAB_TOKEN
     secretManagerName: backstage-secret-gitlab-token
+  # Token comes from Secrets Manager <prefix>-api-token-secret, shared with Backstage DEVOPS_AGENT_TOKEN
   - name: API_TOKEN
-    secretName: qdrant-env-secret
+    secretName: adp-devops-agent-env
     secretKey: API_TOKEN
-    secretManagerName: qdrant-env-secret
+    secretManagerName: api-token-secret
 
 prompts:
   role_definition: |
