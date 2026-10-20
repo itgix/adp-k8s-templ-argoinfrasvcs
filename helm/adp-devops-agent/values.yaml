@@ -111,9 +111,11 @@ venvCache:
   storageClassName: gp3
   venvCachePath: /var/lib/adp-agent/venv-cache
 
+# Entries are grouped by secretName into one ExternalSecret and one Kubernetes Secret each.
+# secretManagerName is the Secrets Manager entry without the <region>-<env>-<project>- prefix.
 secretEnv:
   - name: QDRANT_API_KEY
-    secretName: adp-devops-agent-env
+    secretName: qdrant-env-secret
     secretKey: password
     secretManagerName: qdrant-env-secret
   - name: GITLAB_TOKEN
