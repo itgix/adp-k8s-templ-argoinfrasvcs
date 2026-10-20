@@ -72,9 +72,12 @@ awsSettings:
   BEDROCK_READ_TIMEOUT_SECONDS: "600"
 
 gitLabSettings:
-  GITLAB_URL: "https://gitlab.itgix.com"
+  # GITLAB_URL and GITOPS_REPO_URL are set by the infra-services Application from
+  # infra-facts (applications_destination_repo). When empty they are not rendered
+  # and the agent uses its own defaults.
+  GITLAB_URL: ""
   GITLAB_TOKEN: ""
-  GITOPS_REPO_URL: "https://gitlab.itgix.com/rnd/app-platform/demo-environments/demo-aiargoapps-test.git"
+  GITOPS_REPO_URL: ""
   GITOPS_REPO_PATH: "/tmp/gitops-repo"
 
 branchSettings:
@@ -84,6 +87,19 @@ branchSettings:
 indexingSettings:
   AUTO_INDEX_ON_STARTUP: "false"
   INDEX_REFRESH_INTERVAL_HOURS: "24"
+
+validationSettings:
+  # Comma-separated validator names the agent runs on generated changes.
+  # New check names arrive with later agent releases.
+  ENABLED_VALIDATORS: "yamllint,k8s-schema"
+  # Read by the agent once the validation correction loop ships (#328).
+  MAX_CORRECTION_ROUNDS: "2"
+
+# Infra GitOps and policy context. Set by the infra-services Application from
+# infra-facts; empty values are not rendered into the ConfigMap.
+infraContext:
+  INFRA_GITOPS_REPO_URL: ""
+  INFRA_GITOPS_REVISION: ""
 
 promptsConfig:
   PROMPTS_CONFIG_PATH: "/app/config/prompts.yaml"

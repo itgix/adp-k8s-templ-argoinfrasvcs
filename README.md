@@ -111,3 +111,26 @@ Three optional `infra-services` Applications are shipped, all disabled by defaul
 | `kyverno_branch`, `default_policies_branch`, `policy_reporter_branch` | `HEAD` | Optional git revision of the destination GitOps repo each Application tracks. |
 
 Per-environment overrides go in `helm/<kyverno|kyverno-policies|policy-reporter>/values/<environment>/<region>/values.yaml`.
+
+# adp-devops-agent validation settings
+
+The `helm/adp-devops-agent` chart renders these maps into the agent ConfigMap (UPPER_SNAKE keys, string values). Override them in `helm/adp-devops-agent/values/<environment>/<region>/values.yaml`.
+
+The comma-separated `ENABLED_VALIDATORS` form needs an agent image with #328 MR 1 (adp-devops-agent!6); v1.2.1 and earlier fail at startup parsing it.
+
+```yaml
+validationSettings:
+  ENABLED_VALIDATORS: "yamllint,k8s-schema"   # comma-separated validator names; new names arrive with later agent releases
+  MAX_CORRECTION_ROUNDS: "2"                  # read by the agent once the correction loop ships
+```
+
+The `infra-services` Application also sets `infraContext` from infra-facts. Empty values are omitted from the ConfigMap:
+
+| Env name | Source |
+|---|---|
+| `INFRA_GITOPS_REPO_URL` | `gitops_destination_repo` |
+| `INFRA_GITOPS_REVISION` | `default_policies_branch`, default `HEAD` |
+
+There is no environment or region setting: the agent takes the target environment and region from the request and the application's `values/<env>/<region>/` folders.
+
+The agent's GitOps repository (`GITOPS_REPO_URL`) and GitLab URL (`GITLAB_URL`, the `<scheme>://<host>` of that repository) come from `applications_destination_repo` in infra-facts, set by the `infra-services` Application. When the key is unset neither variable is rendered, and the agent (v1.2.1 and later) refuses to start because `GITOPS_REPO_URL` is required.
