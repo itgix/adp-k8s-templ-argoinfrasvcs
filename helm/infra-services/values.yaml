@@ -73,7 +73,6 @@ infra-services:
   dns_resource_group: ~
   workload_dns_identity_client_id: ~
   workload_eso_identity_client_id: ~
-  key_vault_name: ~
   azure_cert_manager_cluster_issuer: "letsencrypt"
 
 
