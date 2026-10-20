@@ -12,7 +12,7 @@ infra-services:
 image:
   repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-devops-agent
   pullPolicy: IfNotPresent
-  tag: v1.2.1
+  tag: v1.2.2
 
 service:
   name: adp-devops-agent
