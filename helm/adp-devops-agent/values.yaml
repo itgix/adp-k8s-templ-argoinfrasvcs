@@ -113,18 +113,18 @@ venvCache:
 
 secretEnv:
   - name: QDRANT_API_KEY
-    secretName: qdrant-env-secret
+    secretName: adp-devops-agent-env
     secretKey: password
     secretManagerName: qdrant-env-secret
   - name: GITLAB_TOKEN
-    secretName: qdrant-env-secret
+    secretName: adp-devops-agent-env
     secretKey: GITLAB_TOKEN
     secretManagerName: backstage-secret-gitlab-token
   # Token comes from Secrets Manager <prefix>-api-token-secret, shared with Backstage DEVOPS_AGENT_TOKEN
   - name: API_TOKEN
-    secretName: qdrant-env-secret
+    secretName: adp-devops-agent-env
     secretKey: API_TOKEN
-    secretManagerName: qdrant-env-secret
+    secretManagerName: api-token-secret
 
 prompts:
   role_definition: |
