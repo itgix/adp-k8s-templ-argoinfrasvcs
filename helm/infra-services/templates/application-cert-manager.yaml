@@ -1,4 +1,5 @@
 {{- if index .Values "infra-services" "enable_cert_manager" }}
+{{- $cloud := default "aws" (index .Values "infra-services" "cloud") }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -17,6 +18,21 @@ spec:
       valueFiles:
         - ../cert-manager/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+{{- if eq $cloud "azure" }}
+      values: |
+        cert-manager:
+          crds:
+            enabled: true
+{{- end }}
+{{- if eq $cloud "azure" }}
+  ignoreDifferences:
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: cert-manager-webhook
+      managedFieldsManagers:
+        - cert-manager-cainjector
+        - admissionsenforcer
+{{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: cert-manager

@@ -53,7 +53,10 @@ ingress_class_name, <cloud>_ingress_class_name, <app>_ingress_class_name.
 {{- define "infra-services.ingressClassName" -}}
 {{- $infraServices := .infraServices -}}
 {{- $cloud := default "aws" (index $infraServices "cloud") -}}
-{{- $defaultClass := ternary "gce" "alb" (eq $cloud "gcp") -}}
+{{- $defaultClass := "alb" -}}
+{{- if eq $cloud "gcp" -}}{{- $defaultClass = "gce" -}}
+{{- else if eq $cloud "azure" -}}{{- $defaultClass = "traefik" -}}
+{{- end -}}
 {{- $className := default $defaultClass (index $infraServices "ingress_class_name") -}}
 {{- $cloudClassKey := printf "%s_ingress_class_name" $cloud -}}
 {{- $className = default $className (index $infraServices $cloudClassKey) -}}
@@ -91,6 +94,10 @@ order: ingress_annotations, <cloud>_ingress_annotations,
 {{- if and $httpsRedirectEnabled .frontendConfigName -}}
 {{- $_ := set $annotations "networking.gke.io/v1beta1.FrontendConfig" .frontendConfigName -}}
 {{- end -}}
+{{- else if eq $cloud "azure" -}}
+{{- $clusterIssuer := default "letsencrypt" (index $infraServices "azure_cert_manager_cluster_issuer") -}}
+{{- $_ := set $annotations "cert-manager.io/cluster-issuer" $clusterIssuer -}}
+{{- $_ := set $annotations "traefik.ingress.kubernetes.io/router.entrypoints" "websecure" -}}
 {{- else -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/listen-ports" "[{\"HTTP\": 80}, {\"HTTPS\": 443}]" -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/scheme" "internet-facing" -}}
