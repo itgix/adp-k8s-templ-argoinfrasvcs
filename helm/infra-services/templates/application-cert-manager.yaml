@@ -23,6 +23,12 @@ spec:
         cert-manager:
           crds:
             enabled: true
+        defaultAcmeIssuer:
+          enabled: true
+          name: letsencrypt
+          email: {{ default "admin@example.com" (index .Values "infra-services" "cert_manager_acme_email") | quote }}
+          server: "https://acme-v02.api.letsencrypt.org/directory"
+          ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" (index .Values "infra-services") "app" "cert_manager") }}
 {{- end }}
 {{- if eq $cloud "azure" }}
   ignoreDifferences:
