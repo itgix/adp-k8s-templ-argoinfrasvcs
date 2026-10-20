@@ -1,9 +1,14 @@
 #Required variables
 infra-services:
+  cloud: ""
   aws_account_id: ""
   environment: ""
   region: ""
   eks_cluster_name: ""
+  azure_subscription_id: ""
+  azure_tenant_id: ""
+  workload_eso_identity_client_id: ""
+  key_vault_name: ""
 
 external-secrets:
   resources:
