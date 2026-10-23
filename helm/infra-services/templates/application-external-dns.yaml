@@ -4,16 +4,11 @@
 {{- $externalDnsAccount := default dict (index $workloadIdentityAccounts "external-dns") -}}
 {{- $externalDnsKsaName := default "external-dns-sa" (index $externalDnsAccount "ksa_name") -}}
 {{- if index $infraServices "external_dns_enabled" }}
-{{- $defaultProvider := ternary "google" "aws" (eq $cloud "gcp") -}}
-{{- $externalDnsProvider := default $defaultProvider (index $infraServices "external_dns_provider") -}}
-{{- $useCloudIdentity := eq $externalDnsProvider $defaultProvider -}}
 {{- $externalDnsAnnotations := dict -}}
-{{- if $useCloudIdentity -}}
 {{- if eq $cloud "gcp" -}}
 {{- $_ := set $externalDnsAnnotations "iam.gke.io/gcp-service-account" (required "external_dns_service_account_email is required for GCP external-dns" (index $infraServices "external_dns_service_account_email")) -}}
-{{- else -}}
+{{- else if ne $cloud "stackit" -}}
 {{- $_ := set $externalDnsAnnotations "eks.amazonaws.com/role-arn" (printf "arn:aws:iam::%v:role/%v-external-dns" (index $infraServices "aws_account_id") (index $infraServices "eks_cluster_name")) -}}
-{{- end -}}
 {{- end -}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -35,10 +30,25 @@ spec:
         - ../external-dns/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
+{{- if eq $cloud "stackit" }}
         external-dns:
           provider:
-            name: {{ $externalDnsProvider }}
-{{ if and (eq $cloud "gcp") $useCloudIdentity }}
+            name: webhook
+            webhook:
+              args:
+                - --project-id={{ index $infraServices "project_id" }}
+          domainFilters:
+            - {{ index $infraServices "dns_main_domain" }}
+          txtOwnerId: {{ index $infraServices "environment" }}-{{ index $infraServices "region" }}-{{ index $infraServices "stackit_dns_zone_id" }}
+        externalSecret:
+          enabled: true
+          namespace: external-dns
+          saKeySecretName: {{ index $infraServices "external_dns_sa_key_secret_name" | default "external-dns-sa-key" }}
+{{- else }}
+        external-dns:
+          provider:
+            name: {{ ternary "google" "aws" (eq $cloud "gcp") }}
+{{ if eq $cloud "gcp" }}
           extraArgs:
             google-project: {{ required "gcp_project_id is required for GCP external-dns" (index $infraServices "gcp_project_id") | quote }}
 {{ end }}
@@ -52,6 +62,7 @@ spec:
             annotations:
 {{ include "infra-services.serviceAccountAnnotations" (dict "infraServices" $infraServices "app" "external_dns" "defaultAnnotations" $externalDnsAnnotations) | nindent 14 }}
           txtOwnerId: {{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}-{{ ternary (index $infraServices "dns_managed_zone") (index $infraServices "dns_hosted_zone") (eq $cloud "gcp") }}
+{{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: external-dns
