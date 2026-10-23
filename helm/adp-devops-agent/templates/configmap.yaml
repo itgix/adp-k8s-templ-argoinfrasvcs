@@ -61,6 +61,9 @@ data:
   ENABLED_VALIDATORS: {{ .Values.validationSettings.ENABLED_VALIDATORS | quote }}
   MAX_CORRECTION_ROUNDS: {{ .Values.validationSettings.MAX_CORRECTION_ROUNDS | quote }}
 
+  # Generation Settings
+  MAX_CONCURRENT_GENERATIONS: {{ .Values.generationSettings.MAX_CONCURRENT_GENERATIONS | quote }}
+
   # Infra GitOps and policy context, passed by the infra-services Application from infra-facts; unset values are omitted
   {{- range $key, $value := .Values.infraContext }}
   {{- if $value }}

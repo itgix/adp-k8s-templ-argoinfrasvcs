@@ -12,7 +12,7 @@ infra-services:
 image:
   repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/itgix/itgix-adp-devops-agent
   pullPolicy: IfNotPresent
-  tag: v1.2.2
+  tag: v1.3.1
 
 service:
   name: adp-devops-agent
@@ -94,6 +94,9 @@ validationSettings:
   ENABLED_VALIDATORS: "yamllint,k8s-schema"
   # Read by the agent once the validation correction loop ships (#328).
   MAX_CORRECTION_ROUNDS: "2"
+
+generationSettings:
+  MAX_CONCURRENT_GENERATIONS: "3"   # generate runs executed at once; a request over the cap waits for a slot (agent v1.3.1+)
 
 # Infra GitOps and policy context. Set by the infra-services Application from
 # infra-facts; empty values are not rendered into the ConfigMap.

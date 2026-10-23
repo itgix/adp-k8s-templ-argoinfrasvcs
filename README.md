@@ -124,6 +124,17 @@ validationSettings:
   MAX_CORRECTION_ROUNDS: "2"                  # read by the agent once the correction loop ships
 ```
 
+## Concurrent generation
+
+The chart pins the agent image to v1.3.1. From v1.3.1 the agent answers `/health` during generate runs, so the liveness probe no longer restarts it mid-run, and generate requests run in parallel, each on its own working copy. Index refreshes are serialised among themselves and never block generates.
+
+```yaml
+generationSettings:
+  MAX_CONCURRENT_GENERATIONS: "3"   # generate runs executed at once; a request over the cap waits for a slot
+```
+
+`MAX_CONCURRENT_GENERATIONS` defaults to `3` and needs agent v1.3.1 or later; older images ignore the variable.
+
 The `infra-services` Application also sets `infraContext` from infra-facts. Empty values are omitted from the ConfigMap:
 
 | Env name | Source |
