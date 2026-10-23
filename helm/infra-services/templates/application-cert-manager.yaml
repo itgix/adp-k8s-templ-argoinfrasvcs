@@ -1,4 +1,5 @@
 {{- if index .Values "infra-services" "enable_cert_manager" }}
+{{- $infraServices := index .Values "infra-services" }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -17,6 +18,11 @@ spec:
       valueFiles:
         - ../cert-manager/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        defaultAcmeIssuer:
+          enabled: true
+          email: {{ index $infraServices "owner_email" }}
+          ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "cert-manager") }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: cert-manager
