@@ -40,7 +40,7 @@ spec:
           domainFilters:
             - {{ index $infraServices "dns_main_domain" }}
           txtOwnerId: {{ index $infraServices "environment" }}-{{ index $infraServices "region" }}-{{ index $infraServices "stackit_dns_zone_id" }}
-        externalSecret:
+        externalSecretStackit:
           enabled: true
           namespace: external-dns
           saKeySecretName: {{ index $infraServices "external_dns_sa_key_secret_name" | default "external-dns-sa-key" }}
