@@ -35,11 +35,32 @@ spec:
           provider:
             name: webhook
             webhook:
+              image:
+                repository: ghcr.io/stackitcloud/external-dns-stackit-webhook
+                tag: v0.3.9
               args:
                 - --project-id={{ index $infraServices "project_id" }}
+              env:
+                - name: AUTH_KEY_PATH
+                  value: /var/run/secrets/stackit/sa.json
+                - name: API_PORT
+                  value: "8080"
+              extraVolumeMounts:
+                - name: stackit-sa-key
+                  mountPath: /var/run/secrets/stackit
+                  readOnly: true
+          extraArgs:
+            webhook-provider-url: http://localhost:8080
           domainFilters:
             - {{ index $infraServices "dns_main_domain" }}
           txtOwnerId: {{ index $infraServices "environment" }}-{{ index $infraServices "region" }}-{{ index $infraServices "stackit_dns_zone_id" }}
+          extraVolumes:
+            - name: stackit-sa-key
+              secret:
+                secretName: external-dns-sa-key
+                items:
+                  - key: sa.json
+                    path: sa.json
         externalSecretStackit:
           enabled: true
           namespace: external-dns
