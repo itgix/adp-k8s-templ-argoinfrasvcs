@@ -63,6 +63,8 @@ spec:
 
             extraEnvVarsSecrets:
               - backstage-secrets
+            podAnnotations:
+              checksum/catalog-org: {{ index $infraServices "backstage_users" | default dict | toJson | sha256sum }}
 {{- if index .Values "infra-services" "enable_guest_login" }}
             appConfig:
               auth:
