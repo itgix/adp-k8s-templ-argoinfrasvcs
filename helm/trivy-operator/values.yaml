@@ -1,3 +1,6 @@
+grafanaDashboard:
+  enabled: true
+
 trivy-operator:
   # Default values for the trivy-operator Helm chart, these are used to render
   # the templates into valid k8s Resources.
@@ -19,7 +22,7 @@ trivy-operator:
   # -- excludeNamespaces is a comma separated list of namespaces (or glob patterns)
   # to be excluded from scanning. Only applicable in the all namespaces install
   # mode, i.e. when the targetNamespaces values is a blank string.
-  excludeNamespaces: ""
+  excludeNamespaces: "kube-system,kube-public,kube-node-lease,trivy-operator"
 
   # -- extraEnv is a list of extra environment variables for the trivy-operator.
   extraEnv: []
@@ -79,7 +82,7 @@ trivy-operator:
     scanSecretTTL: ""
 
     # -- scanJobTimeout the length of time to wait before giving up on a scan job
-    scanJobTimeout: 5m
+    scanJobTimeout: 10m
 
     # -- scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
     scanJobsConcurrentLimit: 3
@@ -97,7 +100,7 @@ trivy-operator:
     # -- the flag to enable cluster sbom cache generation
     clusterSbomCacheEnabled: false
     # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
-    scannerReportTTL: "48h"
+    scannerReportTTL: "24h"
     # -- cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled
     cacheReportTTL: "120h"
     # -- configAuditScannerEnabled the flag to enable configuration audit scanner
@@ -243,7 +246,8 @@ trivy-operator:
     # -- Additional annotations for the serviceMonitor
     annotations: {}
     # -- Additional labels for the serviceMonitor
-    labels: {}
+    labels:
+      release: kube-prometheus-stack
     # -- HonorLabels chooses the metric’s labels on collisions with target labels
     honorLabels: true
     # -- EndpointAdditionalProperties allows setting additional properties on the endpoint such as relabelings, metricRelabelings etc.
@@ -433,7 +437,7 @@ trivy-operator:
       # "docker.io": docker-mirror.example.com
 
     # -- severity is a comma separated list of severity levels reported by Trivy.
-    severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+    severity: HIGH,CRITICAL
 
     # -- slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
     slow: true
@@ -552,7 +556,7 @@ trivy-operator:
     # serverCustomHeaders: "foo=bar"
 
     dbRegistry: "mirror.gcr.io"
-    dbRepository: "aquasec/trivy-db"
+    dbRepository: "aquasec/trivy-db,ghcr.io/aquasecurity/trivy-db"
 
     # -- The username for dbRepository authentication
     #
@@ -839,5 +843,3 @@ trivy-operator:
     podSecurityContext:
       runAsUser: 10000
       fsGroup: 10000
-  grafanaDashboard:
-    enabled: true

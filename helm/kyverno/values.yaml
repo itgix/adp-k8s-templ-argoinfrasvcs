@@ -36,7 +36,28 @@ kyverno:
     logging:
       format: json
       verbosity: -1
+    forceFailurePolicyIgnore:
+      enabled: true
   metricsService:
     create: false
   config:
     excludeKyvernoNamespace: true
+    webhooks:
+      namespaceSelector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+          - kube-system
+          - kube-public
+          - kube-node-lease
+        - key: gardener.cloud/purpose
+          operator: NotIn
+          values:
+          - kube-system
+    excludeGroups:
+    - system:nodes
+    - system:serviceaccounts:kube-system
+    excludeUsernames:
+    - gardener.cloud:system:*
+    - system:serviceaccount:kube-system:*
