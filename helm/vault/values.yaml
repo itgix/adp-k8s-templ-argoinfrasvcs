@@ -1,10 +1,8 @@
 vault:
   global:
     enabled: true
-    # TLS is terminated at the ALB like other platform services.
     tlsDisable: true
   injector:
-    # Vault Agent sidecar injector (vault.hashicorp.com/agent-inject annotations).
     enabled: true
     replicas: 1
     resources:
@@ -15,9 +13,6 @@ vault:
         cpu: 250m
         memory: 256Mi
   server:
-    # Ingress class, host and annotations are set inline from infra-facts in
-    # helm/infra-services/templates/application-vault.yaml. Everything else can be
-    # overridden per env in helm/vault/values/<env>/<region>/values.yaml.
     resources:
       requests:
         cpu: 250m
@@ -70,8 +65,6 @@ vault:
           }
           service_registration "kubernetes" {}
   ui:
-    # The UI is served by the server (ui = true) through the ingress on the active service.
     enabled: false
   csi:
-    # Requires the Secrets Store CSI driver, which the platform does not deploy.
     enabled: false
