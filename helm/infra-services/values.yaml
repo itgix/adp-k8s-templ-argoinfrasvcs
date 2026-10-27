@@ -40,7 +40,6 @@ infra-services:
   grafana_ingress_annotations: {}
   alertmanager_ingress_annotations: {}
   prometheus_ingress_annotations: {}
-  devlake_ingress_annotations: {}
   vault_ingress_annotations: {}
   gcp_ingress_managed_certificates_enabled: true
   gcp_ingress_https_redirect_enabled: true
