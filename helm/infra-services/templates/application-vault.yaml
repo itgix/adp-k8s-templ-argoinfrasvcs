@@ -1,4 +1,3 @@
-{{- /* Static config lives in helm/vault/values.yaml. */ -}}
 {{- if index .Values "infra-services" "enable_vault" }}
 {{- $infraServices := index .Values "infra-services" }}
 {{- $vaultIngressHost := printf "%s-%s-vault-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain") }}
