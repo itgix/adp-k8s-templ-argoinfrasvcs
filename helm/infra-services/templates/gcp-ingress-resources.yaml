@@ -12,14 +12,12 @@
 {{- $backstageHost := index $infraServices "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) -}}
 {{- $policyReporterHost := index $infraServices "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infraServices "project_name") (index $infraServices "environment") (index $infraServices "region") (index $infraServices "dns_main_domain")) -}}
 {{- $grafanaHost := index $infraServices "grafana_ingress_host" | default (printf "grafana-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) -}}
-{{- $devlakeHost := index $infraServices "devlake_ingress_host" | default (printf "%s-%s-devlake-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) -}}
 {{- $ingresses := list
       (dict "enabled" (index $infraServices "backstage_enabled") "name" "backstage" "namespace" "backstage" "host" $backstageHost)
       (dict "enabled" (index $infraServices "enable_policy_reporter") "name" "policy-reporter" "namespace" "kyverno" "host" $policyReporterHost)
       (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "grafana" "namespace" "monitoring" "host" $grafanaHost)
       (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "alertmanager" "namespace" "monitoring" "host" (index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain"))))
       (dict "enabled" (index $infraServices "enable_prometheus_stack") "name" "prometheus" "namespace" "monitoring" "host" (index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain"))))
-      (dict "enabled" (index $infraServices "enable_devlake") "name" "devlake" "namespace" "devlake" "host" $devlakeHost)
 -}}
 {{- $enabledNamespaces := dict -}}
 {{- range $ingress := $ingresses -}}

@@ -1,0 +1,22 @@
+{{- /*
+  Upstream OpenCost community Grafana dashboard, shipped unmodified as a data file.
+  Source: https://github.com/opencost/opencost-grafana-dashboard
+  File:   dashboards/cost-reporter/opencost-cost-reporter-basic-overview.json
+  Commit: ac9bb49aa8f0425ca0a42c00f85905627ce114a4 (main, last push 2024-11-12; the repo has no releases)
+  The file is read with .Files.Get, so Helm does not interpret its {{namespace}} legends.
+  The sidecar provisions dashboards without Grafana's import step, so the `__inputs` placeholder
+  ${DS_PROMETHEUS_DATASOURCE} is never resolved; it is mapped to the dashboard's own `datasource`
+  template variable at render time, the way helm/trivy-operator does.
+*/ -}}
+{{ if .Values.grafanaDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencost-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  opencost-cost-reporter-basic-overview.json: |-
+{{ .Files.Get "dashboards/opencost-cost-reporter-basic-overview.json" | replace "${DS_PROMETHEUS_DATASOURCE}" "${datasource}" | indent 4 }}
+{{ end }}
