@@ -20,9 +20,6 @@ spec:
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
 {{- if eq $cloud "azure" }}
       values: |
-        cert-manager:
-          crds:
-            enabled: true
         defaultAcmeIssuer:
           enabled: true
           name: letsencrypt
