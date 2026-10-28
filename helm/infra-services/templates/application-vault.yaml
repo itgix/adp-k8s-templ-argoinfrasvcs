@@ -1,0 +1,55 @@
+{{- if index .Values "infra-services" "enable_vault" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $vaultIngressHost := printf "%s-%s-vault-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "vault_branch") }}
+    path: helm/vault
+    helm:
+      valueFiles:
+        - ../vault/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        vault:
+          server:
+            ha:
+              # The chart uses ha.raft.config whenever ha.raft.enabled is true, even in standalone mode,
+              # so both follow enable_vault_ha. Standalone uses server.standalone.config (single-node raft).
+              enabled: {{ index $infraServices "enable_vault_ha" | default false }}
+              raft:
+                enabled: {{ index $infraServices "enable_vault_ha" | default false }}
+            ingress:
+              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "vault") }}
+              hosts:
+                - host: {{ $vaultIngressHost }}
+                  paths: []
+              annotations:
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "vault" "host" $vaultIngressHost) | nindent 16 }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: vault
+  ignoreDifferences:
+  - group: admissionregistration.k8s.io
+    kind: MutatingWebhookConfiguration
+    name: vault-agent-injector-cfg
+    jqPathExpressions:
+    - .webhooks[]?.clientConfig.caBundle
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  revisionHistoryLimit: 3
+{{- end }}
