@@ -76,7 +76,6 @@ spec:
                     dangerouslyAllowOutsideDevelopment: true
 {{- end }}
 {{- with $githubOrg }}
-              # Org members -> Users (named by GitHub login), teams -> Groups.
               catalog:
                 providers:
                   githubOrg:
