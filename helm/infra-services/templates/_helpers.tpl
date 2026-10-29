@@ -108,6 +108,10 @@ order: ingress_annotations, <cloud>_ingress_annotations,
 {{- if eq $app "backstage" -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/target-group-attributes" "stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400" -}}
 {{- end -}}
+{{- if eq $app "vault" -}}
+{{- $_ := set $annotations "alb.ingress.kubernetes.io/healthcheck-path" "/v1/sys/health" -}}
+{{- $_ := set $annotations "alb.ingress.kubernetes.io/success-codes" "200,429" -}}
+{{- end -}}
 {{- $isMonitoringIngress := or (eq $app "grafana") (eq $app "alertmanager") (eq $app "prometheus") -}}
 {{- if or (eq $app "policy_reporter") $isMonitoringIngress -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/group.name" "public" -}}

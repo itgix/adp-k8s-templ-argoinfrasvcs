@@ -24,6 +24,8 @@ infra-services:
   enable_efs_csi: false
   backstage_enabled: false
   enable_guest_login: false
+  enable_vault: false
+  enable_vault_ha: false
 
   # Azure-specific feature flags
   enable_traefik: false
@@ -43,6 +45,7 @@ infra-services:
   grafana_ingress_annotations: {}
   alertmanager_ingress_annotations: {}
   prometheus_ingress_annotations: {}
+  vault_ingress_annotations: {}
   gcp_ingress_managed_certificates_enabled: true
   gcp_ingress_https_redirect_enabled: true
   service_account_annotations: {}
