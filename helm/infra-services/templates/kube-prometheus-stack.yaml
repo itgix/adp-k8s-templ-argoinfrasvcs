@@ -1,9 +1,10 @@
 {{- if index .Values "infra-services" "enable_prometheus_stack" }}
 {{- $infraServices := index .Values "infra-services" }}
 {{- $cloud := default "aws" (index $infraServices "cloud") }}
-{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
-{{- $alertmanagerIngressHost := index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
-{{- $prometheusIngressHost := index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
+{{- $dnsDomain := ternary (index $infraServices "dns_private_zone") (index $infraServices "dns_main_domain") (eq $cloud "azure") }}
+{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "grafana.%s" $dnsDomain) }}
+{{- $alertmanagerIngressHost := index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") $dnsDomain) }}
+{{- $prometheusIngressHost := index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") $dnsDomain) }}
 {{- $monitoringIngressPath := ternary "/" "/*" (eq $cloud "gcp") }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -30,8 +31,15 @@ spec:
             plugins:
               - flant-statusmap-panel
               - grafana-clock-panel
+{{- if eq $cloud "azure" }}
+              - grafana-lokiexplore-app
+{{- end }}
             imageRenderer:
               enabled: false
+{{- if eq $cloud "azure" }}
+            persistence:
+              enabled: false
+{{- end }}
             sidecar:
               dashboards:
                 provider:
@@ -61,6 +69,12 @@ spec:
                 - {{ $grafanaIngressHost }}
               path: /
               port: 80
+{{- if eq $cloud "azure" }}
+              tls:
+                - secretName: grafana-tls
+                  hosts:
+                    - {{ $grafanaIngressHost }}
+{{- end }}
           defaultRules:
             rules:
               kubeScheduler: false
@@ -91,6 +105,16 @@ spec:
             prometheusSpec:        
               scrapeInterval: 1m
               walCompression: true
+{{- if eq $cloud "azure" }}
+              storageSpec:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ["ReadWriteOnce"]
+                    resources:
+                      requests:
+                        storage: 50Gi
+              retention: 60d
+{{- end }}
               serviceMonitorNamespaceSelector: {}
               serviceMonitorSelector: {}
               serviceMonitorSelectorNilUsesHelmValues: false

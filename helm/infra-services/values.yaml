@@ -27,14 +27,19 @@ infra-services:
   enable_vault: false
   enable_vault_ha: false
 
+  # Azure-specific feature flags
+  enable_traefik: false
+
   # Shared ingress defaults. Each map is merged from broadest to most specific:
   # ingress_annotations, <cloud>_ingress_annotations, <app>_ingress_annotations.
   ingress_class_name: ""
   aws_ingress_class_name: ""
   gcp_ingress_class_name: ""
+  azure_ingress_class_name: ""
   ingress_annotations: {}
   aws_ingress_annotations: {}
   gcp_ingress_annotations: {}
+  azure_ingress_annotations: {}
   backstage_ingress_annotations: {}
   policy_reporter_ingress_annotations: {}
   grafana_ingress_annotations: {}
@@ -46,6 +51,7 @@ infra-services:
   service_account_annotations: {}
   aws_service_account_annotations: {}
   gcp_service_account_annotations: {}
+  azure_service_account_annotations: {}
   external_dns_service_account_annotations: {}
   external_secrets_service_account_annotations: {}
   
@@ -61,6 +67,16 @@ infra-services:
   vpc_id: ~
   dns_hosted_zone: ~
   efs_file_system_id: ~
+
+  # Azure-specific variables (used when cloud: azure)
+  azure_subscription_id: ~
+  azure_tenant_id: ~
+  dns_provider: ~
+  dns_private_zone: ~
+  dns_resource_group: ~
+  workload_dns_identity_client_id: ~
+  workload_eso_identity_client_id: ~
+  azure_cert_manager_cluster_issuer: "letsencrypt"
 
 
 storageClass:
