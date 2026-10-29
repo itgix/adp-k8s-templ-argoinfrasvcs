@@ -24,6 +24,8 @@ infra-services:
   enable_efs_csi: false
   backstage_enabled: false
   enable_guest_login: false
+  # GitHub org whose members can sign in to Backstage (e.g. itgix). Empty = off.
+  backstage_github_org: ""
   enable_vault: false
   enable_vault_ha: false
 

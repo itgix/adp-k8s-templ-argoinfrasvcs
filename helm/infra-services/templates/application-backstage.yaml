@@ -65,12 +65,29 @@ spec:
               - backstage-secrets
             podAnnotations:
               checksum/catalog-org: {{ index $infraServices "backstage_users" | default dict | toJson | sha256sum }}
-{{- if index .Values "infra-services" "enable_guest_login" }}
+{{- $guestLogin := index $infraServices "enable_guest_login" }}
+{{- $githubOrg := index $infraServices "backstage_github_org" }}
+{{- if or $guestLogin $githubOrg }}
             appConfig:
+{{- if $guestLogin }}
               auth:
                 providers:
                   guest:
                     dangerouslyAllowOutsideDevelopment: true
+{{- end }}
+{{- with $githubOrg }}
+              # Org members -> Users (named by GitHub login), teams -> Groups.
+              catalog:
+                providers:
+                  githubOrg:
+                    - id: {{ . | quote }}
+                      githubUrl: https://github.com
+                      orgs: [{{ . | quote }}]
+                      schedule:
+                        frequency: { minutes: 30 }
+                        timeout: { minutes: 5 }
+                        initialDelay: { seconds: 30 }
+{{- end }}
 {{- end }}
           ingress:
             enabled: true
