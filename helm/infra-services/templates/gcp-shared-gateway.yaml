@@ -89,7 +89,6 @@ spec:
         - type: RequestRedirect
           requestRedirect:
             scheme: https
-            port: 443
             statusCode: 301
 {{- range $route := $routes }}
 {{- if $route.enabled }}
