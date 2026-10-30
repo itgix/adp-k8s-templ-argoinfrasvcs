@@ -1,0 +1,50 @@
+{{- $infraServices := index .Values "infra-services" -}}
+{{- $cloud := default "aws" (index $infraServices "cloud") -}}
+{{- if and (eq $cloud "azure") (index $infraServices "enable_external_dns_internal") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns-internal
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index $infraServices "gitops_destination_repo" }}
+    targetRevision: {{ default "HEAD" (index $infraServices "external_dns_branch") }}
+    path: helm/external-dns
+    helm:
+      valueFiles:
+        - ../infra-services/values/{{ index $infraServices "environment" }}/{{ index $infraServices "region" }}/infra-facts.yaml
+      values: |
+        external-dns:
+          fullnameOverride: "external-dns-internal"
+          provider:
+            name: {{ index $infraServices "dns_provider" }}
+          domainFilters:
+            - {{ index $infraServices "dns_internal_zone" }}
+          serviceAccount:
+            name: "external-dns-internal-sa"
+            annotations:
+              azure.workload.identity/client-id: "{{ index $infraServices "workload_dns_identity_client_id" }}"
+          podLabels:
+            azure.workload.identity/use: "true"
+          azure:
+            useWorkloadIdentityExtension: true
+            subscriptionId: {{ index $infraServices "azure_subscription_id" }}
+            tenantId: {{ index $infraServices "azure_tenant_id" }}
+            resourceGroup: {{ index $infraServices "dns_internal_resource_group" }}
+          txtOwnerId: {{ index $infraServices "environment" }}-{{ index $infraServices "region" }}-internal
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: external-dns-internal
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}

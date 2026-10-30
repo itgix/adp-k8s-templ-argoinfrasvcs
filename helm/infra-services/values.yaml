@@ -78,6 +78,11 @@ infra-services:
   workload_eso_identity_client_id: ~
   azure_cert_manager_cluster_issuer: "letsencrypt"
 
+  # Internal external-dns instance for private DNS zone (Azure only)
+  enable_external_dns_internal: false
+  dns_internal_zone: ~
+  dns_internal_resource_group: ~
+
 
 storageClass:
   name: gp3
