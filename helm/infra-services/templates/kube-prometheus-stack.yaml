@@ -61,6 +61,33 @@ spec:
                 - {{ $grafanaIngressHost }}
               path: /
               port: 80
+{{- if index $infraServices "enable_keycloak" }}
+{{- $keycloakIssuer := include "infra-services.keycloakIssuer" (dict "infraServices" $infraServices) }}
+            envFromSecrets:
+              - name: grafana-oidc-keycloak   # GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET, copied by helm/keycloak
+                optional: false               # pod waits for the secret instead of starting without it
+            grafana.ini:
+              server:
+                root_url: https://{{ $grafanaIngressHost }}/
+              auth:
+                disable_login_form: false     # local admin stays as break-glass
+              auth.generic_oauth:
+                enabled: true
+                name: Keycloak
+                allow_sign_up: true
+                client_id: grafana
+                scopes: openid profile email groups
+                auth_url: {{ $keycloakIssuer }}/protocol/openid-connect/auth
+                token_url: {{ $keycloakIssuer }}/protocol/openid-connect/token
+                api_url: {{ $keycloakIssuer }}/protocol/openid-connect/userinfo
+                signout_redirect_url: {{ $keycloakIssuer }}/protocol/openid-connect/logout
+                login_attribute_path: preferred_username
+                email_attribute_path: email
+                groups_attribute_path: groups
+                role_attribute_path: "contains(groups[*], 'platform-admins') && 'Admin' || contains(groups[*], 'platform-developers') && 'Editor' || 'Viewer'"
+                use_pkce: true
+                use_refresh_token: true
+{{- end }}
           defaultRules:
             rules:
               kubeScheduler: false

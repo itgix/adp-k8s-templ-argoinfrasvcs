@@ -1,0 +1,65 @@
+{{- if index .Values "infra-services" "enable_keycloak" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- $keycloakIngressHost := include "infra-services.keycloakHost" (dict "infraServices" $infraServices) }}
+{{- $argocdHost := printf "%s-%s-argocd-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain") }}
+{{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "keycloak_branch") }}
+    path: helm/keycloak
+    helm:
+      valueFiles:
+        - ../keycloak/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        realm: {{ default "adp" (index $infraServices "keycloak_realm") }}
+        hosts:
+          argocd: {{ $argocdHost }}
+{{- if index $infraServices "enable_prometheus_stack" }}
+          grafana: {{ $grafanaIngressHost }}
+{{- end }}
+{{- if index $infraServices "enable_keycloak_ha" }}
+        database:
+          instances: 2
+{{- end }}
+        keycloakx:
+          hostname: {{ $keycloakIngressHost }}
+{{- if index $infraServices "enable_keycloak_ha" }}
+          replicas: 2
+          podDisruptionBudget:
+            maxUnavailable: 1
+{{- end }}
+          ingress:
+            ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "keycloak") }}
+            annotations:
+{{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "keycloak" "host" $keycloakIngressHost) | nindent 14 }}
+          serviceMonitor:
+            enabled: {{ index $infraServices "enable_prometheus_stack" | default false }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: keycloak
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true   # CNPG/ESO CRDs may not exist on the first sync
+    retry:                                 # app-of-apps waves don't wait for child health
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
+  revisionHistoryLimit: 3
+{{- end }}

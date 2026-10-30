@@ -1,0 +1,83 @@
+# Logins (generated Secrets in ns keycloak): keycloak-admin = master realm admin console, keycloak-realm-admin = SSO user for ArgoCD/Grafana.
+# Add more users by hand in the Keycloak console (realm adp, group platform-admins or platform-developers).
+# Rotation: delete a generated Secret, then sync the keycloak app by hand (runs config-cli); restart Grafana after rotating its client.
+# keycloak-admin is only read on the first DB init: note the old password, delete the Secret, then set the new one in the console.
+realm: adp                       # set inline from keycloak_realm
+hosts:                           # OIDC client hosts, set inline; empty grafana = no grafana client
+  argocd: ""
+  grafana: ""
+
+database:                        # CNPG Cluster keycloak-db
+  instances: 1                   # inline 2 when enable_keycloak_ha
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11   # KC 26.8 supports PG 14-18
+  storageSize: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+configCli:
+  image: docker.io/adorsys/keycloak-config-cli:6.5.1-26.5.5   # built for KC 26.5.5 (newest build); fallback is keycloakx 7.1.9
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+keycloakx:
+  hostname: ""                   # set inline; read by extraEnv and the ingress host via tpl
+  replicas: 1
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+    - "start"
+    - "--http-port=8080"
+  http:
+    relativePath: "/"            # chart default /auth is legacy
+  proxy:
+    enabled: true
+    mode: xforwarded             # ALB sends X-Forwarded-*
+  database:                      # secret keycloak-db-app is created by CNPG
+    vendor: postgres
+    hostname: keycloak-db-rw
+    port: 5432
+    database: keycloak
+    username: keycloak
+    existingSecret: keycloak-db-app
+    existingSecretKey: password
+  dbchecker:
+    enabled: true
+  # extraEnv is one string: a per-env override must repeat the whole block.
+  extraEnv: |
+    - name: KC_HOSTNAME
+      value: https://{{ .Values.hostname }}
+    - name: KC_BOOTSTRAP_ADMIN_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: username
+    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: password
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 1536Mi
+  ingress:
+    enabled: true                # class and annotations set inline
+    rules:
+      - host: '{{ .Values.hostname }}'
+        paths:
+          - path: /
+            pathType: Prefix
+  serviceMonitor:
+    enabled: false               # inline from enable_prometheus_stack

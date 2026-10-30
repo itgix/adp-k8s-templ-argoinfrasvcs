@@ -1,0 +1,86 @@
+{{- $facts := default dict (index .Values "infra-services") }}
+# Realm-as-code, applied by the keycloak-config-cli Job. $(env:...) values come from the Job env.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+data:
+  {{ .Values.realm }}.yaml: |
+    realm: {{ .Values.realm | quote }}
+    enabled: true
+    displayName: ADP
+    registrationAllowed: false
+    bruteForceProtected: true
+    groups:
+      - name: platform-admins
+      - name: platform-developers
+    clientScopes:
+      - name: groups
+        protocol: openid-connect
+        attributes:
+          include.in.token.scope: "true"
+        protocolMappers:
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              claim.name: groups
+              full.path: "false"
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"
+    clients:
+      # defaultClientScopes replaces the Keycloak defaults, so it must keep "basic" (sub claim).
+      - clientId: argocd
+        name: ArgoCD
+        enabled: true
+        publicClient: false
+        standardFlowEnabled: true
+        directAccessGrantsEnabled: false
+        rootUrl: https://{{ .Values.hosts.argocd }}
+        redirectUris:
+          - https://{{ .Values.hosts.argocd }}/auth/callback
+        webOrigins:
+          - https://{{ .Values.hosts.argocd }}
+        secret: $(env:ARGOCD_CLIENT_SECRET)
+        defaultClientScopes: [basic, web-origins, acr, profile, roles, email, groups]
+      - clientId: argocd-cli
+        name: ArgoCD CLI
+        enabled: true
+        publicClient: true
+        standardFlowEnabled: true
+        directAccessGrantsEnabled: false
+        redirectUris:
+          - http://localhost:8085/auth/callback
+        attributes:
+          pkce.code.challenge.method: S256
+        defaultClientScopes: [basic, web-origins, acr, profile, roles, email, groups]
+      {{- if .Values.hosts.grafana }}
+      - clientId: grafana
+        name: Grafana
+        enabled: true
+        publicClient: false
+        standardFlowEnabled: true
+        directAccessGrantsEnabled: false
+        rootUrl: https://{{ .Values.hosts.grafana }}
+        redirectUris:
+          - https://{{ .Values.hosts.grafana }}/login/generic_oauth
+        webOrigins:
+          - https://{{ .Values.hosts.grafana }}
+        secret: $(env:GRAFANA_CLIENT_SECRET)
+        defaultClientScopes: [basic, web-origins, acr, profile, roles, email, groups]
+      {{- end }}
+    # Only the realm admin is managed here; other users are added in the console and left alone.
+    users:
+      - username: admin
+        enabled: true
+        email: admin@{{ default "example.com" (index $facts "dns_main_domain") }}
+        emailVerified: true
+        firstName: Platform    # KC 26 user profile requires names; avoids the update-profile prompt
+        lastName: Admin
+        groups:
+          - /platform-admins
+        credentials:
+          - type: password
+            value: $(env:REALM_ADMIN_PASSWORD)
+            temporary: false

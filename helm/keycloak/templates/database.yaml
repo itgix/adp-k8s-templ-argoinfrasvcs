@@ -1,0 +1,19 @@
+# CNPG creates the secret keycloak-db-app (username, password, ...) that Keycloak reads.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keycloak-db
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  instances: {{ .Values.database.instances }}
+  imageName: {{ .Values.database.imageName }}
+  storage:
+    size: {{ .Values.database.storageSize }}
+    storageClass: gp3
+  bootstrap:
+    initdb:
+      database: keycloak
+      owner: keycloak
+  resources:
+    {{- toYaml .Values.database.resources | nindent 4 }}

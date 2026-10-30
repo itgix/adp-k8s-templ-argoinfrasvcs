@@ -1,4 +1,4 @@
-{{- if index .Values "infra-services" "enable_cloudnative_pg" }}
+{{- if or (index .Values "infra-services" "enable_cloudnative_pg") (index .Values "infra-services" "enable_keycloak") }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

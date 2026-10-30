@@ -105,6 +105,10 @@ order: ingress_annotations, <cloud>_ingress_annotations,
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/healthcheck-path" "/v1/sys/health" -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/success-codes" "200,429" -}}
 {{- end -}}
+{{- if eq $app "keycloak" -}}
+{{- $_ := set $annotations "alb.ingress.kubernetes.io/healthcheck-path" "/realms/master" -}}
+{{- $_ := set $annotations "alb.ingress.kubernetes.io/success-codes" "200" -}}
+{{- end -}}
 {{- $isMonitoringIngress := or (eq $app "grafana") (eq $app "alertmanager") (eq $app "prometheus") -}}
 {{- if or (eq $app "policy_reporter") $isMonitoringIngress -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/group.name" "public" -}}
@@ -131,6 +135,15 @@ order: ingress_annotations, <cloud>_ingress_annotations,
 {{- $appAnnotations := default dict (index $infraServices $appAnnotationsKey) -}}
 {{- $annotations = mergeOverwrite $annotations $commonAnnotations $cloudAnnotations $appAnnotations -}}
 {{- toYaml $annotations -}}
+{{- end -}}
+{{/*
+Keycloak host and OIDC issuer. Must match idp-installer build_argocd_values.
+*/}}
+{{- define "infra-services.keycloakHost" -}}
+{{- printf "%s-%s-keycloak-%s.%s" (index .infraServices "project_name") (index .infraServices "region") (index .infraServices "environment") (index .infraServices "dns_main_domain") -}}
+{{- end -}}
+{{- define "infra-services.keycloakIssuer" -}}
+{{- printf "https://%s/realms/%s" (include "infra-services.keycloakHost" .) (default "adp" (index .infraServices "keycloak_realm")) -}}
 {{- end -}}
 
 
