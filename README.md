@@ -59,6 +59,71 @@ There is also a generic application.yaml that has all options for creating other
 
 # Optional infra services
 
+## Shared GCP Gateway and Wildcard TLS
+
+With matching Terraform and installer support, enable
+`gcp_shared_gateway_enabled: true` in the GCP environment config. The default is
+false. AWS and Azure ignore this setting and retain their existing rendering.
+
+Terraform must supply these fields through `infra-services` in `infra-facts.yaml`:
+
+```yaml
+infra-services:
+  cloud: gcp
+  gcp_shared_gateway_enabled: true
+  dns_main_domain: adp8d13.itgix.eu
+  gcp_gateway_address_name: adp8d13-test-ew1-gateway
+  gcp_gateway_certificate_map: adp8d13-test-ew1-gateway
+```
+
+The chart creates one `argocd/adp-shared` Gateway of class
+`gke-l7-global-external-managed`, using the reserved address and Certificate
+Manager map, and redirects HTTP to HTTPS. It creates HTTPS HTTPRoutes and explicit
+HealthCheckPolicies for ArgoCD, plus enabled Backstage, Policy Reporter UI,
+Grafana, Prometheus and Alertmanager. Prometheus and Alertmanager remain private
+unless `prometheus_ingress_host` / `alertmanager_ingress_host` is explicitly set;
+protect those endpoints with authentication/access controls before opting in.
+Child chart ingresses are disabled and their
+backends remain ClusterIP Services. Per-service GKE ManagedCertificates and
+FrontendConfigs are not rendered in shared mode. Legacy GCP ingress mode is
+unchanged when the setting is false.
+
+The installer must also disable ArgoCD ingress and gRPC ingress, configure
+`configs.params.server.insecure: true` (TLS terminates at the Gateway), and retain
+the generated values in its self-management Application. ArgoCD CLI connections
+through the HTTP route should use `--grpc-web`. No certificate/private key is
+copied into Kubernetes namespaces; Certificate Manager renews the wildcard.
+
+The public Cloud DNS zone must be delegated. Terraform owns the wildcard A record
+and certificate-authorization CNAME, so external-dns is not needed for these
+hostnames. Explicit DNS records from old ingresses override wildcard DNS: remove
+or update those records before switching traffic.
+Use a dedicated domain/subdomain per Gateway so multiple environments do not
+compete for the same Terraform-owned wildcard A record.
+Existing hostname overrides are accepted only for direct subdomains covered by
+`*.dns_main_domain`; duplicate
+hostnames and missing Terraform address/map outputs fail rendering.
+
+Routes use standard release/service names (`argocd-server`, `backstage`,
+`policy-reporter-ui`, `kube-prometheus-stack-grafana`,
+`kube-prometheus-stack-prometheus`, `kube-prometheus-stack-alertmanager`). Custom
+fullname/port overrides require matching route and health-check changes. Keep
+the Backstage image's readiness endpoint compatible with
+`/.backstage/health/v1/readiness`. Service Applications are submitted before the
+networking sync wave. Namespaces receive `Prune=false` to avoid deleting workloads
+when service toggles change.
+
+For additional apps, label the namespace `adp.itgix.com/shared-gateway: "true"`
+and create an HTTPRoute with `parentRefs` pointing to Gateway `adp-shared`,
+namespace `argocd`, `sectionName: https`. Reference the app's ClusterIP Service
+in that same namespace. Give it a direct-subdomain hostname and an appropriate
+GKE HealthCheckPolicy; do not create another GCE ingress or LoadBalancer Service.
+
+This is a load-balancer replacement for existing deployments. Review Terraform
+first, wait for certificate provisioning, remove old GCE ingresses, and then sync
+the Gateway routes. GKE does not allow a Service to be used simultaneously by its
+Ingress and Gateway controllers. Traffic may be interrupted during migration.
+
 ## Kafka operator (Strimzi)
 
 Set `enable_kafka_operator: true` in the environment config to deploy the Strimzi cluster

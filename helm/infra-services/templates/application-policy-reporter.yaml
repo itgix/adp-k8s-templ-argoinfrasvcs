@@ -1,5 +1,6 @@
 {{- if index .Values "infra-services" "enable_policy_reporter" }}
 {{- $infraServices := index .Values "infra-services" }}
+{{- $sharedGateway := and (eq (default "aws" (index $infraServices "cloud")) "gcp") (index $infraServices "gcp_shared_gateway_enabled") }}
 {{- $policyReporterIngressHost := index $infraServices "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infraServices "project_name") (index $infraServices "environment") (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -17,12 +18,25 @@ spec:
     targetRevision:  {{ default "HEAD" (index .Values "infra-services" "policy_reporter_branch") }}
     path: helm/policy-reporter
     helm:
+{{- if $sharedGateway }}
+      releaseName: policy-reporter
+{{- end }}
       valueFiles:
         - ../policy-reporter/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         policy-reporter:
+{{- if $sharedGateway }}
+          ui:
+            ingress:
+              enabled: false
+            service:
+              type: ClusterIP
+{{- end }}
           ingress:
+{{- if $sharedGateway }}
+            enabled: false
+{{- end }}
             className: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "policy_reporter") }}
             annotations:
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "policy_reporter" "host" $policyReporterIngressHost "managedCertificateName" "policy-reporter" "frontendConfigName" "policy-reporter") | nindent 14 }}

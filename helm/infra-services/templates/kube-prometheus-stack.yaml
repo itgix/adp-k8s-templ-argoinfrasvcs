@@ -1,6 +1,7 @@
 {{- if index .Values "infra-services" "enable_prometheus_stack" }}
 {{- $infraServices := index .Values "infra-services" }}
 {{- $cloud := default "aws" (index $infraServices "cloud") }}
+{{- $sharedGateway := and (eq $cloud "gcp") (index $infraServices "gcp_shared_gateway_enabled") }}
 {{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
 {{- $alertmanagerIngressHost := index $infraServices "alertmanager_ingress_host" | default (printf "alertmanager-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
 {{- $prometheusIngressHost := index $infraServices "prometheus_ingress_host" | default (printf "prometheus-%s.%s" (index $infraServices "region") (index $infraServices "dns_main_domain")) }}
@@ -21,12 +22,19 @@ spec:
     targetRevision:  {{ default "HEAD" (index .Values "infra-services" "prometheus_stack_branch") }}
     path: helm/kube-prometheus-stack
     helm:
+{{- if $sharedGateway }}
+      releaseName: kube-prometheus-stack
+{{- end }}
       valueFiles:
         - ../kube-prometheus-stack/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         kube-prometheus-stack:
           grafana:
+{{- if $sharedGateway }}
+            service:
+              type: ClusterIP
+{{- end }}
             plugins:
               - flant-statusmap-panel
               - grafana-clock-panel
@@ -53,7 +61,7 @@ spec:
                     cpu: 50m
                     memory: 100Mi
             ingress:
-              enabled: true
+              enabled: {{ not $sharedGateway }}
               ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}
               annotations:
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "grafana" "host" $grafanaIngressHost "managedCertificateName" "grafana" "frontendConfigName" "grafana") | nindent 16 }}
@@ -86,6 +94,14 @@ spec:
             serviceMonitor:
               enabled: false
           prometheus:
+{{- if $sharedGateway }}
+            ingress:
+              enabled: false
+            service:
+              type: ClusterIP
+            thanosServiceExternal:
+              enabled: false
+{{- end }}
             tls:
               enabled: false
             prometheusSpec:        
@@ -95,9 +111,20 @@ spec:
               serviceMonitorSelector: {}
               serviceMonitorSelectorNilUsesHelmValues: false
           prometheusOperator:
+{{- if $sharedGateway }}
+            service:
+              type: ClusterIP
+{{- end }}
             admissionWebhooks:
               patch:
                 enabled: true 
+{{- if $sharedGateway }}
+          alertmanager:
+            ingress:
+              enabled: false
+            service:
+              type: ClusterIP
+{{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
