@@ -68,19 +68,17 @@ spec:
 {{- if eq $cloud "azure" }}
           podLabels:
             azure.workload.identity/use: "true"
-          azure:
-            useWorkloadIdentityExtension: true
-            subscriptionId: {{ index $infraServices "azure_subscription_id" }}
-            tenantId: {{ index $infraServices "azure_tenant_id" }}
-            resourceGroup: {{ index $infraServices "dns_resource_group" }}
-          extraVolumes:
-            - name: azure-config
-              secret:
-                secretName: external-dns-azure-config
-          extraVolumeMounts:
-            - name: azure-config
-              mountPath: /etc/kubernetes
-              readOnly: true
+          secretConfiguration:
+            enabled: true
+            mountPath: /etc/kubernetes
+            data:
+              azure.json: |
+                {
+                  "subscriptionId": "{{ index $infraServices "azure_subscription_id" }}",
+                  "resourceGroup": "{{ index $infraServices "dns_resource_group" }}",
+                  "tenantId": "{{ index $infraServices "azure_tenant_id" }}",
+                  "useWorkloadIdentityExtension": true
+                }
           txtOwnerId: {{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}
 {{- else }}
           txtOwnerId: {{ index .Values "infra-services" "environment" }}-{{ index .Values "infra-services" "region" }}-{{ ternary (index $infraServices "dns_managed_zone") (index $infraServices "dns_hosted_zone") (eq $cloud "gcp") }}

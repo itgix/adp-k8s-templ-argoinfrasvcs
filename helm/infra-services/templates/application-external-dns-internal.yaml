@@ -31,11 +31,17 @@ spec:
               azure.workload.identity/client-id: "{{ index $infraServices "workload_dns_identity_client_id" }}"
           podLabels:
             azure.workload.identity/use: "true"
-          azure:
-            useWorkloadIdentityExtension: true
-            subscriptionId: {{ index $infraServices "azure_subscription_id" }}
-            tenantId: {{ index $infraServices "azure_tenant_id" }}
-            resourceGroup: {{ index $infraServices "dns_internal_resource_group" }}
+          secretConfiguration:
+            enabled: true
+            mountPath: /etc/kubernetes
+            data:
+              azure.json: |
+                {
+                  "subscriptionId": "{{ index $infraServices "azure_subscription_id" }}",
+                  "resourceGroup": "{{ index $infraServices "dns_internal_resource_group" }}",
+                  "tenantId": "{{ index $infraServices "azure_tenant_id" }}",
+                  "useWorkloadIdentityExtension": true
+                }
           txtOwnerId: {{ index $infraServices "environment" }}-{{ index $infraServices "region" }}-internal
   destination:
     server: 'https://kubernetes.default.svc'
