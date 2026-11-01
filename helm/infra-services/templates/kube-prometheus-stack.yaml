@@ -56,7 +56,12 @@ spec:
               enabled: true
               ingressClassName: {{ if eq $cloud "stackit" }}stackit-alb{{ else }}{{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}{{ end }}
               annotations:
+{{- if eq $cloud "stackit" }}
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+                external-dns.alpha.kubernetes.io/hostname: {{ $grafanaIngressHost }}
+{{- else }}
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "grafana" "host" $grafanaIngressHost "managedCertificateName" "grafana" "frontendConfigName" "grafana") | nindent 16 }}
+{{- end }}
               hosts:
                 - {{ $grafanaIngressHost }}
               path: /
