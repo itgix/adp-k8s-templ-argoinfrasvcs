@@ -62,6 +62,7 @@ spec:
               path: /
               port: 80
 {{- if eq $cloud "stackit" }}
+              ingressClassName: stackit-alb
               tls:
                 - secretName: grafana-tls
                   hosts:
