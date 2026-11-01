@@ -54,7 +54,7 @@ spec:
                     memory: 100Mi
             ingress:
               enabled: true
-              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}
+              ingressClassName: {{ if eq $cloud "stackit" }}stackit-alb{{ else }}{{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}{{ end }}
               annotations:
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "grafana" "host" $grafanaIngressHost "managedCertificateName" "grafana" "frontendConfigName" "grafana") | nindent 16 }}
               hosts:
