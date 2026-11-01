@@ -62,15 +62,14 @@ spec:
               path: /
               port: 80
 {{- if eq $cloud "stackit" }}
-            service:
-              type: LoadBalancer
-              annotations:
-                external-dns.alpha.kubernetes.io/exclude: "true"
-            ingress:
               tls:
                 - secretName: grafana-tls
                   hosts:
                     - {{ $grafanaIngressHost }}
+            service:
+              type: LoadBalancer
+              annotations:
+                external-dns.alpha.kubernetes.io/exclude: "true"
 {{- end }}
           defaultRules:
             rules:
