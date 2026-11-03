@@ -7,8 +7,8 @@ hosts:                           # OIDC client hosts, set inline; empty grafana 
   argocd: ""
   grafana: ""
 
-database:                        # CNPG Cluster keycloak-db
-  instances: 1                   # inline 2 when enable_keycloak_ha
+database:
+  instances: 1 
   imageName: ghcr.io/cloudnative-pg/postgresql:17.11   # KC 26.8 supports PG 14-18
   storageSize: 5Gi
   resources:

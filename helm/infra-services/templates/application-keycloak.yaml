@@ -30,7 +30,7 @@ spec:
 {{- end }}
 {{- if index $infraServices "enable_keycloak_ha" }}
         database:
-          instances: 2
+          instances: 3
 {{- end }}
         keycloakx:
           hostname: {{ $keycloakIngressHost }}
