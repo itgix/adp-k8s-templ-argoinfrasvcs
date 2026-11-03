@@ -1,0 +1,35 @@
+{{- $users := index (default dict (index .Values "infra-services")) "backstage_users" | default dict }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-catalog-org
+  namespace: backstage
+data:
+  org.yaml: |
+    # Generated from the backstage_users idp config key. Do not edit.
+    apiVersion: backstage.io/v1alpha1
+    kind: Group
+    metadata:
+      name: admins
+    spec:
+      type: team
+      children: []
+{{- range $name, $u := $users }}
+{{- $u = default dict $u }}
+    ---
+    apiVersion: backstage.io/v1alpha1
+    kind: User
+    metadata:
+      name: {{ $name }}
+    spec:
+      memberOf: [admins]
+{{- if or $u.displayName $u.email }}
+      profile:
+{{- with $u.displayName }}
+        displayName: {{ . | quote }}
+{{- end }}
+{{- with $u.email }}
+        email: {{ . | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -7,6 +7,16 @@ backstage:
       - backstage-secrets
       - backstage-postgresql
 
+
+    extraVolumes:
+      - name: catalog-org
+        configMap:
+          name: backstage-catalog-org
+    extraVolumeMounts:
+      - name: catalog-org
+        mountPath: /app/catalog-org
+        readOnly: true
+
     appConfig:
       app:
         title: Backstage
@@ -88,6 +98,7 @@ backstage:
 
       catalog:
         logLevel: debug
+        orphanStrategy: delete
         locations:
           # Scaffolder forms, registered one by one.
           - type: url
@@ -105,7 +116,7 @@ backstage:
             rules:
               - allow: [Location, Template]
           - type: file
-            target: ./examples/org.yaml
+            target: /app/catalog-org/org.yaml
             rules:
               - allow: [User, Group]
 

@@ -35,7 +35,7 @@ spec:
             image:
               registry: {{ $backstageImageRegistry }}
               repository: {{ index $infraServices "backstage_image_repository" | default "itgix/itgix-adp-backstage" }}
-              tag: {{ index $infraServices "backstage_image_tag" | default "v1.3.0" }}
+              tag: {{ index $infraServices "backstage_image_tag" | default "v1.3.1" }}
             extraEnvVars:
               - name: CLOUD_REGION
                 value: {{ index $infraServices "region" | quote }}
@@ -63,12 +63,30 @@ spec:
 
             extraEnvVarsSecrets:
               - backstage-secrets
-{{- if index .Values "infra-services" "enable_guest_login" }}
+            podAnnotations:
+              checksum/catalog-org: {{ index $infraServices "backstage_users" | default dict | toJson | sha256sum }}
+{{- $guestLogin := index $infraServices "enable_guest_login" }}
+{{- $githubOrg := index $infraServices "backstage_github_org" }}
+{{- if or $guestLogin $githubOrg }}
             appConfig:
+{{- if $guestLogin }}
               auth:
                 providers:
                   guest:
                     dangerouslyAllowOutsideDevelopment: true
+{{- end }}
+{{- with $githubOrg }}
+              catalog:
+                providers:
+                  githubOrg:
+                    - id: {{ . | quote }}
+                      githubUrl: https://github.com
+                      orgs: [{{ . | quote }}]
+                      schedule:
+                        frequency: { minutes: 30 }
+                        timeout: { minutes: 5 }
+                        initialDelay: { seconds: 30 }
+{{- end }}
 {{- end }}
           ingress:
             enabled: true
