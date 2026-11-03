@@ -1,5 +1,4 @@
 {{- $facts := default dict (index .Values "infra-services") }}
-# Realm-as-code, applied by the keycloak-config-cli Job. $(env:...) values come from the Job env.
 apiVersion: v1
 kind: ConfigMap
 metadata:

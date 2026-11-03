@@ -54,8 +54,8 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - SkipDryRunOnMissingResource=true   # CNPG/ESO CRDs may not exist on the first sync
-    retry:                                 # app-of-apps waves don't wait for child health
+      - SkipDryRunOnMissingResource=true
+    retry:
       limit: 10
       backoff:
         duration: 30s

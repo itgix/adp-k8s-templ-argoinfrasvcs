@@ -64,13 +64,13 @@ spec:
 {{- if index $infraServices "enable_keycloak" }}
 {{- $keycloakIssuer := include "infra-services.keycloakIssuer" (dict "infraServices" $infraServices) }}
             envFromSecrets:
-              - name: grafana-oidc-keycloak   # GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET, copied by helm/keycloak
-                optional: false               # pod waits for the secret instead of starting without it
+              - name: grafana-oidc-keycloak
+                optional: false
             grafana.ini:
               server:
                 root_url: https://{{ $grafanaIngressHost }}/
               auth:
-                disable_login_form: false     # local admin stays as break-glass
+                disable_login_form: false
               auth.generic_oauth:
                 enabled: true
                 name: Keycloak

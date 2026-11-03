@@ -1,4 +1,3 @@
-# CNPG creates the secret keycloak-db-app (username, password, ...) that Keycloak reads.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:

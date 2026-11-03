@@ -22,7 +22,7 @@ spec:
             capabilities:
               drop: ["ALL"]
           env:
-            - name: KEYCLOAK_URL   # release name must be keycloak (the Argo app name)
+            - name: KEYCLOAK_URL
               value: http://keycloak-keycloakx-http.{{ .Release.Namespace }}.svc
             - name: KEYCLOAK_USER
               valueFrom:
