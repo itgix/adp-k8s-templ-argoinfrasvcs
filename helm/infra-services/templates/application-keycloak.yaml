@@ -52,14 +52,14 @@ spec:
 {{- else }}
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "keycloak" "host" $keycloakIngressHost) | nindent 14 }}
 {{- end }}
+{{- if eq $cloud "stackit" }}
+            tls:
+              - secretName: keycloak-tls
+                hosts:
+                  - {{ $keycloakIngressHost }}
+{{- end }}
           serviceMonitor:
             enabled: {{ index $infraServices "enable_prometheus_stack" | default false }}
-{{- if eq $cloud "stackit" }}
-          tls:
-            - secretName: keycloak-tls
-              hosts:
-                - {{ $keycloakIngressHost }}
-{{- end }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: keycloak
