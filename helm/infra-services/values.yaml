@@ -31,7 +31,7 @@ infra-services:
   enable_keycloak_ha: false
   enable_keycloak_external_db: false
   keycloak_realm: adp
-
+  enable_traefik: false
   # Shared ingress defaults. Each map is merged from broadest to most specific:
   # ingress_annotations, <cloud>_ingress_annotations, <app>_ingress_annotations.
   ingress_class_name: ""
