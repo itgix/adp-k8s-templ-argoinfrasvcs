@@ -1,3 +1,4 @@
+{{- if .Values.database.enabled }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -16,3 +17,4 @@ spec:
       owner: keycloak
   resources:
     {{- toYaml .Values.database.resources | nindent 4 }}
+{{- end }}

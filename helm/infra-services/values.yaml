@@ -28,6 +28,7 @@ infra-services:
   enable_vault_ha: false
   enable_keycloak: false
   enable_keycloak_ha: false
+  enable_keycloak_external_db: false
   keycloak_realm: adp
 
   # Shared ingress defaults. Each map is merged from broadest to most specific:
