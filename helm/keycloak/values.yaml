@@ -4,7 +4,8 @@ hosts:
   grafana: ""
 
 database:
-  instances: 1 
+  enabled: true
+  instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:17.11
   storageSize: 5Gi
   resources:

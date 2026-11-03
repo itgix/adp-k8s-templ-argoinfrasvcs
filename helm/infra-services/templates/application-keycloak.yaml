@@ -28,7 +28,10 @@ spec:
 {{- if index $infraServices "enable_prometheus_stack" }}
           grafana: {{ $grafanaIngressHost }}
 {{- end }}
-{{- if index $infraServices "enable_keycloak_ha" }}
+{{- if index $infraServices "enable_keycloak_external_db" }}
+        database:
+          enabled: false
+{{- else if index $infraServices "enable_keycloak_ha" }}
         database:
           instances: 3
 {{- end }}
