@@ -1,0 +1,78 @@
+realm: adp
+hosts:
+  argocd: ""
+  grafana: ""
+
+database:
+  instances: 1 
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11
+  storageSize: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+configCli:
+  image: docker.io/adorsys/keycloak-config-cli:6.5.1-26.5.5
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+keycloakx:
+  hostname: ""
+  replicas: 1
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+    - "start"
+    - "--http-port=8080"
+  http:
+    relativePath: "/"
+  proxy:
+    enabled: true
+    mode: xforwarded
+  database:
+    vendor: postgres
+    hostname: keycloak-db-rw
+    port: 5432
+    database: keycloak
+    username: keycloak
+    existingSecret: keycloak-db-app
+    existingSecretKey: password
+  dbchecker:
+    enabled: true
+  extraEnv: |
+    - name: KC_HOSTNAME
+      value: https://{{ .Values.hostname }}
+    - name: KC_BOOTSTRAP_ADMIN_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: username
+    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: password
+  resources:
+    requests:
+      cpu: 250m
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 1536Mi
+  ingress:
+    enabled: true
+    rules:
+      - host: '{{ .Values.hostname }}'
+        paths:
+          - path: /
+            pathType: Prefix
+  serviceMonitor:
+    enabled: false

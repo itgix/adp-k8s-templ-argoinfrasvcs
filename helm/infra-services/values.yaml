@@ -26,6 +26,9 @@ infra-services:
   enable_guest_login: false
   enable_vault: false
   enable_vault_ha: false
+  enable_keycloak: false
+  enable_keycloak_ha: false
+  keycloak_realm: adp
 
   # Shared ingress defaults. Each map is merged from broadest to most specific:
   # ingress_annotations, <cloud>_ingress_annotations, <app>_ingress_annotations.
