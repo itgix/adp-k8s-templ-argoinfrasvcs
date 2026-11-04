@@ -1,0 +1,15 @@
+#Required variables
+infra-services:
+  aws_account_id: ""
+  environment: ""
+  region: ""
+  eks_cluster_name: ""
+
+external-secrets:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 1
+      memory: 128Mi
