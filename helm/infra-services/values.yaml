@@ -47,6 +47,10 @@ infra-services:
   vault_ingress_annotations: {}
   gcp_ingress_managed_certificates_enabled: true
   gcp_ingress_https_redirect_enabled: true
+  # Opt-in: requires matching Terraform and installer support
+  gcp_shared_gateway_enabled: false
+  gcp_gateway_address_name: ""
+  gcp_gateway_certificate_map: ""
   service_account_annotations: {}
   aws_service_account_annotations: {}
   gcp_service_account_annotations: {}
