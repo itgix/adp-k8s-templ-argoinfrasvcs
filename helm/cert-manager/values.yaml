@@ -24,7 +24,7 @@ cert-manager:
 
 defaultAcmeIssuer:
   enabled: false
-  name: letsencrypt-prod
+  name: letsencrypt
   email: ""
   server: https://acme-v02.api.letsencrypt.org/directory
   ingressClassName: ""

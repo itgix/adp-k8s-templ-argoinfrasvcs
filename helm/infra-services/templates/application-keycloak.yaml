@@ -47,7 +47,7 @@ spec:
             ingressClassName: {{ if eq $cloud "stackit" }}stackit-alb{{ else }}{{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "keycloak") }}{{ end }}
             annotations:
 {{- if eq $cloud "stackit" }}
-              cert-manager.io/cluster-issuer: letsencrypt-prod
+              cert-manager.io/cluster-issuer: letsencrypt
               external-dns.alpha.kubernetes.io/hostname: {{ $keycloakIngressHost }}
 {{- else }}
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "keycloak" "host" $keycloakIngressHost) | nindent 14 }}
