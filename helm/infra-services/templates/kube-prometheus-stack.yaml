@@ -54,13 +54,28 @@ spec:
                     memory: 100Mi
             ingress:
               enabled: true
-              ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}
+              ingressClassName: {{ if eq $cloud "stackit" }}stackit-alb{{ else }}{{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "grafana") }}{{ end }}
               annotations:
+{{- if eq $cloud "stackit" }}
+                cert-manager.io/cluster-issuer: letsencrypt
+                external-dns.alpha.kubernetes.io/hostname: {{ $grafanaIngressHost }}
+{{- else }}
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "grafana" "host" $grafanaIngressHost "managedCertificateName" "grafana" "frontendConfigName" "grafana") | nindent 16 }}
+{{- end }}
               hosts:
                 - {{ $grafanaIngressHost }}
               path: /
               port: 80
+{{- if eq $cloud "stackit" }}
+              tls:
+                - secretName: grafana-tls
+                  hosts:
+                    - {{ $grafanaIngressHost }}
+            service:
+              type: LoadBalancer
+              annotations:
+                external-dns.alpha.kubernetes.io/exclude: "true"
+{{- end }}
 {{- if index $infraServices "enable_keycloak" }}
 {{- $keycloakIssuer := include "infra-services.keycloakIssuer" (dict "infraServices" $infraServices) }}
             envFromSecrets:

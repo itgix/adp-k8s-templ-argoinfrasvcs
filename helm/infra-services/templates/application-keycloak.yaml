@@ -1,5 +1,6 @@
 {{- if index .Values "infra-services" "enable_keycloak" }}
 {{- $infraServices := index .Values "infra-services" }}
+{{- $cloud := default "aws" (index $infraServices "cloud") }}
 {{- $keycloakIngressHost := include "infra-services.keycloakHost" (dict "infraServices" $infraServices) }}
 {{- $argocdHost := printf "%s-%s-argocd-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain") }}
 {{- $grafanaIngressHost := index $infraServices "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
@@ -43,9 +44,20 @@ spec:
             maxUnavailable: 1
 {{- end }}
           ingress:
-            ingressClassName: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "keycloak") }}
+            ingressClassName: {{ if eq $cloud "stackit" }}stackit-alb{{ else }}{{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "keycloak") }}{{ end }}
             annotations:
+{{- if eq $cloud "stackit" }}
+              cert-manager.io/cluster-issuer: letsencrypt
+              external-dns.alpha.kubernetes.io/hostname: {{ $keycloakIngressHost }}
+{{- else }}
 {{ include "infra-services.ingressAnnotations" (dict "infraServices" $infraServices "app" "keycloak" "host" $keycloakIngressHost) | nindent 14 }}
+{{- end }}
+{{- if eq $cloud "stackit" }}
+            tls:
+              - secretName: keycloak-tls
+                hosts:
+                  - {{ $keycloakIngressHost }}
+{{- end }}
           serviceMonitor:
             enabled: {{ index $infraServices "enable_prometheus_stack" | default false }}
   destination:
