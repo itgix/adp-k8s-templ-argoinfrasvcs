@@ -3,6 +3,7 @@ infra-services:
   aws_loadbalancer_enabled: true
   external_dns_enabled: true
   external_secrets_enabled: true
+  external_secrets_custom_enabled: false
   enable_karpenter: true
   enable_metrics_server: true
   enable_vpa: false
@@ -24,13 +25,14 @@ infra-services:
   enable_efs_csi: false
   backstage_enabled: false
   enable_guest_login: false
+  enable_stackit_lb_controller: false
   enable_vault: false
   enable_vault_ha: false
   enable_keycloak: false
   enable_keycloak_ha: false
   enable_keycloak_external_db: false
   keycloak_realm: adp
-
+  enable_traefik: false
   # Shared ingress defaults. Each map is merged from broadest to most specific:
   # ingress_annotations, <cloud>_ingress_annotations, <app>_ingress_annotations.
   ingress_class_name: ""

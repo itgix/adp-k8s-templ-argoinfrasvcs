@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: {{ .Values.ingressClass.name }}
+  labels:
+    {{- include "albc.labels" . | nindent 4 }}
+  annotations:
+    alb.stackit.cloud/network-mode: {{ .Values.ingressClass.networkMode | quote }}
+    {{- if .Values.ingressClass.internal }}
+    alb.stackit.cloud/internal-alb: "true"
+    {{- end }}
+    {{- if .Values.ingressClass.externalAddress }}
+    alb.stackit.cloud/external-address: {{ .Values.ingressClass.externalAddress | quote }}
+    {{- end }}
+    {{- if .Values.ingressClass.planId }}
+    alb.stackit.cloud/plan-id: {{ .Values.ingressClass.planId | quote }}
+    {{- end }}
+    {{- if .Values.ingressClass.wafName }}
+    alb.stackit.cloud/web-application-firewall-name: {{ .Values.ingressClass.wafName | quote }}
+    {{- end }}
+    {{- if .Values.ingressClass.allowedSourceRanges }}
+    alb.stackit.cloud/allowed-source-ranges: {{ .Values.ingressClass.allowedSourceRanges | quote }}
+    {{- end }}
+spec:
+  controller: stackit.cloud/alb-ingress
