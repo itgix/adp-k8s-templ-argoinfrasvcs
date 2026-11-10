@@ -123,8 +123,20 @@ spec:
               serviceMonitorSelectorNilUsesHelmValues: false
           prometheusOperator:
             admissionWebhooks:
+              annotations:
+                argocd.argoproj.io/hook: PreSync
+                argocd.argoproj.io/hook-delete-policy: HookSucceeded
               patch:
-                enabled: true 
+                enabled: true
+                annotations:
+                  argocd.argoproj.io/hook: PreSync
+                  argocd.argoproj.io/hook-delete-policy: HookSucceeded
+              mutatingWebhookConfiguration:
+                annotations:
+                  argocd.argoproj.io/hook: PreSync
+              validatingWebhookConfiguration:
+                annotations:
+                  argocd.argoproj.io/hook: PreSync
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: monitoring
@@ -145,5 +157,11 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - PruneLast=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
   revisionHistoryLimit: 3
 {{- end }}
