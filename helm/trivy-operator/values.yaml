@@ -839,5 +839,7 @@ trivy-operator:
     podSecurityContext:
       runAsUser: 10000
       fsGroup: 10000
-  grafanaDashboard:
-    enabled: true
+
+# Wrapper-chart option (not part of the upstream trivy-operator chart): render the Grafana dashboard ConfigMap.
+grafanaDashboard:
+  enabled: true
