@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/stackitcloud/application-load-balancer-controller
+  tag: latest
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+namespace: stackit-lb-controller
+
+args:
+  cloudConfigPath: /etc/config/cloud.yaml
+  leaderElect: true
+  healthProbeBindAddress: ":8081"
+  metricsBindAddress: ":8080"
+  zapLogLevel: info
+
+cloudConfig:
+  region: ""
+  projectId: ""
+  networkId: ""
+
+cloudSecret:
+  # Name of an existing Secret with sa_key.json key
+  existingSecret: stackit-cloud-secret
+  saKeySecretName: alb-controller-sa-key
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+serviceAccount:
+  create: true
+  name: ""
+
+ingressClass:
+  name: stackit-alb
+  networkMode: NodePort
+  internal: false
+  externalAddress: ""
+  planId: ""
+  wafName: ""
+  allowedSourceRanges: ""

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "albc.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "albc.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "albc.fullname" . }}
+  template:
+    metadata:
+      labels:
+        {{- include "albc.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "albc.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: manager
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --cloud-config={{ .Values.args.cloudConfigPath }}
+            - --leader-elect={{ .Values.args.leaderElect }}
+            - --leader-election-namespace={{ .Values.namespace }}
+            - --health-probe-bind-address={{ .Values.args.healthProbeBindAddress }}
+            - --metrics-bind-address={{ .Values.args.metricsBindAddress }}
+            - --zap-log-level={{ .Values.args.zapLogLevel }}
+          env:
+            - name: STACKIT_SERVICE_ACCOUNT_KEY_PATH
+              value: /etc/serviceaccount/sa_key.json
+          ports:
+            - name: metrics
+              containerPort: 8080
+              protocol: TCP
+            - name: probes
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: probes
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: probes
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - mountPath: /etc/config
+              name: cloud-config
+            - mountPath: /etc/serviceaccount
+              name: cloud-secret
+      volumes:
+        - name: cloud-config
+          configMap:
+            name: {{ include "albc.fullname" . }}-cloud-config
+        - name: cloud-secret
+          secret:
+            secretName: {{ .Values.cloudSecret.existingSecret }}

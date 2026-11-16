@@ -1,0 +1,38 @@
+{{- $cloud := default "aws" (index .Values "infra-services" "cloud") -}}
+{{- if and (eq $cloud "stackit") (index .Values "infra-services" "enable_stackit_lb_controller") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stackit-lb-controller
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision: {{ default "HEAD" (index .Values "infra-services" "stackit_lb_controller_branch") }}
+    path: helm/stackit-lb-controller
+    helm:
+      valueFiles:
+        - ../stackit-lb-controller/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        cloudConfig:
+          region: {{ index .Values "infra-services" "stackit_region" }}
+          projectId: {{ index .Values "infra-services" "project_id" }}
+          networkId: {{ index .Values "infra-services" "network_id" }}
+        cloudSecret:
+          saKeySecretName: {{ index .Values "infra-services" "alb_controller_sa_key_secret_name" | default "alb-controller-sa-key" }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: stackit-lb-controller
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}
