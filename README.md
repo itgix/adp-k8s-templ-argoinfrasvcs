@@ -107,7 +107,7 @@ hostnames and missing Terraform address/map outputs fail rendering.
 Routes use standard release/service names (`argocd-server`, `backstage`,
 `policy-reporter-ui`, `kube-prometheus-stack-grafana`,
 `kube-prometheus-stack-prometheus`, `kube-prometheus-stack-alertmanager`). Custom
-fullname/port overrides require matching route and health-check changes. Keep
+fullname/port overrides require matching `gcp_gateway_backends` settings. Keep
 the Backstage image's readiness endpoint compatible with
 `/.backstage/health/v1/readiness`. Service Applications are submitted before the
 networking sync wave. Namespaces receive `Prune=false` to avoid deleting workloads
@@ -123,6 +123,65 @@ This is a load-balancer replacement for existing deployments. Review Terraform
 first, wait for certificate provisioning, remove old GCE ingresses, and then sync
 the Gateway routes. GKE does not allow a Service to be used simultaneously by its
 Ingress and Gateway controllers. Traffic may be interrupted during migration.
+
+### Optional Per-Service Gateway Overrides
+
+Only enabled services receive routes and health checks. No backend settings are
+required for disabled services. In the installer YAML (or under `infra-services`
+when using this chart directly), configure only what an enabled service needs:
+
+```yaml
+gcp_gateway_backends:
+  grafana:
+    service_name: custom-grafana
+```
+
+Omit the map entirely if enabled services use their standard chart settings.
+This example changes only Grafana's backend reference; it does not enable Grafana
+or any other service. ArgoCD remains the core route. `enable_prometheus_stack`
+deploys the monitoring stack and exposes Grafana; Prometheus and Alertmanager
+stay private unless their explicit ingress host settings are supplied. Routing
+settings do not disable the monitoring stack's internal workloads.
+
+Shared settings `gcp_gateway_name`, `gcp_gateway_namespace`, and
+`gcp_gateway_class_name` are optional as well.
+The Gateway, redirect route, allowed namespaces and all route parentRefs follow
+the configured name/namespace. Partial backend overrides merge by application
+key; omitted fields retain these defaults:
+
+| Backend key | Namespace | Service | Service port | Health port | Health path |
+|---|---|---|---|---|---|
+| `argocd` | `argocd` | `argocd-server` | 80 | 8080 | `/healthz` |
+| `backstage` | `backstage` | `backstage` | 7007 | 7007 | `/.backstage/health/v1/readiness` |
+| `policy_reporter` | `kyverno` | `policy-reporter-ui` | 8080 | 8080 | `/` |
+| `grafana` | `monitoring` | `kube-prometheus-stack-grafana` | 80 | 3000 | `/api/health` |
+| `prometheus` | `monitoring` | `kube-prometheus-stack-prometheus` | 9090 | 9090 | `/-/healthy` |
+| `alertmanager` | `monitoring` | `kube-prometheus-stack-alertmanager` | 9093 | 9093 | `/-/healthy` |
+
+Backend fields are `namespace`, `service_name`, `service_port`,
+`health_check_port`, and `health_check_path`. The Service and HealthCheckPolicy
+references and their namespace change together. Overrides do not enable disabled
+services, expose Prometheus/Alertmanager without their explicit hostname settings,
+rename/move Helm releases, or change application listening ports. Align the
+existing per-chart Helm overrides separately, or target another already-deployed
+Service. ArgoCD itself still installs in `argocd`; the Gateway namespace is
+independent. When adding custom routes, reference the configured Gateway rather
+than the default `argocd/adp-shared`.
+
+The installer must whitelist `gcp_gateway_backends` when emitting infra-facts.
+Unknown keys, malformed names, non-integer/out-of-range ports and health paths
+without a leading slash fail early in the installer and also during Helm rendering.
+Class names must support a global NamedAddress, Certificate Manager map, HTTP
+redirects, GKE HealthCheckPolicies and Service backends. Other built-in GKE
+regional/classic/multi-cluster classes are rejected because this setup does not
+provide their infrastructure or backend kinds. Custom classes must already exist
+and implement the required capabilities; selecting a class does not install its
+controller. HTTP/HTTPS listener ports remain 80/443. The HTTP redirect deliberately
+omits the unsupported explicit redirect-port field.
+
+The separate installer setting `gcp_gateway_dns_ttl` configures Terraform's
+wildcard A and authorization CNAME TTL (default 300 seconds), not this chart.
+Overrides are GCP shared-mode only; AWS, Azure, and legacy GCP rendering are unchanged.
 
 ## Kafka operator (Strimzi)
 

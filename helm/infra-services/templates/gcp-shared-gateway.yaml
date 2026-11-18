@@ -1,17 +1,24 @@
 {{- $infra := index .Values "infra-services" -}}
 {{- if and (eq (default "aws" (index $infra "cloud")) "gcp") (index $infra "gcp_shared_gateway_enabled") -}}
+{{- include "infra-services.validateGatewayOverrides" $infra -}}
+{{- $gatewayName := index $infra "gcp_gateway_name" -}}
+{{- $gatewayNamespace := index $infra "gcp_gateway_namespace" -}}
 {{- $domain := trimSuffix "." (required "dns_main_domain is required for the shared GCP Gateway" (index $infra "dns_main_domain")) -}}
 {{- $address := required "gcp_gateway_address_name must come from Terraform outputs" (index $infra "gcp_gateway_address_name") -}}
 {{- $certificateMap := required "gcp_gateway_certificate_map must come from Terraform outputs" (index $infra "gcp_gateway_certificate_map") -}}
 {{- $routes := list
-  (dict "enabled" true "name" "argocd" "namespace" "argocd" "host" (printf "%s-%s-argocd-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain) "service" "argocd-server" "port" 80 "healthPort" 8080 "healthPath" "/healthz")
-  (dict "enabled" (index $infra "backstage_enabled") "name" "backstage" "namespace" "backstage" "host" (index $infra "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service" "backstage" "port" 7007 "healthPort" 7007 "healthPath" "/.backstage/health/v1/readiness")
-  (dict "enabled" (index $infra "enable_policy_reporter") "name" "policy-reporter" "namespace" "kyverno" "host" (index $infra "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infra "project_name") (index $infra "environment") (index $infra "region") $domain)) "service" "policy-reporter-ui" "port" 8080 "healthPort" 8080 "healthPath" "/")
-  (dict "enabled" (index $infra "enable_prometheus_stack") "name" "grafana" "namespace" "monitoring" "host" (index $infra "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service" "kube-prometheus-stack-grafana" "port" 80 "healthPort" 3000 "healthPath" "/api/health")
-  (dict "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "prometheus_ingress_host")) "name" "prometheus" "namespace" "monitoring" "host" (index $infra "prometheus_ingress_host") "service" "kube-prometheus-stack-prometheus" "port" 9090 "healthPort" 9090 "healthPath" "/-/healthy")
-  (dict "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "alertmanager_ingress_host")) "name" "alertmanager" "namespace" "monitoring" "host" (index $infra "alertmanager_ingress_host") "service" "kube-prometheus-stack-alertmanager" "port" 9093 "healthPort" 9093 "healthPath" "/-/healthy")
+  (dict "key" "argocd" "enabled" true "name" "argocd" "namespace" "argocd" "host" (printf "%s-%s-argocd-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain) "service_name" "argocd-server" "service_port" 80 "health_check_port" 8080 "health_check_path" "/healthz")
+  (dict "key" "backstage" "enabled" (index $infra "backstage_enabled") "name" "backstage" "namespace" "backstage" "host" (index $infra "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service_name" "backstage" "service_port" 7007 "health_check_port" 7007 "health_check_path" "/.backstage/health/v1/readiness")
+  (dict "key" "policy_reporter" "enabled" (index $infra "enable_policy_reporter") "name" "policy-reporter" "namespace" "kyverno" "host" (index $infra "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infra "project_name") (index $infra "environment") (index $infra "region") $domain)) "service_name" "policy-reporter-ui" "service_port" 8080 "health_check_port" 8080 "health_check_path" "/")
+  (dict "key" "grafana" "enabled" (index $infra "enable_prometheus_stack") "name" "grafana" "namespace" "monitoring" "host" (index $infra "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service_name" "kube-prometheus-stack-grafana" "service_port" 80 "health_check_port" 3000 "health_check_path" "/api/health")
+  (dict "key" "prometheus" "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "prometheus_ingress_host")) "name" "prometheus" "namespace" "monitoring" "host" (index $infra "prometheus_ingress_host") "service_name" "kube-prometheus-stack-prometheus" "service_port" 9090 "health_check_port" 9090 "health_check_path" "/-/healthy")
+  (dict "key" "alertmanager" "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "alertmanager_ingress_host")) "name" "alertmanager" "namespace" "monitoring" "host" (index $infra "alertmanager_ingress_host") "service_name" "kube-prometheus-stack-alertmanager" "service_port" 9093 "health_check_port" 9093 "health_check_path" "/-/healthy")
 -}}
-{{- $namespaces := dict -}}
+{{- $backendOverrides := index $infra "gcp_gateway_backends" -}}
+{{- range $route := $routes -}}
+{{- $_ := mergeOverwrite $route (deepCopy (default dict (index $backendOverrides $route.key))) -}}
+{{- end -}}
+{{- $namespaces := dict $gatewayNamespace true -}}
 {{- $hosts := dict -}}
 {{- range $route := $routes -}}
 {{- if $route.enabled -}}
@@ -41,13 +48,13 @@ metadata:
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: adp-shared
-  namespace: argocd
+  name: {{ $gatewayName }}
+  namespace: {{ $gatewayNamespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "3"
     networking.gke.io/certmap: {{ $certificateMap | quote }}
 spec:
-  gatewayClassName: gke-l7-global-external-managed
+  gatewayClassName: {{ index $infra "gcp_gateway_class_name" }}
   addresses:
     - type: NamedAddress
       value: {{ $address | quote }}
@@ -74,13 +81,13 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: adp-https-redirect
-  namespace: argocd
+  namespace: {{ $gatewayNamespace }}
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   parentRefs:
-    - name: adp-shared
-      namespace: argocd
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
       sectionName: http
   hostnames:
     - {{ printf "*.%s" $domain | quote }}
@@ -102,8 +109,8 @@ metadata:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   parentRefs:
-    - name: adp-shared
-      namespace: argocd
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
       sectionName: https
   hostnames:
     - {{ $route.host | quote }}
@@ -113,8 +120,8 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: {{ $route.service }}
-          port: {{ $route.port }}
+        - name: {{ $route.service_name }}
+          port: {{ $route.service_port | int }}
 ---
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
@@ -129,12 +136,12 @@ spec:
       type: HTTP
       httpHealthCheck:
         portSpecification: USE_FIXED_PORT
-        port: {{ $route.healthPort }}
-        requestPath: {{ $route.healthPath | quote }}
+        port: {{ $route.health_check_port | int }}
+        requestPath: {{ $route.health_check_path | quote }}
   targetRef:
     group: ""
     kind: Service
-    name: {{ $route.service }}
+    name: {{ $route.service_name }}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -41,6 +41,10 @@ infra-services:
   gcp_ingress_https_redirect_enabled: true
   # Opt-in: requires matching Terraform and installer support
   gcp_shared_gateway_enabled: false
+  gcp_gateway_name: adp-shared
+  gcp_gateway_namespace: argocd
+  gcp_gateway_class_name: gke-l7-global-external-managed
+  gcp_gateway_backends: {}
   gcp_gateway_address_name: ""
   gcp_gateway_certificate_map: ""
   service_account_annotations: {}
