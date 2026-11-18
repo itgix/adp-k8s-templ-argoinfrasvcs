@@ -1,6 +1,7 @@
 {{- if index .Values "infra-services" "backstage_enabled" }}
 {{- $infraServices := index .Values "infra-services" }}
 {{- $cloud := default "aws" (index $infraServices "cloud") }}
+{{- $sharedGateway := and (eq $cloud "gcp") (index $infraServices "gcp_shared_gateway_enabled") }}
 {{- $backstageIngressHost := index $infraServices "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infraServices "project_name") (index $infraServices "region") (index $infraServices "environment") (index $infraServices "dns_main_domain")) }}
 {{- $backstageImageRegistry := index $infraServices "backstage_image_registry" }}
 {{- if not $backstageImageRegistry }}
@@ -26,11 +27,18 @@ spec:
     targetRevision:  {{ default "HEAD" (index .Values "infra-services" "backstage_branch") }}
     path: helm/backstage
     helm:
+{{- if $sharedGateway }}
+      releaseName: backstage
+{{- end }}
       valueFiles:
         - values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
       values: |
         backstage:
+{{- if $sharedGateway }}
+          service:
+            type: ClusterIP
+{{- end }}
           backstage:
             image:
               registry: {{ $backstageImageRegistry }}
@@ -71,7 +79,7 @@ spec:
                     dangerouslyAllowOutsideDevelopment: true
 {{- end }}
           ingress:
-            enabled: true
+            enabled: {{ not $sharedGateway }}
             className: {{ include "infra-services.ingressClassName" (dict "infraServices" $infraServices "app" "backstage") }}
             host: {{ $backstageIngressHost }}
             annotations:

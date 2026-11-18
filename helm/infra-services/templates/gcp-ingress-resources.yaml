@@ -1,6 +1,6 @@
 {{- $infraServices := index .Values "infra-services" -}}
 {{- $cloud := default "aws" (index $infraServices "cloud") -}}
-{{- if eq $cloud "gcp" -}}
+{{- if and (eq $cloud "gcp") (not (index $infraServices "gcp_shared_gateway_enabled")) -}}
 {{- $managedCertificatesEnabled := true -}}
 {{- if hasKey $infraServices "gcp_ingress_managed_certificates_enabled" -}}
 {{- $managedCertificatesEnabled = index $infraServices "gcp_ingress_managed_certificates_enabled" -}}

@@ -12,6 +12,10 @@ spec:
     helm:
       valueFiles:
       - values.yaml
+{% if gcp_shared_gateway_enabled %}
+      - values/{{ environment }}/{{ region }}/values.generated.yaml
+      - values/{{ environment }}/{{ region }}/values.yaml
+{% endif %}
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

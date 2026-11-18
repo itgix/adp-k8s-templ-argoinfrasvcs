@@ -1,0 +1,147 @@
+{{- $infra := index .Values "infra-services" -}}
+{{- if and (eq (default "aws" (index $infra "cloud")) "gcp") (index $infra "gcp_shared_gateway_enabled") -}}
+{{- include "infra-services.validateGatewayOverrides" $infra -}}
+{{- $gatewayName := index $infra "gcp_gateway_name" -}}
+{{- $gatewayNamespace := index $infra "gcp_gateway_namespace" -}}
+{{- $domain := trimSuffix "." (required "dns_main_domain is required for the shared GCP Gateway" (index $infra "dns_main_domain")) -}}
+{{- $address := required "gcp_gateway_address_name must come from Terraform outputs" (index $infra "gcp_gateway_address_name") -}}
+{{- $certificateMap := required "gcp_gateway_certificate_map must come from Terraform outputs" (index $infra "gcp_gateway_certificate_map") -}}
+{{- $routes := list
+  (dict "key" "argocd" "enabled" true "name" "argocd" "namespace" "argocd" "host" (printf "%s-%s-argocd-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain) "service_name" "argocd-server" "service_port" 80 "health_check_port" 8080 "health_check_path" "/healthz")
+  (dict "key" "backstage" "enabled" (index $infra "backstage_enabled") "name" "backstage" "namespace" "backstage" "host" (index $infra "backstage_ingress_host" | default (printf "%s-%s-backstage-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service_name" "backstage" "service_port" 7007 "health_check_port" 7007 "health_check_path" "/.backstage/health/v1/readiness")
+  (dict "key" "policy_reporter" "enabled" (index $infra "enable_policy_reporter") "name" "policy-reporter" "namespace" "kyverno" "host" (index $infra "policy_reporter_ingress_host" | default (printf "policies-%s-%s-%s.%s" (index $infra "project_name") (index $infra "environment") (index $infra "region") $domain)) "service_name" "policy-reporter-ui" "service_port" 8080 "health_check_port" 8080 "health_check_path" "/")
+  (dict "key" "grafana" "enabled" (index $infra "enable_prometheus_stack") "name" "grafana" "namespace" "monitoring" "host" (index $infra "grafana_ingress_host" | default (printf "%s-%s-grafana-%s.%s" (index $infra "project_name") (index $infra "region") (index $infra "environment") $domain)) "service_name" "kube-prometheus-stack-grafana" "service_port" 80 "health_check_port" 3000 "health_check_path" "/api/health")
+  (dict "key" "prometheus" "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "prometheus_ingress_host")) "name" "prometheus" "namespace" "monitoring" "host" (index $infra "prometheus_ingress_host") "service_name" "kube-prometheus-stack-prometheus" "service_port" 9090 "health_check_port" 9090 "health_check_path" "/-/healthy")
+  (dict "key" "alertmanager" "enabled" (and (index $infra "enable_prometheus_stack") (index $infra "alertmanager_ingress_host")) "name" "alertmanager" "namespace" "monitoring" "host" (index $infra "alertmanager_ingress_host") "service_name" "kube-prometheus-stack-alertmanager" "service_port" 9093 "health_check_port" 9093 "health_check_path" "/-/healthy")
+-}}
+{{- $backendOverrides := index $infra "gcp_gateway_backends" -}}
+{{- range $route := $routes -}}
+{{- $_ := mergeOverwrite $route (deepCopy (default dict (index $backendOverrides $route.key))) -}}
+{{- end -}}
+{{- $namespaces := dict $gatewayNamespace true -}}
+{{- $hosts := dict -}}
+{{- range $route := $routes -}}
+{{- if $route.enabled -}}
+{{- if not (regexMatch (printf "^[^.]+\\.%s$" (regexQuoteMeta $domain)) $route.host) -}}
+{{- fail (printf "%s host %s must be a direct subdomain of %s to use the shared wildcard certificate" $route.name $route.host $domain) -}}
+{{- end -}}
+{{- if hasKey $hosts $route.host -}}
+{{- fail (printf "Duplicate shared Gateway hostname: %s" $route.host) -}}
+{{- end -}}
+{{- $_ := set $hosts $route.host true -}}
+{{- $_ := set $namespaces $route.namespace true -}}
+{{- end -}}
+{{- end -}}
+{{- range $namespace, $_ := $namespaces }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    adp.itgix.com/shared-gateway: "true"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/sync-options: Prune=false
+{{- end }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $gatewayName }}
+  namespace: {{ $gatewayNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    networking.gke.io/certmap: {{ $certificateMap | quote }}
+spec:
+  gatewayClassName: {{ index $infra "gcp_gateway_class_name" }}
+  addresses:
+    - type: NamedAddress
+      value: {{ $address | quote }}
+  listeners:
+    - name: http
+      hostname: {{ printf "*.%s" $domain | quote }}
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      hostname: {{ printf "*.%s" $domain | quote }}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              adp.itgix.com/shared-gateway: "true"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: adp-https-redirect
+  namespace: {{ $gatewayNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  parentRefs:
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: http
+  hostnames:
+    - {{ printf "*.%s" $domain | quote }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+{{- range $route := $routes }}
+{{- if $route.enabled }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $route.name }}
+  namespace: {{ $route.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  parentRefs:
+    - name: {{ $gatewayName }}
+      namespace: {{ $gatewayNamespace }}
+      sectionName: https
+  hostnames:
+    - {{ $route.host | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ $route.service_name }}
+          port: {{ $route.service_port | int }}
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: {{ $route.name }}
+  namespace: {{ $route.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  default:
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_FIXED_PORT
+        port: {{ $route.health_check_port | int }}
+        requestPath: {{ $route.health_check_path | quote }}
+  targetRef:
+    group: ""
+    kind: Service
+    name: {{ $route.service_name }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -164,3 +164,65 @@ service_account_annotations, <cloud>_service_account_annotations,
 {{- $annotations = mergeOverwrite $annotations $commonAnnotations $cloudAnnotations $appAnnotations -}}
 {{- toYaml $annotations -}}
 {{- end -}}
+
+{{/* Validate overrides even when this chart is rendered without the installer. */}}
+{{- define "infra-services.validateGatewayOverrides" -}}
+{{- $label := "[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?" -}}
+{{- $subdomain := printf "%s(\\.%s)*" $label $label -}}
+{{- range $setting := list
+    (dict "key" "gcp_gateway_name" "pattern" $subdomain "limit" 253)
+    (dict "key" "gcp_gateway_namespace" "pattern" $label "limit" 63)
+    (dict "key" "gcp_gateway_class_name" "pattern" $subdomain "limit" 253) -}}
+{{- $value := index $ $setting.key -}}
+{{- if not (kindIs "string" $value) -}}
+{{- fail (printf "%s must be a Kubernetes name" $setting.key) -}}
+{{- end -}}
+{{- if or (gt (len $value) $setting.limit) (not (regexMatch (printf "^%s$" $setting.pattern) $value)) -}}
+{{- fail (printf "%s must be a valid Kubernetes name (maximum %d characters)" $setting.key $setting.limit) -}}
+{{- end -}}
+{{- end -}}
+{{- $class := index . "gcp_gateway_class_name" -}}
+{{- if and (hasPrefix "gke-" $class) (ne $class "gke-l7-global-external-managed") -}}
+{{- fail "gcp_gateway_class_name must support global certificate maps, HTTP redirects, and Service backends; other built-in GKE classes are incompatible" -}}
+{{- end -}}
+{{- $overrides := index . "gcp_gateway_backends" -}}
+{{- if not (kindIs "map" $overrides) -}}
+{{- fail "gcp_gateway_backends must be a mapping" -}}
+{{- end -}}
+{{- $apps := list "argocd" "backstage" "policy_reporter" "grafana" "prometheus" "alertmanager" -}}
+{{- $fields := list "namespace" "service_name" "service_port" "health_check_port" "health_check_path" -}}
+{{- range $app, $backend := $overrides -}}
+{{- if or (not (has $app $apps)) (not (kindIs "map" $backend)) -}}
+{{- fail (printf "gcp_gateway_backends.%s must be a mapping for a supported platform service" $app) -}}
+{{- end -}}
+{{- range $key, $value := $backend -}}
+{{- $path := printf "gcp_gateway_backends.%s.%s" $app $key -}}
+{{- if not (has $key $fields) -}}
+{{- fail (printf "Unknown setting %s" $path) -}}
+{{- end -}}
+{{- if has $key (list "service_port" "health_check_port") -}}
+{{- if not (or (kindIs "int" $value) (kindIs "int64" $value) (kindIs "float64" $value)) -}}
+{{- fail (printf "%s must be an integer between 1 and 65535" $path) -}}
+{{- end -}}
+{{- if or (lt (float64 $value) 1.0) (gt (float64 $value) 65535.0) (ne (float64 $value) (floor (float64 $value))) -}}
+{{- fail (printf "%s must be an integer between 1 and 65535" $path) -}}
+{{- end -}}
+{{- else if eq $key "health_check_path" -}}
+{{- if not (kindIs "string" $value) -}}
+{{- fail (printf "%s must start with '/'" $path) -}}
+{{- end -}}
+{{- if not (hasPrefix "/" $value) -}}
+{{- fail (printf "%s must start with '/'" $path) -}}
+{{- end -}}
+{{- else -}}
+{{- $pattern := ternary $label "[a-z]([-a-z0-9]*[a-z0-9])?" (eq $key "namespace") -}}
+{{- if not (kindIs "string" $value) -}}
+{{- fail (printf "%s must be a Kubernetes name" $path) -}}
+{{- end -}}
+{{- if or (gt (len $value) 63) (not (regexMatch (printf "^%s$" $pattern) $value)) -}}
+{{- fail (printf "%s must be a valid Kubernetes name (maximum 63 characters)" $path) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
