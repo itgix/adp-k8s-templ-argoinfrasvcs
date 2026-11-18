@@ -1,0 +1,49 @@
+{{- if index .Values "infra-services" "opencost_enabled" }}
+{{- $infraServices := index .Values "infra-services" }}
+{{- if not (index $infraServices "enable_prometheus_stack") }}
+{{- fail "infra-services.opencost_enabled requires infra-services.enable_prometheus_stack: true (OpenCost reads its cost data from the kube-prometheus-stack Prometheus)" }}
+{{- end }}
+{{- $cloud := default "aws" (index $infraServices "cloud") }}
+{{- $clusterId := "" }}
+{{- if eq $cloud "gcp" }}
+{{- $clusterId = required "infra-services.gke_cluster_name is required for OpenCost on GCP" (index $infraServices "gke_cluster_name") }}
+{{- else if eq $cloud "azure" }}
+{{- $clusterId = required "infra-services.aks_cluster_name is required for OpenCost on Azure" (index $infraServices "aks_cluster_name") }}
+{{- else }}
+{{- $clusterId = required "infra-services.eks_cluster_name is required for OpenCost on AWS" (index $infraServices "eks_cluster_name") }}
+{{- end }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opencost
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  # Add this finalizer ONLY if you want these to cascade delete.
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra
+  source:
+    repoURL: {{ index .Values "infra-services" "gitops_destination_repo" }}
+    targetRevision:  {{ default "HEAD" (index .Values "infra-services" "opencost_branch") }}
+    path: helm/opencost
+    helm:
+      valueFiles:
+        - ../opencost/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
+        - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
+      values: |
+        opencost:
+          opencost:
+            exporter:
+              defaultClusterId: {{ $clusterId | quote }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: opencost
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  revisionHistoryLimit: 3
+{{- end }}

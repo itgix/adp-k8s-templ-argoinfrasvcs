@@ -1,0 +1,70 @@
+vault:
+  global:
+    enabled: true
+    tlsDisable: true
+  injector:
+    enabled: true
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+  server:
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    dataStorage:
+      enabled: true
+      size: 10Gi
+      storageClass: gp3
+    ingress:
+      enabled: true
+      activeService: true
+      pathType: Prefix
+
+    standalone:
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "raft" {
+          path = "/vault/data"
+        }
+        service_registration "kubernetes" {}
+    ha:
+      enabled: false
+      replicas: 3
+      raft:
+        enabled: false
+        setNodeId: true
+        config: |
+          ui = true
+          listener "tcp" {
+            tls_disable = 1
+            address = "[::]:8200"
+            cluster_address = "[::]:8201"
+          }
+          storage "raft" {
+            path = "/vault/data"
+
+
+            retry_join {
+              auto_join        = "provider=k8s namespace=\"{{ .Release.Namespace }}\" label_selector=\"app.kubernetes.io/name=vault,component=server\""
+              auto_join_scheme = "http"
+            }
+          }
+          service_registration "kubernetes" {}
+  ui:
+    enabled: false
+  csi:
+    enabled: false

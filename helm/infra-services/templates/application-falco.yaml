@@ -18,8 +18,18 @@ spec:
       valueFiles:
         - ../falco/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/values.yaml
         - ../infra-services/values/{{ index .Values "infra-services" "environment" }}/{{ index .Values "infra-services" "region" }}/infra-facts.yaml
-      # values: |
-      #   falco:
+      values: |
+        falco:
+          serviceMonitor:
+            create: {{ index .Values "infra-services" "enable_prometheus_stack" | default false }}
+          falcosidekick:
+            serviceMonitor:
+              enabled: {{ index .Values "infra-services" "enable_prometheus_stack" | default false }}
+            prometheusRules:
+              enabled: {{ index .Values "infra-services" "enable_prometheus_stack" | default false }}
+          grafana:
+            dashboards:
+              enabled: {{ index .Values "infra-services" "enable_prometheus_stack" | default false }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: falco
@@ -29,5 +39,12 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 5m
   revisionHistoryLimit: 3
 {{- end }}
