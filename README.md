@@ -100,11 +100,3 @@ removed by installer updates and keep working until deleted by hand.
 on GitLab) one by one, and the optional platform applications (DevLake, ...) through the single
 `Location` file `catalog-info.yaml`. A new optional application is added to that file in the
 scaffold repo, not in this template; a new scaffolder form gets its own entry here.
-
-## GCP Portal
-
-`itgix_portal_enabled` can bootstrap the existing `adp-k8s-templ-argoappsdemo`
-applications chart when no separate applications bootstrap is configured. It
-reuses that repository's portal chart and the current GitOps facts; it does not
-duplicate the portal chart here. Select a matching applications-template revision
-and use the existing private `custom_secrets[].value` format for OAuth credentials.
