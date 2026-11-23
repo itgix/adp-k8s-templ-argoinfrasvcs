@@ -26,6 +26,10 @@ infra-services:
   enable_guest_login: false
   enable_vault: false
   enable_vault_ha: false
+  enable_keycloak: false
+  enable_keycloak_ha: false
+  enable_keycloak_external_db: false
+  keycloak_realm: adp
 
   # Azure-specific feature flags
   enable_traefik: false
