@@ -23,12 +23,14 @@ infra-services:
   enable_loki: false
   enable_efs_csi: false
   backstage_enabled: false
+  enable_backstage_public_alb: false
   enable_guest_login: false
   enable_vault: false
   enable_vault_ha: false
   enable_keycloak: false
   enable_keycloak_ha: false
   enable_keycloak_external_db: false
+  enable_keycloak_public_alb: false
   keycloak_realm: adp
 
   # Shared ingress defaults. Each map is merged from broadest to most specific:
