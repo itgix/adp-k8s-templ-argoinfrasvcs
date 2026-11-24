@@ -98,6 +98,9 @@ order: ingress_annotations, <cloud>_ingress_annotations,
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/ssl-redirect" "443" -}}
 {{- end -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/target-type" "ip" -}}
+{{- if index $infraServices (printf "enable_%s_public_alb" $app) -}}
+{{- $_ := set $annotations "alb.ingress.kubernetes.io/group.name" "public" -}}
+{{- end -}}
 {{- if eq $app "backstage" -}}
 {{- $_ := set $annotations "alb.ingress.kubernetes.io/target-group-attributes" "stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=86400" -}}
 {{- end -}}
